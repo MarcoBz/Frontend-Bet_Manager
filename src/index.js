@@ -18,12 +18,34 @@ $(document).ready(function (){
 				nos.getStorage({scriptHash, key, decodeOutput})
 					.then((rawData) =>{
 						var data = des.deserialize(rawData)
-						var text = "";
-						for (var i = 0; i < data[0].length; i++){
-							text += "<input class = 'groupButton' type = 'button' value = '" + data[0][i] + "'>"
-						}
-						text += "<input id = 'createGroup' type = 'button' value = 'Create New Group'>"
-						$('#chooseGroup').html(text)
+						document.getElementById('chooseGroup').innerHTML = "";
+						document.getElementById('createGroup').innerHTML = "";
+						for (let i = 0; i < data[0].length; i++){
+						  let groupElement = document.createElement("div")
+						  groupElement.className = "groupElement"
+						  let groupButton = document.createElement("input")
+						  groupButton.type = "button"
+						  groupButton.className = "btn btn-outline-success groupButton"
+						  groupButton.value = data[0][i]
+						  groupElement.appendChild(groupButton)
+						  document.getElementById('chooseGroup').appendChild(groupElement)
+						 }
+						let createNewElement = document.createElement("div")
+						createNewElement.className = "createElement col-6"
+						let createButton = document.createElement("input")
+						createButton.type = "button"
+						createButton.className = "btn btn-outline-primary groupButton"
+						createButton.value = "Create new group"
+						createNewElement.appendChild(createButton)
+						document.getElementById('createGroup').appendChild(createNewElement)
+						let tableElement = document.createElement("div")
+						tableElement.className = "tableElement col-6"
+						let tableButton = document.createElement("input")
+						tableButton.type = "button"
+						tableButton.className = "btn btn-outline-primary groupButton"
+						tableButton.value = "Recap"
+						tableElement.appendChild(tableButton)
+						document.getElementById('createGroup').appendChild(tableElement)
 					})
 					//.catch ##############
 			}
