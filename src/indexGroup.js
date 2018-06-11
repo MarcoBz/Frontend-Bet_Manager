@@ -4,21 +4,68 @@ import {unhexlify,hexlify} from 'binascii';
 
 function list(data, name, nos, scriptHash){
 
-	let text = "<b>" + name + "</b></br>"
-	text += "People : <ol>"
-	for (let i = 0; i < data[0].length; i++){
-		let address = wallet.getAddressFromScriptHash(u.reverseHex(hexlify(data[0][i][0])))
-		text  += "<li>" + address + "    -    " + data[0][i][1] + "</li>"
+	document.getElementById('main').innerHTML = "";
+	let groupName = document.createElement("h2")
+	groupName.className = "text-center"
+	groupName.innerHTML = name
+	document.getElementById('main').appendChild(groupName)
+	let table = document.createElement("div")
+	table.classname = "col col-4"
+	let peopleTable = document.createElement("ul")
+	peopleTable.className = ("list-group")
+	let title = document.createElement("li")
+	title.className = ("list-group-item active bg-success text-center")
+	title.innerHTML = "People"
+	peopleTable.appendChild(title)
+	for (let i = 0; i< data[0].length; i++){
+	  let person = document.createElement("li")
+	  person.className = ("list-group-item text-center")
+	  person.innerHTML = (data[0][i][0] + " : " + data[0][i][1])
+	  peopleTable.appendChild(person)
 	}
-	text += "</ol> Bets : <ol>"
-	for (let j = 0; j < data[1].length; j++){
-		text  += "<li><input data-bet = '" + data[1][j] + "' type = 'button' class = 'getBetButton' value ='" + data[1][j] + "'</li>"
+	table.appendChild(peopleTable)
+	let betsTable = document.createElement("div")
+	betsTable.className = ("list-group")
+	let betsTitle = document.createElement("div")
+	betsTitle.className = ("list-group-item active bg-success text-center")
+	betsTitle.innerHTML = "Bets"
+	betsTable.appendChild(betsTitle)
+	for (let i = 0; i< data[1].length; i++){
+		key = name + data[0][i][1]
+		decodeOutput = false
+		nos.getStorage({scriptHash, key, decodeOutput})
+			.then((rawData) => {
+				let dataBet = des.deserialize(rawData)
+				let bet = document.createElement("button")
+				bet.type = "button"
+				bet.className = ("list-group-item list-group-item-action text-center ")
+				bet.innerHTML = data[0][i][1] 
+				let badge = document.createElement("span")
+				betStatus = indexBet.getBetStatus(bet)
+				if (betStatus == "open"){
+					badge.className = "badge badge-primary"
+					badge.innerHTML = "Open"
+				}
+				else if (betStatus == "close"){
+					badge.className = "badge badge-secondary"
+					badge.innerHTML = "Closed"    
+				}
+				else if (betStatus == "onConvalidation"){
+					badge.className = "badge badge-warning"
+					badge.innerHTML = "On convalidation"    
+				}
+				else if (betStatus == "convalidated"){
+					badge.className = "badge badge-success"
+					badge.innerHTML = "Convalidated"    
+				}
+				bet.appendChild(badge)
+				betsTable.appendChild(bet)
+				})
+			.catch((err) => console.log(`Error: ${err.message}`));
 	}
-	text += "</br><input id = 'createBet' type = 'button' value = 'Create New Bet'>"
-	text += "</ol> Finished Bets :" + data[2][0]
-	text += "</br></br><input id = 'clearMain' type = 'button' value = 'Clear'>"
-
-	return text
+	table.appendChild(betsTable)
+	document.getElementById('main').appendChild(table)
+	
 }
 
 function create(data, nos, scriptHash){
