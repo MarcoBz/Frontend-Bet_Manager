@@ -2,7 +2,7 @@ import { u, wallet } from '@cityofzion/neon-js';
 import { str2hexstring, int2hex, hexstring2str } from '@cityofzion/neon-js/src/utils'
 import {unhexlify,hexlify} from 'binascii';
 
-function list(data, name){
+function list(data, name, nos, scriptHash){
 
 	let text = "<b>" + name + "</b></br>"
 	text += "People : <ol>"
@@ -21,7 +21,7 @@ function list(data, name){
 	return text
 }
 
-function create(data){
+function create(data, nos, scriptHash){
 	let text = "<div id = 'addGroupName'>"
 	text += "Group Name : <input type = 'text' name = 'groupName' ></div>"
 	text += "<div id = 'addPartecipant'> Add Partecipant:"
@@ -32,7 +32,7 @@ function create(data){
 	text += "<input id = 'invokeCreateGroup' type = 'button' value = 'Create Group'>"
 	text += "</br></br><input id = 'clearMain' type = 'button' value = 'Clear'>"
 	
-	$(document).on("click",".addPartecipantButton", function (){
+	$('#main''#main''#main').on("click",".addPartecipantButton", function (){
 
 			$('.partecipant').each(function(i) {
 				let textNew = ""
@@ -56,9 +56,33 @@ function create(data){
 			$('#addPartecipant').append(textAdd)	
 	  	});
 
-	$(document).on("click",".removePartecipantButton", function (){
+	$('#main''#main').on("click",".removePartecipantButton", function (){
 				$(this).parents('.partecipant').remove()	
 	  	});
+
+	$('#main').on("click","#invokeCreateGroup", function (){
+		let operation = ('create_league')
+		let args = []
+		let groupName = ($("#main").find('input[name = "groupName"]').val())
+		
+		$('.partecipant').each(function(i) {
+			let addressPartecipant = $(this).data("address")
+			if (addressPartecipant){
+				args.push(addressPartecipant)
+			}
+		});
+		$('.partecipant').each(function(i) {
+			let nicknamePartecipant = $(this).data("nickname")
+			if (nicknamePartecipant){
+				args.push(nicknamePartecipant)
+			}
+		});
+		args.push(groupName)
+				
+		nos.invoke({scriptHash, operation, args})
+    		.then((txid) => alert(`Invoke txid: ${txid} `))
+    		.catch((err) => alert(`Error: ${err.message}`));
+  	});
 
 	return text
 

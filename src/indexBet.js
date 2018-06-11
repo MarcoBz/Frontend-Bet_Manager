@@ -108,7 +108,7 @@ function create(player, groupName, nos, scriptHash){
 	text += "<input id = 'invokeCreateBet' type = 'button' value = 'Create Bet'>"
 	text += "</br></br><input id = 'clearSide' type = 'button' value = 'Clear'>"
 
-	$(document).on("click",".proposalsButton", function (){
+	$("side").on("click",".proposalsButton", function (){
 			$('.proposal').each(function(i) {
 				let textNew = ""
 				let proposalText
@@ -128,11 +128,11 @@ function create(player, groupName, nos, scriptHash){
 			$('#proposals').append(textAdd)	
 	  	});
 
-	$(document).on("click",".removeProposalButton", function (){
+	$("side").on("click",".removeProposalButton", function (){
 				$(this).parents('.proposal').remove()	
 	  	});
 
-	$(document).on("click","#invokeCreateBet", function (){
+	$("side").on("click","#invokeCreateBet", function (){
 		let operation = ('create_bet')
 		let args = []
 		args.push(player)
