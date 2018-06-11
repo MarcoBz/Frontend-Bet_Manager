@@ -400,7 +400,27 @@ function instantiateBet(data, player, nPlayers){
 	checkResults(bet)
 	checkPlayerStatus(bet)
 	return bet
-}	
+}
+
+function getBetStatus(data){
+  let bet = {
+    alreadyPayed : null,
+    status : null, //open, close, onConvalidation, convalidated, payed
+    blocks : {
+      currentBlock : null, ////capire come fare
+      createAtBlock : data[5],
+      openBlock : null,
+      closeBlock : null,
+      convalidateBlock : null
+    }
+  }
+  bet.blocks.openBlock = bet.blocks.createAtBlock + data[3][0]
+  bet.blocks.closeBlock = bet.blocks.openBlock + data[3][1]
+  bet.blocks.convalidateBlock = bet.blocks.closeBlock + data[3][2]
+  checkBetStatus(bet)
+  return bet.status
+}
 	
 module.exports.list = list
 module.exports.create = create
+module.exports.getBetStatus = getBetStatus
