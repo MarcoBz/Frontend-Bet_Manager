@@ -8,7 +8,6 @@ const address = unhexlify(u.reverseHex(wallet.getScriptHashFromAddress('AK2nJJpJ
 const scriptHash = 'a58e6bb2b67ee11f7a5347532d1008ceb06a4622';
 const nos = window.NOS.V1;
 
-
 $(document).ready(function (){
 	nos.getAddress()
 		.then((loggedAddress) => {
@@ -47,13 +46,13 @@ $(document).ready(function (){
 						tableElement.appendChild(tableButton)
 						document.getElementById('createGroup').appendChild(tableElement)
 					})
-					//.catch ##############
+					////.catch ##############
 			}
 			else{
 				$('#chooseGroup').html("</div> You have to login <div>")
 			}
 		})
-		.catch((err) => console.log(`Error: ${err.message}`)); //#######
+		//.catch((err) => console.log(`Error: ${err.message}`)); //#######
 
 	$('#chooseGroup').on("click",".groupButton", function (){
 		let key = $(this).val()
@@ -65,13 +64,14 @@ $(document).ready(function (){
 	  			let text = indexGroup.list(data, key, nos, scriptHash)
 	  			$('#main').html(text)
 	  		})
-			.catch((err) => console.log(`Error: ${err.message}`)); //#######
+			//.catch((err) => console.log(`Error: ${err.message}`)); //#######
 		let name = key
 
 		$('#main').on("click",".getBetButton", function (){
-			let bet = $(this).data("bet")
+			let bet = $(this).val()
 			key = name + bet
 			decodeOutput = false
+			console.log(key)
 			nos.getStorage({scriptHash, key, decodeOutput})
 		  		.then((rawData) => {
 		  			nos.getAddress()
@@ -84,7 +84,7 @@ $(document).ready(function (){
 			  			}
 			  		});
 		  		})
-				.catch((err) => console.log(`Error: ${err.message}`));
+				//.catch((err) => console.log(`Error: ${err.message}`));
 		  	});
 	  	});
 
@@ -97,7 +97,7 @@ $(document).ready(function (){
 		  			$('#side').html(text)
 	  			}
 	  		});
-			//.catch ##############			
+			////.catch ##############			
 		});
 
 

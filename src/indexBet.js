@@ -3,7 +3,6 @@ import { str2hexstring, int2hex, hexstring2str } from '@cityofzion/neon-js/src/u
 import {unhexlify,hexlify} from 'binascii';
 
 function list(data, player, nPlayers, nos, scriptHash){
-	
 	let bet = instantiateBet(data, player, nPlayers)
 	var text = "<b>" + bet.text + "</b></br>"
 	text += "Group :" + bet.group + "</br>"
@@ -27,7 +26,6 @@ function list(data, player, nPlayers, nos, scriptHash){
 	var table = "<table>"
 	for (var i = 0; i < bet.nProposals; i++){
 		table += "<tr><td>"
-		console.log(bet.status)
 		table += getTextProposal(bet, i)
 
 		table += "</td><td>"
@@ -68,9 +66,10 @@ function list(data, player, nPlayers, nos, scriptHash){
 			operation = "partecipate_bet"
 			args.push($(this).parent().find('input[name = "addProposalInput"]').val())
 		}
+	console.log('prova1')
 		nos.invoke({scriptHash,operation,args})
     		.then((txid) => alert(`Invoke txid: ${txid} `))
-    		.catch((err) => alert(`Error: ${err.message}`));
+    		//.catch((err) => alert(`Error: ${err.message}`));
 	});
 
 	$("#side").on("click","#pay", function (){
@@ -81,7 +80,7 @@ function list(data, player, nPlayers, nos, scriptHash){
 		args.push(bet.text)
 		nos.invoke({scriptHash,operation,args})
     		.then((txid) => alert(`Invoke txid: ${txid} `))
-    		.catch((err) => alert(`Error: ${err.message}`));
+    		//.catch((err) => alert(`Error: ${err.message}`));
 	});		
 	return text
 }
@@ -152,7 +151,7 @@ function create(player, groupName, nos, scriptHash){
 		});
 		nos.invoke({scriptHash,operation,args})
     		.then((txid) => alert(`Invoke txid: ${txid} `))
-    		.catch((err) => alert(`Error: ${err.message}`));
+    		//.catch((err) => alert(`Error: ${err.message}`));
 	});
 	return text
 }
