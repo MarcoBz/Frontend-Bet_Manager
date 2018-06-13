@@ -32,7 +32,7 @@ $(document).ready(function (){
 						let createNewElement = document.createElement("div")
 						createNewElement.className = "createElement col-6"
 						let createButton = document.createElement("input")
-						createButton.id = "createGroup
+						createButton.id = "createGroup"
 						createButton.type = "button"
 						createButton.className = "btn btn-outline-primary"
 						createButton.value = "Create new group"
