@@ -81,43 +81,98 @@ function list(data, name, nos, scriptHash){
 }
 
 function create(data, nos, scriptHash){
-	let text = "<div id = 'addGroupName'>"
-	text += "Group Name : <input type = 'text' name = 'groupName' ></div>"
-	text += "<div id = 'addPartecipant'> Add Partecipant:"
-	text += "<input class = 'addPartecipantButton' type = 'button' value = 'Add Partecipant'>"
-	let textAdd = "<div class = 'partecipant'><div class = 'inputProposal'><input type = 'text' name = 'addressPartecipant'></div><input type = 'text' name = 'nicknamePartecipant'></div>"
-	text += textAdd
-	text += "</div>"
-	text += "<input id = 'invokeCreateGroup' type = 'button' value = 'Create Group'>"
+	let form = document.createElement("form")
+	form.id = "createGroupForm"
+	let nameGroup = document.createElement("div")
+	nameGroup.className = "form-group row"
+	let labelNameGroup = document.createElement("label")
+	labelNameGroup.htmlFor = "nameGroup"
+	labelNameGroup.className = "col-5 col-form-label"
+	labelNameGroup.innerHTML = "Name of the Group"
+	let div1 = document.createElement("div")
+	div1.className = "col-7"
+	let inputNameGroup = document.createElement("input")
+	inputNameGroup.className = "form-control"
+	inputNameGroup.id = "nameGroup"
+	inputNameGroup.type = "text"
+	inputNameGroup.placeholder = "Example1"
+	div1.appendChild(inputNameGroup)
+	nameGroup.appendChild(labelNameGroup)
+	nameGroup.appendChild(div1)
+	form.appendChild(nameGroup)
+
+	let addAddress = document.createElement("div")
+	addAddress.className = "form-row"
+	addAddress.id = "addAddress"
+	let div2 = document.createElement("div")
+	div2.className = "col-6"
+	let inputAddress = document.createElement("input")
+	inputAddress.className = "form-control"
+	inputAddress.id = "addAddressForm"
+	inputAddress.type = "text"
+	inputAddress.placeholder = "AK2nJJpJr6o664CWJKi1QRXjqeic2zRp8"
+	div2.appendChild(inputAddress)
+	addAddress.appendChild(div2)
+	let div3 = document.createElement("div")
+	div3.className = "col-5"
+	let inputNickname = document.createElement("input")
+	inputNickname.className = "form-control"
+	inputNickname.id = "addNicknameForm"
+	inputNickname.type = "text"
+	inputNickname.placeholder = "CozExample"
+	div3.appendChild(inputNickname)
+	addAddress.appendChild(div3)
+	let div4 = document.createElement("div")
+	div4.className = "col-auto"
+	let add = document.createElement("button")
+	add.className = "btn btn-light"
+	add.id =  "addAddressButton"
+	add.innerHTML = ""
+	div4.appendChild(add)
+	addAddress.appendChild(div4)
+	form.appendChild(addAddress)
+	let  main = document.getElementById("main")
+	main.appendChild(form)
+	$("#main").on("click","#addAddressButton", function(){
+		let address = $(this).parents("#addAddress").find("#addAddressForm").val()
+		let nickname = $(this).parents("#addAddress").find("#addNicknameForm").val()
+		let addedAddress = document.createElement("div")
+		addedAddress.className = "form-row"
+		addedAddress.id = "addedAddress"    
+		let div5 = document.createElement("div")
+		div5.className = "col-6"
+		let inputAddress = document.createElement("input")
+		inputAddress.className = "form-control"
+		inputAddress.disabled = true
+		inputAddress.type = "text"
+		inputAddress.value = address
+		div5.appendChild(inputAddress)
+		addedAddress.appendChild(div5)
+		let div6 = document.createElement("div")
+		div6.className = "col-5"
+		let inputNickname = document.createElement("input")
+		inputNickname.className = "form-control"
+		inputNickname.disabled = true
+		inputNickname.type = "text"
+		inputNickname.value = nickname
+		div6.appendChild(inputNickname)
+		addedAddress.appendChild(div6)
+		let div7 = document.createElement("div")
+		div7.className = "col-auto"
+		let added = document.createElement("button")
+		added.className = "btn btn-dark"
+		added.id =  "removeAddressButton"
+		added.innerHTML = ""
+		div7.appendChild(added)
+		addedAddress.appendChild(div7)
+		let main = document.getElementById("main")
+		let form = document.getElementById("createGroupForm")
+		form.appendChild(addedAddress)
+		main.appendChild(form)
+		console.log(main)
+	});
+	let text += "<input id = 'invokeCreateGroup' type = 'button' value = 'Create Group'>"
 	text += "</br></br><input id = 'clearMain' type = 'button' value = 'Clear'>"
-	
-	$('#main').on("click",".addPartecipantButton", function (){
-
-			$('.partecipant').each(function(i) {
-				let textNew = ""
-				let address
-				let nickname
-				if ($(this).find(".inputProposal").length > 0){
-					address = $(this).find('input[name = "addressPartecipant"]').val()
-					nickname = $(this).find('input[name = "nicknamePartecipant"]').val()
-					textNew += address + "    -    " + nickname + "<input class = 'removePartecipantButton' type = 'button' value = 'Remove Partecipant'>"
-				}
-				else{
-					address = $(this).data("address")
-					nickname = $(this).data("nickname")
-					textNew += address + "    -    " + nickname + "<input class = 'removePartecipantButton' type = 'button' value = 'Remove Partecipant'>"
-				}
-				$(this).empty()
-				$(this).data("address", address)
-				$(this).data("nickname",nickname)
-				$(this).append(textNew)
-			});
-			$('#addPartecipant').append(textAdd)	
-	  	});
-
-	$('#main').on("click",".removePartecipantButton", function (){
-				$(this).parents('.partecipant').remove()	
-	  	});
 
 	$('#main').on("click","#invokeCreateGroup", function (){
 		let operation = ('create_league')
