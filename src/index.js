@@ -32,7 +32,7 @@ $(document).ready(function (){
 						let createNewElement = document.createElement("div")
 						createNewElement.className = "createElement col-6"
 						let createButton = document.createElement("input")
-						createButton.id = "createGroup"
+						createButton.id = "createGroupButton"
 						createButton.type = "button"
 						createButton.className = "btn btn-outline-primary"
 						createButton.value = "Create new group"
@@ -102,7 +102,7 @@ $(document).ready(function (){
 		});
 
 
-	$('#chooseGroup').on("click", "#createGroup", function (){
+	$('#createGroup').on("click", "#createGroupButton", function (){
 			$("#main").html("")
 			let text = indexGroup.create(nos, scriptHash)
 	  		$('#main').html(text)
