@@ -32,8 +32,9 @@ $(document).ready(function (){
 						let createNewElement = document.createElement("div")
 						createNewElement.className = "createElement col-6"
 						let createButton = document.createElement("input")
+						createButton.id = "createGroup
 						createButton.type = "button"
-						createButton.className = "btn btn-outline-primary groupButton"
+						createButton.className = "btn btn-outline-primary"
 						createButton.value = "Create new group"
 						createNewElement.appendChild(createButton)
 						document.getElementById('createGroup').appendChild(createNewElement)
@@ -41,7 +42,7 @@ $(document).ready(function (){
 						tableElement.className = "tableElement col-6"
 						let tableButton = document.createElement("input")
 						tableButton.type = "button"
-						tableButton.className = "btn btn-outline-primary groupButton"
+						tableButton.className = "btn btn-outline-primary"
 						tableButton.value = "Recap"
 						tableElement.appendChild(tableButton)
 						document.getElementById('createGroup').appendChild(tableElement)
