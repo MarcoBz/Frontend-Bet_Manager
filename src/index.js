@@ -19,13 +19,14 @@ $(document).ready(function (){
 						var data = des.deserialize(rawData)
 						document.getElementById('chooseGroup').innerHTML = "";
 						document.getElementById('createGroup').innerHTML = "";
-						for (let i = 0; i < data[0].length; i++){
+						console.log(data)
+						for (let i = 0; i < data.length; i++){
 						  let groupElement = document.createElement("div")
 						  groupElement.className = "groupElement"
 						  let groupButton = document.createElement("input")
 						  groupButton.type = "button"
 						  groupButton.className = "btn btn-outline-success groupButton"
-						  groupButton.value = data[0][i]
+						  groupButton.value = data[i]
 						  groupElement.appendChild(groupButton)
 						  document.getElementById('chooseGroup').appendChild(groupElement)
 						 }
@@ -94,7 +95,7 @@ $(document).ready(function (){
 			.then((betterAddress) => {
 				if (betterAddress){
 					betterAddress = unhexlify(u.reverseHex(wallet.getScriptHashFromAddress(betterAddress)))
-					let text = indexBet.create(betterAddress, name, nos, scriptHash)
+					indexBet.create(betterAddress, name, nos, scriptHash)
 		  			$('#side').html(text)
 	  			}
 	  		});
@@ -105,7 +106,6 @@ $(document).ready(function (){
 	$('#createGroup').on("click", "#createGroupButton", function (){
 			$("#main").html("")
 			let text = indexGroup.create(nos, scriptHash)
-	  		$('#main').html(text)
 	  	});
 
 	$('#main').on("click", "#clearMain", function (){

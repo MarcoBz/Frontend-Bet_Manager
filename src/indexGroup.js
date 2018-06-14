@@ -80,27 +80,26 @@ function list(data, name, nos, scriptHash){
 	
 }
 
-function create(data, nos, scriptHash){
+function create(nos, scriptHash){
 	let form = document.createElement("form")
 	form.id = "createGroupForm"
 	let nameGroup = document.createElement("div")
 	nameGroup.className = "form-group row"
 	let labelNameGroup = document.createElement("label")
-	labelNameGroup.htmlFor = "nameGroup"
+	labelNameGroup.htmlFor = "groupName"
 	labelNameGroup.className = "col-5 col-form-label"
 	labelNameGroup.innerHTML = "Name of the Group"
 	let div1 = document.createElement("div")
 	div1.className = "col-7"
 	let inputNameGroup = document.createElement("input")
 	inputNameGroup.className = "form-control"
-	inputNameGroup.id = "nameGroup"
+	inputNameGroup.id = "groupName"
 	inputNameGroup.type = "text"
 	inputNameGroup.placeholder = "Example1"
 	div1.appendChild(inputNameGroup)
 	nameGroup.appendChild(labelNameGroup)
 	nameGroup.appendChild(div1)
 	form.appendChild(nameGroup)
-
 	let addAddress = document.createElement("div")
 	addAddress.className = "form-row"
 	addAddress.id = "addAddress"
@@ -110,7 +109,7 @@ function create(data, nos, scriptHash){
 	inputAddress.className = "form-control"
 	inputAddress.id = "addAddressForm"
 	inputAddress.type = "text"
-	inputAddress.placeholder = "AK2nJJpJr6o664CWJKi1QRXjqeic2zRp8"
+	inputAddress.placeholder = "AK2nJJpJr6o664CWJKi1QRXjqeic2zRp8y"
 	div2.appendChild(inputAddress)
 	addAddress.appendChild(div2)
 	let div3 = document.createElement("div")
@@ -124,7 +123,8 @@ function create(data, nos, scriptHash){
 	addAddress.appendChild(div3)
 	let div4 = document.createElement("div")
 	div4.className = "col-auto"
-	let add = document.createElement("button")
+	let add = document.createElement("input")
+	add.type = "button"	
 	add.className = "btn btn-light"
 	add.id =  "addAddressButton"
 	add.innerHTML = ""
@@ -133,16 +133,29 @@ function create(data, nos, scriptHash){
 	form.appendChild(addAddress)
 	let  main = document.getElementById("main")
 	main.appendChild(form)
+
+	let invokeCreateGroup = document.createElement("div")
+	invokeCreateGroup.classname = "text-center"
+	let invokeCreateGroupButton = document.createElement("input")
+	invokeCreateGroupButton.type = "button"
+	invokeCreateGroupButton.id = "invokeCreateGroup"
+	invokeCreateGroupButton.value = "Submit to creation new group"
+	invokeCreateGroupButton.className = "btn btn-success"
+
+	invokeCreateGroup.appendChild(invokeCreateGroupButton)
+	main.appendChild(invokeCreateGroup)
+
 	$("#main").on("click","#addAddressButton", function(){
 		let address = $(this).parents("#addAddress").find("#addAddressForm").val()
 		let nickname = $(this).parents("#addAddress").find("#addNicknameForm").val()
+		$(this).parents("#addAddress").find("#addAddressForm").val("")
+		$(this).parents("#addAddress").find("#addNicknameForm").val("")
 		let addedAddress = document.createElement("div")
-		addedAddress.className = "form-row"
-		addedAddress.id = "addedAddress"    
+		addedAddress.className = "form-row addedAddress"
 		let div5 = document.createElement("div")
 		div5.className = "col-6"
 		let inputAddress = document.createElement("input")
-		inputAddress.className = "form-control"
+		inputAddress.className = "form-control address"
 		inputAddress.disabled = true
 		inputAddress.type = "text"
 		inputAddress.value = address
@@ -151,7 +164,7 @@ function create(data, nos, scriptHash){
 		let div6 = document.createElement("div")
 		div6.className = "col-5"
 		let inputNickname = document.createElement("input")
-		inputNickname.className = "form-control"
+		inputNickname.className = "form-control nickname"
 		inputNickname.disabled = true
 		inputNickname.type = "text"
 		inputNickname.value = nickname
@@ -159,40 +172,40 @@ function create(data, nos, scriptHash){
 		addedAddress.appendChild(div6)
 		let div7 = document.createElement("div")
 		div7.className = "col-auto"
-		let added = document.createElement("button")
+		let added = document.createElement("input")
+		added.type = "button"
 		added.className = "btn btn-dark"
 		added.id =  "removeAddressButton"
 		added.innerHTML = ""
 		div7.appendChild(added)
 		addedAddress.appendChild(div7)
-		let main = document.getElementById("main")
-		let form = document.getElementById("createGroupForm")
-		form.appendChild(addedAddress)
-		main.appendChild(form)
-		console.log(main)
+		document.getElementById("createGroupForm").appendChild(addedAddress)
 	});
-	let text += "<input id = 'invokeCreateGroup' type = 'button' value = 'Create Group'>"
-	text += "</br></br><input id = 'clearMain' type = 'button' value = 'Clear'>"
+	$("#main").on("click","#removeAddressButton", function(){
+		$(this).parents(".addedAddress").remove()
+	});
+	
+	//text += "</br></br><input id = 'clearMain' type = 'button' value = 'Clear'>"
 
 	$('#main').on("click","#invokeCreateGroup", function (){
 		let operation = ('create_league')
 		let args = []
-		let groupName = ($("#main").find('input[name = "groupName"]').val())
-		
-		$('.partecipant').each(function(i) {
-			let addressPartecipant = $(this).data("address")
+		let groupName = document.getElementById("groupName").value
+		$('.addedAddress').each(function(i) {
+			let addressPartecipant  = $(this).find(".address").val()
 			if (addressPartecipant){
 				args.push(addressPartecipant)
 			}
 		});
-		$('.partecipant').each(function(i) {
-			let nicknamePartecipant = $(this).data("nickname")
+
+		$('.addedAddress').each(function(i) {
+			let nicknamePartecipant = $(this).find(".nickname").val()
 			if (nicknamePartecipant){
 				args.push(nicknamePartecipant)
 			}
 		});
+
 		args.push(groupName)
-				
 		nos.invoke({scriptHash, operation, args})
     		.then((txid) => alert(`Invoke txid: ${txid} `))
     		//.catch((err) => alert(`Error: ${err.message}`));

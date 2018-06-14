@@ -86,47 +86,120 @@ function list(data, player, nPlayers, nos, scriptHash){
 }
 
 function create(player, groupName, nos, scriptHash){
-	let text = "<b> Create new bet </b></br><div id = 'addBetText'>"
-	text += "Bet text : <input type = 'text' name = 'betText' ></div>"
-	text += "<div id = 'addAmount'> Amount to bet : <input type = 'text' name = 'amount' ></div>"
-	text += "<div id = 'openBlock'> Open for blocks : <input type = 'text' name = 'amount' ></div>"
-	text += "<div id = 'closeBlock'> Close for blocks : <input type = 'text' name = 'amount' ></div>"
-	text += "<div id = 'convalidateBlock'> Convalidation for blocks : <input type = 'text' name = 'amount' ></div>"
-	text += "<div id = 'tokenUsed'> Token used : 602c79718b16e442de58778e148d0b1084e3b2dffd5de6b7b16cee7969282de7 </div>"
-	text += "<div id = 'addProposal'> Can player add proposals ? <input type = 'checkbox' id = 'addProposalCheckbox'></div>"
-	text += "<div id = 'proposals'> Proposals:"
-	text += "<input class = 'proposalsButton' type = 'button' value = 'Add Proposal'>"
-	let textAdd = "<div class = 'proposal'><div class = 'input'><input type = 'text' name = 'proposalText'></div></div>"
-	text += textAdd
-	text += "</div>"
-	text += "<input id = 'invokeCreateBet' type = 'button' value = 'Create Bet'>"
-	text += "</br></br><input id = 'clearSide' type = 'button' value = 'Clear'>"
+	let form = document.createElement("form")
+	form.id = "createBetForm"
 
-	$("side").on("click",".proposalsButton", function (){
-			$('.proposal').each(function(i) {
-				let textNew = ""
-				let proposalText
-				let nickname
-				if ($(this).find(".input").length > 0){
-					proposalText = $(this).find('input').val()
-					textNew += proposalText + "<input class = 'removeProposalButton' type = 'button' value = 'Remove Proposal'>"
-				}
-				else{
-					proposalText = $(this).data("proposalText")
-					textNew += proposalText + "<input class = 'removeProposalButton' type = 'button' value = 'Remove Proposal'>"
-				}
-				$(this).empty()
-				$(this).data("proposalText", proposalText)
-				$(this).append(textNew)
-			});
-			$('#proposals').append(textAdd)	
-	  	});
+	let betLabels = ["Bet text", "Amount to bet", "Open for blocks", "Close for blocks", "Convalidation for blocks", "Token used"]
+	let betArgs = ["betText", "amountToBet", "openBlock", "closeBlock", "convconvalidateBlock", "tokenUsed"]
+	let betExample = ["Is NEO the best?", "0", "0", "0", "0", "602c79718b16e442de58778e148d0b1084e3b2dffd5de6b7b16cee7969282de7"]
 
-	$("side").on("click",".removeProposalButton", function (){
-				$(this).parents('.proposal').remove()	
-	  	});
 
-	$("side").on("click","#invokeCreateBet", function (){
+	for (let i = 0; i < betArgs.length; i++){
+		let argForm = document.createElement("div")
+		argForm = "form-group row"
+		let labelArgForm = document.createElement("label")
+		labelArgForm.htmlFor = betArgs[i]
+		labelArgForm.className = "col-5 col-form-label"
+		labelArgForm.innerHTML = betLabels[i]
+		let div1 = document.createElement("div")
+		div1.className = "col-7"
+		let inputArgForm = document.createElement("input")
+		inputArgForm.className = "form-control"
+		inputArgForm.id = betArgs[i]
+		inputArgForm.type = "text"
+		inputArgForm.placeholder = betExample[i]
+		div1.appendChild(inputArgForm)
+		argForm.appendChild(labelArgForm)
+		argForm.appendChild(div1)
+		form.appendChild(argForm)
+		if (betArgs == "tokenUsed"){
+			inputArgForm.disabled = true
+			inputArgForm.value = betArgs[i]
+		}
+	}
+
+	let checkBox = document.createElement("div")
+	checkBox = "form-check"
+	let labelCheckBox = document.createElement("label")
+	labelCheckBox.htmlFor = "canAddProposal"
+	labelCheckBox.className = "form-check-label"
+	labelCheckBox.innerHTML = "Can player add proposals ?"
+	let inputCheckBox = document.createElement("input")
+	inputCheckBox.className = "form-check-input"
+	inputCheckBox.id = "canAddProposal"
+	inputCheckBox.type = "checkbox"
+	checkBox.appendChild(labelCheckBox)
+	checkBox.appendChild(inputCheckBox)
+	form.appendChild(checkBox)
+
+	let addProposal = document.createElement("div")
+	addProposal.className = "form-row"
+	addProposal.id = "addProposal"
+	let div2 = document.createElement("div")
+	div2.className = "col-11"
+	let inputProposal = document.createElement("input")
+	inputProposal.className = "form-control"
+	inputProposal.id = "addProposalForm"
+	inputProposal.type = "text"
+	inputProposal.placeholder = "Yes"
+	div2.appendChild(inputProposal)
+	addProposal.appendChild(div2)
+	let div4 = document.createElement("div")
+	div4.className = "col-auto"
+	let add = document.createElement("input")
+	add.type = "button"	
+	add.className = "btn btn-light"
+	add.id =  "addProposalButton"
+	add.innerHTML = ""
+	div4.appendChild(add)
+	addProposal.appendChild(div4)
+	form.appendChild(addProposal)
+	let  side = document.getElementById("side")
+	side.appendChild(form)
+
+	let invokeCreateBet = document.createElement("div")
+	invokeCreateBet.classname = "text-center"
+	let invokeCreateBetButton = document.createElement("input")
+	invokeCreateBetButton.type = "button"
+	invokeCreateBetButton.id = "invokeCreateBet"
+	invokeCreateBetButton.value = "Submit to creation new Bet"
+	invokeCreateBetButton.className = "btn btn-success"
+
+	invokeCreateBet.appendChild(invokeCreateBetButton)
+	side.appendChild(invokeBetGroup)
+
+	$("#side").on("click","#addProposalButton", function(){
+		let Proposal = $(this).parents("#addProposal").find("#addProposalForm").val()
+		let nickname = $(this).parents("#addProposal").find("#addNicknameForm").val()
+		$(this).parents("#addProposal").find("#addProposalForm").val("")
+		$(this).parents("#addProposal").find("#addNicknameForm").val("")
+		let addedProposal = document.createElement("div")
+		addedProposal.className = "form-row addedProposal"
+		let div5 = document.createElement("div")
+		div5.className = "col-11"
+		let inputProposal = document.createElement("input")
+		inputProposal.className = "form-control Proposal"
+		inputProposal.disabled = true
+		inputProposal.type = "text"
+		inputProposal.value = Proposal
+		div5.appendChild(inputProposal)
+		addedProposal.appendChild(div5)
+		let div7 = document.createElement("div")
+		div7.className = "col-auto"
+		let added = document.createElement("input")
+		added.type = "button"
+		added.className = "btn btn-dark"
+		added.id =  "removeProposalButton"
+		added.innerHTML = ""
+		div7.appendChild(added)
+		addedProposal.appendChild(div7)
+		document.getElementById("createBetForm").appendChild(addedProposal)
+	});
+
+	$("#side").on("click","#removeProposalButton", function(){
+		$(this).parents(".addedProposal").remove()
+	});
+	/*$("side").on("click","#invokeCreateBet", function (){
 		let operation = ('create_bet')
 		let args = []
 		args.push(player)
@@ -153,7 +226,7 @@ function create(player, groupName, nos, scriptHash){
     		.then((txid) => alert(`Invoke txid: ${txid} `))
     		//.catch((err) => alert(`Error: ${err.message}`));
 	});
-	return text
+	return text*/
 }
 
 
