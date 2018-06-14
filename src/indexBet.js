@@ -86,7 +86,7 @@ function list(data, player, nPlayers, nos, scriptHash){
 }
 
 function create(player, groupName, nos, scriptHash){
-	let form = document.createElement("form")
+let form = document.createElement("form")
 	form.id = "createBetForm"
 
 	let betLabels = ["Bet text", "Amount to bet", "Open for blocks", "Close for blocks", "Convalidation for blocks", "Token used"]
@@ -96,7 +96,7 @@ function create(player, groupName, nos, scriptHash){
 
 	for (let i = 0; i < betArgs.length; i++){
 		let argForm = document.createElement("div")
-		argForm = "form-group row"
+		argForm.className = "form-group row"
 		let labelArgForm = document.createElement("label")
 		labelArgForm.htmlFor = betArgs[i]
 		labelArgForm.className = "col-5 col-form-label"
@@ -112,14 +112,14 @@ function create(player, groupName, nos, scriptHash){
 		argForm.appendChild(labelArgForm)
 		argForm.appendChild(div1)
 		form.appendChild(argForm)
-		if (betArgs == "tokenUsed"){
+		if (betArgs[i] == "tokenUsed"){
 			inputArgForm.disabled = true
-			inputArgForm.value = betArgs[i]
+			inputArgForm.value = betExample[i]
 		}
 	}
 
 	let checkBox = document.createElement("div")
-	checkBox = "form-check"
+	checkBox.className = "form-check"
 	let labelCheckBox = document.createElement("label")
 	labelCheckBox.htmlFor = "canAddProposal"
 	labelCheckBox.className = "form-check-label"
@@ -128,6 +128,7 @@ function create(player, groupName, nos, scriptHash){
 	inputCheckBox.className = "form-check-input"
 	inputCheckBox.id = "canAddProposal"
 	inputCheckBox.type = "checkbox"
+  console.log(checkBox)
 	checkBox.appendChild(labelCheckBox)
 	checkBox.appendChild(inputCheckBox)
 	form.appendChild(checkBox)
@@ -166,13 +167,11 @@ function create(player, groupName, nos, scriptHash){
 	invokeCreateBetButton.className = "btn btn-success"
 
 	invokeCreateBet.appendChild(invokeCreateBetButton)
-	side.appendChild(invokeBetGroup)
+	side.appendChild(invokeCreateBet)
 
 	$("#side").on("click","#addProposalButton", function(){
 		let Proposal = $(this).parents("#addProposal").find("#addProposalForm").val()
-		let nickname = $(this).parents("#addProposal").find("#addNicknameForm").val()
 		$(this).parents("#addProposal").find("#addProposalForm").val("")
-		$(this).parents("#addProposal").find("#addNicknameForm").val("")
 		let addedProposal = document.createElement("div")
 		addedProposal.className = "form-row addedProposal"
 		let div5 = document.createElement("div")
