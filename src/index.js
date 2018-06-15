@@ -57,23 +57,25 @@ $(document).ready(function (){
 		//.catch((err) => console.log(`Error: ${err.message}`)); //#######
 
 	$('#chooseGroup').on("click",".groupButton", function (){
+		$("#recap").empty()
+		$("#main").empty()
+		$("#side").empty()
 		let key = $(this).val()
 		let decodeOutput = false
 		let data 
 		nos.getStorage({scriptHash, key, decodeOutput})
 	  		.then((rawData) => {
 	  			data = des.deserialize(rawData)
-	  			let text = indexGroup.list(data, key, nos, scriptHash)
-	  			$('#main').html(text)
+	  			indexGroup.list(data, key, nos, scriptHash)
 	  		})
 			//.catch((err) => console.log(`Error: ${err.message}`)); //#######
 		let name = key
 
 		$('#main').on("click",".getBetButton", function (){
+			$("#side").empty()
 			let bet = $(this).val()
 			key = name + bet
 			decodeOutput = false
-			console.log(key)
 			nos.getStorage({scriptHash, key, decodeOutput})
 		  		.then((rawData) => {
 		  			nos.getAddress()
@@ -91,12 +93,12 @@ $(document).ready(function (){
 	  	});
 
 		$('#main').on("click","#createBet", function (){
+			$("#side").empty()
   			nos.getAddress()
 			.then((betterAddress) => {
 				if (betterAddress){
 					betterAddress = unhexlify(u.reverseHex(wallet.getScriptHashFromAddress(betterAddress)))
 					indexBet.create(betterAddress, name, nos, scriptHash)
-		  			$('#side').html(text)
 	  			}
 	  		});
 			////.catch ##############			
@@ -104,9 +106,15 @@ $(document).ready(function (){
 
 
 	$('#createGroup').on("click", "#createGroupButton", function (){
-			$("#main").html("")
-			let text = indexGroup.create(nos, scriptHash)
+			$("#recap").empty()
+			$("#side").empty()
+			$("#main").empty()
+			indexGroup.create(nos, scriptHash)
 	  	});
+	
+	$('#recap').on("click", "#clearRecap", function (){
+			$("#recap").empty()
+	});
 
 	$('#main').on("click", "#clearMain", function (){
 				$("#side").empty()
