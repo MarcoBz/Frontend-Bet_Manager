@@ -168,9 +168,18 @@ function create(player, groupName, nos, scriptHash){
 	invokeCreateBetButton.id = "invokeCreateBetButton"
 	invokeCreateBetButton.value = "Submit to creation new Bet"
 	invokeCreateBetButton.className = "btn btn-success"
-
 	invokeCreateBet.appendChild(invokeCreateBetButton)
 	side.appendChild(invokeCreateBet)
+	
+	let clearSide = document.createElement("div")
+	clearSide.id = "clearSide"
+	clearSide.className = "col-2"
+	let clearSideButton = document.createElement("input")
+	clearSideButton.id = "clearSideButton"
+	clearSideButton.className = "text-center btn btn-dark"
+	clearSideButton.type = "button"
+	clearSideButton.value = "Clear"
+	
 	$("#side").on("click","#addProposalButton", function(){
 		let Proposal = $(this).parents("#addProposal").find("#addProposalForm").val()
 		$(this).parents("#addProposal").find("#addProposalForm").val("")
