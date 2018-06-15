@@ -87,9 +87,9 @@ function list(data, player, nPlayers, nos, scriptHash){
 
 function create(player, groupName, nos, scriptHash){
 	let side = document.getElementById("side");
-	while (side.firstChild) {
-		side.removeChild(side.firstChild);
-	}
+	//while (side.firstChild) {
+		//side.removeChild(side.firstChild);
+	//}
 	let form = document.createElement("form")
 	form.id = "createBetForm"
 
