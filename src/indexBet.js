@@ -179,6 +179,8 @@ function create(player, groupName, nos, scriptHash){
 	clearSideButton.className = "text-center btn btn-dark"
 	clearSideButton.type = "button"
 	clearSideButton.value = "Clear"
+	clearSide.appendChild("clearSideButton")
+	side.appendChild("clearSide")
 	
 	$("#side").on("click","#addProposalButton", function(){
 		let Proposal = $(this).parents("#addProposal").find("#addProposalForm").val()
