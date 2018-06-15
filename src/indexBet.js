@@ -86,11 +86,15 @@ function list(data, player, nPlayers, nos, scriptHash){
 }
 
 function create(player, groupName, nos, scriptHash){
-let form = document.createElement("form")
+	let side = document.getElementById("side");
+	while (side.firstChild) {
+		side.removeChild(side.firstChild);
+	}
+	let form = document.createElement("form")
 	form.id = "createBetForm"
 
 	let betLabels = ["Bet text", "Amount to bet", "Open for blocks", "Close for blocks", "Convalidation for blocks", "Token used"]
-	let betArgs = ["betText", "amountToBet", "openBlock", "closeBlock", "convconvalidateBlock", "tokenUsed"]
+	let betArgs = ["betText", "amountToBet", "openBlock", "closeBlock", "convalidateBlock", "tokenUsed"]
 	let betExample = ["Is NEO the best?", "0", "0", "0", "0", "602c79718b16e442de58778e148d0b1084e3b2dffd5de6b7b16cee7969282de7"]
 
 
@@ -128,7 +132,6 @@ let form = document.createElement("form")
 	inputCheckBox.className = "form-check-input"
 	inputCheckBox.id = "canAddProposal"
 	inputCheckBox.type = "checkbox"
-  console.log(checkBox)
 	checkBox.appendChild(labelCheckBox)
 	checkBox.appendChild(inputCheckBox)
 	form.appendChild(checkBox)
@@ -155,20 +158,19 @@ let form = document.createElement("form")
 	div4.appendChild(add)
 	addProposal.appendChild(div4)
 	form.appendChild(addProposal)
-	let  side = document.getElementById("side")
 	side.appendChild(form)
 
 	let invokeCreateBet = document.createElement("div")
-	invokeCreateBet.classname = "text-center"
+	invokeCreateBet.className = "text-center"
+	invokeCreateBet.id = "invokeCreateBet"
 	let invokeCreateBetButton = document.createElement("input")
 	invokeCreateBetButton.type = "button"
-	invokeCreateBetButton.id = "invokeCreateBet"
+	invokeCreateBetButton.id = "invokeCreateBetButton"
 	invokeCreateBetButton.value = "Submit to creation new Bet"
 	invokeCreateBetButton.className = "btn btn-success"
 
 	invokeCreateBet.appendChild(invokeCreateBetButton)
 	side.appendChild(invokeCreateBet)
-
 	$("#side").on("click","#addProposalButton", function(){
 		let Proposal = $(this).parents("#addProposal").find("#addProposalForm").val()
 		$(this).parents("#addProposal").find("#addProposalForm").val("")
@@ -177,7 +179,7 @@ let form = document.createElement("form")
 		let div5 = document.createElement("div")
 		div5.className = "col-11"
 		let inputProposal = document.createElement("input")
-		inputProposal.className = "form-control Proposal"
+		inputProposal.className = "form-control proposal"
 		inputProposal.disabled = true
 		inputProposal.type = "text"
 		inputProposal.value = Proposal
@@ -198,34 +200,34 @@ let form = document.createElement("form")
 	$("#side").on("click","#removeProposalButton", function(){
 		$(this).parents(".addedProposal").remove()
 	});
-	/*$("side").on("click","#invokeCreateBet", function (){
+	$("#side").on("click","#invokeCreateBetButton", function (){
 		let operation = ('create_bet')
 		let args = []
 		args.push(player)
 		args.push(groupName)
-		args.push($("#side").find('#addBetText :input').val())
-		args.push($("#side").find('#openBlock :input').val())
-		args.push($("#side").find('#closeBlock :input').val())
-		args.push($("#side").find('#convalidateBlock :input').val())
-		args.push($("#side").find('#addAmount :input').val())
-		args.push('602c79718b16e442de58778e148d0b1084e3b2dffd5de6b7b16cee7969282de7')
-		if ($("#addProposalCheckbox").is(':checked')){
+		args.push($("#side").find('#betText').val())
+		args.push($("#side").find('#openBlock').val())
+		args.push($("#side").find('#closeBlock').val())
+		args.push($("#side").find('#convalidateBlock').val())
+		args.push($("#side").find('#amountToBet').val())
+		args.push($("#side").find('#tokenUsed').val())
+		if ($("#canAddProposal").is(':checked')){
 			args.push('y')
 		}
 		else{
 			args.push('n')
 		}
-		$('.proposal').each(function(i) {
-			let proposalText = $(this).data("proposalText")
-			if (proposalText){
-				args.push(proposalText)
+		$('.addedProposal').each(function(i) {
+			let addedProposal  = $(this).find(".proposal").val()
+			if (addedProposal){
+				args.push(addedProposal)
 			}
+
 		});
 		nos.invoke({scriptHash,operation,args})
-    		.then((txid) => alert(`Invoke txid: ${txid} `))
-    		//.catch((err) => alert(`Error: ${err.message}`));
+		.then((txid) => alert(`Invoke txid: ${txid} `))
+		//.catch((err) => alert(`Error: ${err.message}`));
 	});
-	return text*/
 }
 
 
