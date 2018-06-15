@@ -184,8 +184,6 @@ function create(nos, scriptHash){
 	$("#main").on("click","#removeAddressButton", function(){
 		$(this).parents(".addedAddress").remove()
 	});
-	
-	//text += "</br></br><input id = 'clearMain' type = 'button' value = 'Clear'>"
 
 	$('#main').on("click","#invokeCreateGroup", function (){
 		let operation = ('create_league')
@@ -210,8 +208,6 @@ function create(nos, scriptHash){
     		.then((txid) => alert(`Invoke txid: ${txid} `))
     		//.catch((err) => alert(`Error: ${err.message}`));
   	});
-
-	return text
 
 }
 
