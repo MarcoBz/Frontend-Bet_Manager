@@ -76,6 +76,18 @@ function list(data, name, nos, scriptHash){
 	createBet.id = "createBet"
 	table.appendChild(betsTable)
 	table.appendChild(createBet)
+	
+	let clearMain = document.createElement("div")
+	clearMain.id = "clearMain"
+	clearMain.className = "col-2"
+	let clearMainButton = document.createElement("input")
+	clearMainButton.id = "clearSideButton"
+	clearMainButton.className = "text-center btn btn-dark"
+	clearMainButton.type = "button"
+	clearMainButton.value = "Clear"
+	clearMain.appendChild("clearMainButton")
+	main.appendChild("clearMain")
+	
 	document.getElementById('main').appendChild(table)
 	
 }
@@ -145,6 +157,17 @@ function create(nos, scriptHash){
 	invokeCreateGroup.appendChild(invokeCreateGroupButton)
 	main.appendChild(invokeCreateGroup)
 
+	let clearMain = document.createElement("div")
+	clearMain.id = "clearMain"
+	clearMain.className = "col-2"
+	let clearMainButton = document.createElement("input")
+	clearMainButton.id = "clearSideButton"
+	clearMainButton.className = "text-center btn btn-dark"
+	clearMainButton.type = "button"
+	clearMainButton.value = "Clear"
+	clearMain.appendChild("clearMainButton")
+	main.appendChild("clearMain")	
+	
 	$("#main").on("click","#addAddressButton", function(){
 		let address = $(this).parents("#addAddress").find("#addAddressForm").val()
 		let nickname = $(this).parents("#addAddress").find("#addNicknameForm").val()
