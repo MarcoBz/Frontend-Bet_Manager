@@ -112,16 +112,16 @@ $(document).ready(function (){
 			indexGroup.create(nos, scriptHash)
 	  	});
 	
-	$('#recap').on("click", "#clearRecap", function (){
+	$('#recap').on("click", "#clearRecapButton", function (){
 			$("#recap").empty()
 	});
 
-	$('#main').on("click", "#clearMain", function (){
+	$('#main').on("click", "#clearMainButton", function (){
 				$("#side").empty()
 				$("#main").empty()
 	  	});
 
-	$("#side").on("click", "#clearSide", function (){
+	$("#side").on("click", "#clearSideButton", function (){
 				$("#side").empty()
 	  	});
 })
