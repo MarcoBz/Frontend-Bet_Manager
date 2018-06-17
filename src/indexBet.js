@@ -290,12 +290,17 @@ function checkPlayerStatus(bet){
 	return  bet
 }
 
-function checkWinningProposal(bet){		
-	for(var i = 0; i < bet.nProposals; i++){
-		if (bet.proposals[i].nConvalidators >= bet.magicNumber){
-			bet.hasWinningProposal = true
-			bet.winningProposalIndex = i
-			bet.winningProposal = bet.proposals[bet.winningProposalIndex].text
+function checkWinningProposal(bet){
+	if (bet.status = "convalidated"){
+		for(var i = 0; i < bet.nProposals; i++){	
+			if (bet.proposals[i].nConvalidators >= bet.magicNumber){
+				bet.hasWinningProposal = true
+				bet.winningProposalIndex = i
+				bet.winningProposal = bet.proposals[bet.winningProposalIndex].text
+			}
+		}
+		if (not bet.hasWinningProposal){
+			bet.needRefund = true
 		}
 	}
 	return bet
@@ -452,6 +457,7 @@ function instantiateBet(data, player, nPlayers){
 		winningProposalIndex : null,
 		winningProposal : null,
 		winners : [],
+		needRefund : null,
 		alreadyPayed : data[6]
 	}
 	bet.blocks.openBlock = bet.blocks.createAtBlock + data[3][0]
@@ -504,7 +510,28 @@ function getBetStatus(data){
   checkBetStatus(bet)
   return bet.status
 }
+
+function getBetResult(data, player, nPlayers){
+	let bet = instantiateBet(data, player, nPlayers)
+	let betResult = ""
+	if (bet.hasWinningProposal){
+		if (bet.player.hasWon){
+		    betResult = "win"
+		}
+	    	else{
+			betResult = "lose"
+		}
+	}
+	else{
+		if (bet.needRefund){
+			betResult = "refund"
+		}
+	}
+ 	return betResult
+}
+	
 	
 module.exports.list = list
 module.exports.create = create
 module.exports.getBetStatus = getBetStatus
+module.exports.getBetResult = getBetResult
