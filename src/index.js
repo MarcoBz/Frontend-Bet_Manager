@@ -1,54 +1,74 @@
 const des = require('./deserialize')
+require('babel-polyfill')
 const indexGroup = require('./indexGroup')
 const indexBet = require('./indexBet')
+const indexRecap = require('./indexRecap')
 import { u, wallet } from '@cityofzion/neon-js';
 import { str2hexstring, int2hex, hexstring2str } from '@cityofzion/neon-js/src/utils'
 import {unhexlify,hexlify} from 'binascii';
 const address = unhexlify(u.reverseHex(wallet.getScriptHashFromAddress('AK2nJJpJr6o664CWJKi1QRXjqeic2zRp8y')))
-const scriptHash = 'a58e6bb2b67ee11f7a5347532d1008ceb06a4622';
+const scriptHash = '2c41b17c78d76c6a9977bb63cc428a7ad6a0c7b8';
 const nos = window.NOS.V1;
 
 $(document).ready(function (){
 	nos.getAddress()
 		.then((loggedAddress) => {
 			if (loggedAddress){
+				document.getElementById('chooseGroup').innerHTML = "";
+				document.getElementById('createGroup').innerHTML = "";
 				let key = unhexlify(u.reverseHex(wallet.getScriptHashFromAddress(loggedAddress)))
 				let decodeOutput = false
 				nos.getStorage({scriptHash, key, decodeOutput})
 					.then((rawData) =>{
 						var data = des.deserialize(rawData)
-						document.getElementById('chooseGroup').innerHTML = "";
-						document.getElementById('createGroup').innerHTML = "";
-						console.log(data)
-						for (let i = 0; i < data.length; i++){
+						for (let i = 0; i < data[0].length; i++){
 						  let groupElement = document.createElement("div")
 						  groupElement.className = "groupElement"
 						  let groupButton = document.createElement("input")
 						  groupButton.type = "button"
 						  groupButton.className = "btn btn-outline-success groupButton"
-						  groupButton.value = data[i]
+						  groupButton.value = data[0][i]
 						  groupElement.appendChild(groupButton)
 						  document.getElementById('chooseGroup').appendChild(groupElement)
 						 }
-						let createNewElement = document.createElement("div")
-						createNewElement.className = "createElement col-6"
-						let createButton = document.createElement("input")
-						createButton.id = "createGroupButton"
-						createButton.type = "button"
-						createButton.className = "btn btn-outline-primary"
-						createButton.value = "Create new group"
-						createNewElement.appendChild(createButton)
-						document.getElementById('createGroup').appendChild(createNewElement)
-						let tableElement = document.createElement("div")
-						tableElement.className = "tableElement col-6"
-						let tableButton = document.createElement("input")
-						tableButton.type = "button"
-						tableButton.className = "btn btn-outline-primary"
-						tableButton.value = "Recap"
-						tableElement.appendChild(tableButton)
-						document.getElementById('createGroup').appendChild(tableElement)
+						$('#createGroup').on("click", "#recapButton", function (){
+							$("#recap").empty()
+							$("#main").empty()
+							$("#side").empty()
+							let dataRecap = []
+							for (let i = 0; i < data[1].length; i++){
+								let dataTemp = {
+									betText : data[1][i][0],
+									groupName : data[1][i][1],
+									blocks : data[1][i][2],
+									createdAt : data[1][i][3],
+									payed : data[1][i][4],
+									amountBet : data[1][i][5]
+								}
+								dataRecap.push(dataTemp)
+							}
+						indexRecap.table(dataRecap, nos, scriptHash)
+						});
 					})
 					////.catch ##############
+				let createNewElement = document.createElement("div")
+				createNewElement.className = "createElement col-6"
+				let createButton = document.createElement("input")
+				createButton.id = "createGroupButton"
+				createButton.type = "button"
+				createButton.className = "btn btn-outline-primary"
+				createButton.value = "Create new group"
+				createNewElement.appendChild(createButton)
+				document.getElementById('createGroup').appendChild(createNewElement)
+				let tableElement = document.createElement("div")
+				tableElement.className = "tableElement col-6"
+				let tableButton = document.createElement("input")
+				tableButton.type = "button"
+				tableButton.className = "btn btn-outline-primary"
+				tableButton.value = "Recap"
+				tableButton.id = "recapButton"
+				tableElement.appendChild(tableButton)
+				document.getElementById('createGroup').appendChild(tableElement)
 			}
 			else{
 				$('#chooseGroup').html("</div> You have to login <div>")
@@ -83,7 +103,7 @@ $(document).ready(function (){
 						if (betterAddress){
 							betterAddress = unhexlify(u.reverseHex(wallet.getScriptHashFromAddress(betterAddress)))
 				  			let dataBet = des.deserialize(rawData)
-				  			let text = indexBet.list(dataBet, betterAddress, data[0].length)
+				  			let text = indexBet.list(dataBet, betterAddress, nos, scriptHash)
 				  			$('#side').html(text)
 			  			}
 			  		});
