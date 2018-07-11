@@ -46,6 +46,7 @@ function list(data, name, nos, scriptHash){
 		let decodeOutput = false
 		nos.getStorage({scriptHash, key, decodeOutput})
 			.then((rawData) => {
+				console.log('a')
 				let dataBet = des.deserialize(rawData)
 				let betStatus = indexBet.getBetStatus(dataBet)
 
@@ -76,8 +77,6 @@ function list(data, name, nos, scriptHash){
 	table.appendChild(betsTable)
 	table.appendChild(createBet)
 	
-	main.appendChild(table)
-
 	let clearMain = document.createElement("div")
 	clearMain.id = "clearMain"
 	clearMain.className = "col-2"
@@ -87,8 +86,10 @@ function list(data, name, nos, scriptHash){
 	clearMainButton.type = "button"
 	clearMainButton.value = "Clear"
 	clearMain.appendChild(clearMainButton)
-	main.appendChild(clearMain)
 	
+	
+	document.getElementById('main').appendChild(table)
+	main.appendChild(clearMain)
 }
 
 function create(nos, scriptHash){
@@ -165,7 +166,72 @@ function create(nos, scriptHash){
 	clearMainButton.type = "button"
 	clearMainButton.value = "Clear"
 	clearMain.appendChild(clearMainButton)
-	main.appendChild(clearMain)		
+	main.appendChild(clearMain)	
+	
+	$("#main").on("click","#addAddressButton", function(){
+		let address = $(this).parents("#addAddress").find("#addAddressForm").val()
+		let nickname = $(this).parents("#addAddress").find("#addNicknameForm").val()
+		$(this).parents("#addAddress").find("#addAddressForm").val("")
+		$(this).parents("#addAddress").find("#addNicknameForm").val("")
+		let addedAddress = document.createElement("div")
+		addedAddress.className = "form-row addedAddress"
+		let div5 = document.createElement("div")
+		div5.className = "col-6"
+		let inputAddress = document.createElement("input")
+		inputAddress.className = "form-control address"
+		inputAddress.disabled = true
+		inputAddress.type = "text"
+		inputAddress.value = address
+		div5.appendChild(inputAddress)
+		addedAddress.appendChild(div5)
+		let div6 = document.createElement("div")
+		div6.className = "col-5"
+		let inputNickname = document.createElement("input")
+		inputNickname.className = "form-control nickname"
+		inputNickname.disabled = true
+		inputNickname.type = "text"
+		inputNickname.value = nickname
+		div6.appendChild(inputNickname)
+		addedAddress.appendChild(div6)
+		let div7 = document.createElement("div")
+		div7.className = "col-auto"
+		let added = document.createElement("input")
+		added.type = "button"
+		added.className = "btn btn-dark"
+		added.id =  "removeAddressButton"
+		added.innerHTML = ""
+		div7.appendChild(added)
+		addedAddress.appendChild(div7)
+		document.getElementById("createGroupForm").appendChild(addedAddress)
+	});
+	$("#main").on("click","#removeAddressButton", function(){
+		$(this).parents(".addedAddress").remove()
+	});
+
+	$('#main').on("click","#invokeCreateGroup", function (){
+		let operation = ('create_group')
+		let args = []
+		let groupName = document.getElementById("groupName").value
+		$('.addedAddress').each(function(i) {
+			let addressPartecipant  = $(this).find(".address").val()
+			if (addressPartecipant){
+				args.push(addressPartecipant)
+			}
+		});
+
+		$('.addedAddress').each(function(i) {
+			let nicknamePartecipant = $(this).find(".nickname").val()
+			if (nicknamePartecipant){
+				args.push(nicknamePartecipant)
+			}
+		});
+
+		args.push(groupName)
+		nos.invoke({scriptHash, operation, args})
+    		.then((txid) => alert(`Invoke txid: ${txid} `))
+    		//.catch((err) => alert(`Error: ${err.message}`));
+  	});
+
 }
 
 module.exports.list = list
