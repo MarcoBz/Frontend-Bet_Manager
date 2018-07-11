@@ -178,66 +178,10 @@ function create(player, groupName, nos, scriptHash){
 	clearSideButton.className = "text-center btn btn-dark"
 	clearSideButton.type = "button"
 	clearSideButton.value = "Clear"
-	clearSide.appendChild("clearSideButton")
-	side.appendChild("clearSide")
-	
-	$("#side").on("click","#addProposalButton", function(){
-		let Proposal = $(this).parents("#addProposal").find("#addProposalForm").val()
-		$(this).parents("#addProposal").find("#addProposalForm").val("")
-		let addedProposal = document.createElement("div")
-		addedProposal.className = "form-row addedProposal"
-		let div5 = document.createElement("div")
-		div5.className = "col-11"
-		let inputProposal = document.createElement("input")
-		inputProposal.className = "form-control proposal"
-		inputProposal.disabled = true
-		inputProposal.type = "text"
-		inputProposal.value = Proposal
-		div5.appendChild(inputProposal)
-		addedProposal.appendChild(div5)
-		let div7 = document.createElement("div")
-		div7.className = "col-auto"
-		let added = document.createElement("input")
-		added.type = "button"
-		added.className = "btn btn-dark"
-		added.id =  "removeProposalButton"
-		added.innerHTML = ""
-		div7.appendChild(added)
-		addedProposal.appendChild(div7)
-		document.getElementById("createBetForm").appendChild(addedProposal)
-	});
+	clearSide.appendChild(clearSideButton)
+	side.appendChild(clearSide)
 
-	$("#side").on("click","#removeProposalButton", function(){
-		$(this).parents(".addedProposal").remove()
-	});
-	$("#side").on("click","#invokeCreateBetButton", function (){
-		let operation = ('create_bet')
-		let args = []
-		args.push(player)
-		args.push(groupName)
-		args.push($("#side").find('#betText').val())
-		args.push($("#side").find('#openBlock').val())
-		args.push($("#side").find('#closeBlock').val())
-		args.push($("#side").find('#convalidateBlock').val())
-		args.push($("#side").find('#amountToBet').val())
-		args.push($("#side").find('#tokenUsed').val())
-		if ($("#canAddProposal").is(':checked')){
-			args.push('y')
-		}
-		else{
-			args.push('n')
-		}
-		$('.addedProposal').each(function(i) {
-			let addedProposal  = $(this).find(".proposal").val()
-			if (addedProposal){
-				args.push(addedProposal)
-			}
 
-		});
-		nos.invoke({scriptHash,operation,args})
-		.then((txid) => alert(`Invoke txid: ${txid} `))
-		//.catch((err) => alert(`Error: ${err.message}`));
-	});
 }
 
 
