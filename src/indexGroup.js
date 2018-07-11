@@ -46,7 +46,6 @@ function list(data, name, nos, scriptHash){
 		let decodeOutput = false
 		nos.getStorage({scriptHash, key, decodeOutput})
 			.then((rawData) => {
-				console.log('a')
 				let dataBet = des.deserialize(rawData)
 				let betStatus = indexBet.getBetStatus(dataBet)
 
@@ -77,18 +76,18 @@ function list(data, name, nos, scriptHash){
 	table.appendChild(betsTable)
 	table.appendChild(createBet)
 	
+	main.appendChild(table)
+
 	let clearMain = document.createElement("div")
 	clearMain.id = "clearMain"
 	clearMain.className = "col-2"
 	let clearMainButton = document.createElement("input")
-	clearMainButton.id = "clearSideButton"
+	clearMainButton.id = "clearMainButton"
 	clearMainButton.className = "text-center btn btn-dark"
 	clearMainButton.type = "button"
 	clearMainButton.value = "Clear"
-	clearMain.appendChild("clearMainButton")
-	main.appendChild("clearMain")
-	
-	document.getElementById('main').appendChild(table)
+	clearMain.appendChild(clearMainButton)
+	main.appendChild(clearMain)
 	
 }
 
@@ -161,12 +160,12 @@ function create(nos, scriptHash){
 	clearMain.id = "clearMain"
 	clearMain.className = "col-2"
 	let clearMainButton = document.createElement("input")
-	clearMainButton.id = "clearSideButton"
+	clearMainButton.id = "clearMainButton"
 	clearMainButton.className = "text-center btn btn-dark"
 	clearMainButton.type = "button"
 	clearMainButton.value = "Clear"
-	clearMain.appendChild("clearMainButton")
-	main.appendChild("clearMain")		
+	clearMain.appendChild(clearMainButton)
+	main.appendChild(clearMain)		
 }
 
 module.exports.list = list

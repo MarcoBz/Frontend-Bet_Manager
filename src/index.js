@@ -1,11 +1,12 @@
 const des = require('./deserialize')
 const indexGroup = require('./indexGroup')
 const indexBet = require('./indexBet')
+
 import { u, wallet } from '@cityofzion/neon-js';
 import { str2hexstring, int2hex, hexstring2str } from '@cityofzion/neon-js/src/utils'
 import {unhexlify,hexlify} from 'binascii';
 const address = unhexlify(u.reverseHex(wallet.getScriptHashFromAddress('AK2nJJpJr6o664CWJKi1QRXjqeic2zRp8y')))
-const scriptHash = 'a58e6bb2b67ee11f7a5347532d1008ceb06a4622';
+const scriptHash = '7cbd0436107124b6d4c45edfcef99a7013e5afeb';
 const nos = window.NOS.V1;
 
 $(document).ready(function (){
@@ -48,33 +49,35 @@ $(document).ready(function (){
 						tableElement.appendChild(tableButton)
 						document.getElementById('createGroup').appendChild(tableElement)
 
+						$('#createGroup').on("click", "#recapButton", function (){
+							$("#recap").empty()
+							$("#main").empty()
+							$("#side").empty()
+							let dataRecap = []
+							for (let i = 0; i < data[1].length; i++){
+								let dataTemp = {
+									betText : data[1][i][0],
+									groupName : data[1][i][1],
+									blocks : data[1][i][2],
+									createdAt : data[1][i][3],
+									payed : data[1][i][4],
+									amountBet : data[1][i][5]
+								}
+								dataRecap.push(dataTemp)
+							}
+							indexRecap.table(dataRecap, nos, scriptHash)
+						});
 					})
 					////.catch ##############
 			}
 			else{
 				$('#chooseGroup').html("</div> You have to login <div>")
 			}
+
+
 		})
 		//.catch((err) => console.log(`Error: ${err.message}`)); //#######
 
-	$('#createGroup').on("click", "#recapButton", function (){
-		$("#recap").empty()
-		$("#main").empty()
-		$("#side").empty()
-		dataRecap = []
-		for (let i = 0; i < data[1].length; i++){
-			dataTemp = {
-				betText : data[1][i][0],
-				groupName : data[1][i][1],
-				blocks : data[1][i][2],
-				createdAt : data[1][i][3],
-				payed : data[1][i][4]
-				amountBet : data[1][i][5]
-			}
-			dataRecap.push(dataTemp)
-		}
-	indexRecap.table(dataRecap, nos, scriptHash)
-	});
 
 
 	$('#chooseGroup').on("click",".groupButton", function (){
@@ -216,6 +219,64 @@ $(document).ready(function (){
 
 	$("#side").on("click", "#clearSideButton", function (){
 				$("#side").empty()
+	});
+
+		$("#side").on("click","#addProposalButton", function(){
+		let Proposal = $(this).parents("#addProposal").find("#addProposalForm").val()
+		$(this).parents("#addProposal").find("#addProposalForm").val("")
+		let addedProposal = document.createElement("div")
+		addedProposal.className = "form-row addedProposal"
+		let div5 = document.createElement("div")
+		div5.className = "col-11"
+		let inputProposal = document.createElement("input")
+		inputProposal.className = "form-control proposal"
+		inputProposal.disabled = true
+		inputProposal.type = "text"
+		inputProposal.value = Proposal
+		div5.appendChild(inputProposal)
+		addedProposal.appendChild(div5)
+		let div7 = document.createElement("div")
+		div7.className = "col-auto"
+		let added = document.createElement("input")
+		added.type = "button"
+		added.className = "btn btn-dark"
+		added.id =  "removeProposalButton"
+		added.innerHTML = ""
+		div7.appendChild(added)
+		addedProposal.appendChild(div7)
+		document.getElementById("createBetForm").appendChild(addedProposal)
+	});
+
+	$("#side").on("click","#removeProposalButton", function(){
+		$(this).parents(".addedProposal").remove()
+	});
+	$("#side").on("click","#invokeCreateBetButton", function (){
+		let operation = ('create_bet')
+		let args = []
+		args.push(player)
+		args.push(groupName)
+		args.push($("#side").find('#betText').val())
+		args.push($("#side").find('#openBlock').val())
+		args.push($("#side").find('#closeBlock').val())
+		args.push($("#side").find('#convalidateBlock').val())
+		args.push($("#side").find('#amountToBet').val())
+		args.push($("#side").find('#tokenUsed').val())
+		if ($("#canAddProposal").is(':checked')){
+			args.push('y')
+		}
+		else{
+			args.push('n')
+		}
+		$('.addedProposal').each(function(i) {
+			let addedProposal  = $(this).find(".proposal").val()
+			if (addedProposal){
+				args.push(addedProposal)
+			}
+
+		});
+		nos.invoke({scriptHash,operation,args})
+		.then((txid) => alert(`Invoke txid: ${txid} `))
+		//.catch((err) => alert(`Error: ${err.message}`));
 	});
 })
 
