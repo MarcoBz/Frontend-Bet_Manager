@@ -46,27 +46,28 @@ function list(data, name, nos, scriptHash){
 		let decodeOutput = false
 		nos.getStorage({scriptHash, key, decodeOutput})
 			.then((rawData) => {
+
 				let dataBet = des.deserialize(rawData)
-				let betStatus = indexBet.getBetStatus(dataBet)
-
-				if (betStatus == "open"){
-					badge.className = "badge badge-primary"
-					badge.innerHTML = "Open"
-				}
-				else if (betStatus == "close"){
-					badge.className = "badge badge-secondary"
-					badge.innerHTML = "Closed"    
-				}
-				else if (betStatus == "onConvalidation"){
-					badge.className = "badge badge-warning"
-					badge.innerHTML = "On convalidation"    
-				}
-				else if (betStatus == "convalidated"){
-					badge.className = "badge badge-success"
-					badge.innerHTML = "Convalidated"    
-				}
-
+				Promise.resolve(indexBet.getBetStatus(dataBet, nos, scriptHash))
+				.then((betStatus) => {
+					if (betStatus == "open"){
+						badge.className = "badge badge-primary"
+						badge.innerHTML = "Open"
+					}
+					else if (betStatus == "close"){
+						badge.className = "badge badge-secondary"
+						badge.innerHTML = "Closed"    
+					}
+					else if (betStatus == "onConvalidation"){
+						badge.className = "badge badge-warning"
+						badge.innerHTML = "On convalidation"    
+					}
+					else if (betStatus == "convalidated"){
+						badge.className = "badge badge-success"
+						badge.innerHTML = "Convalidated"    
+					}
 				})
+			})
 			//.catch((err) => console.log(`Error: ${err.message}`));
 	}
 	let createBet = document.createElement("div")

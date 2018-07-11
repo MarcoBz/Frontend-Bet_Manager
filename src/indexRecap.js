@@ -50,6 +50,7 @@ function table(data, nos, scriptHash){
         }
       }
       else if (tdBody.className == "getToken"){
+        tdBody.innerHTML = "Loading"
         if ((data[i]["payed"] == "w") || (data[i]["payed"] == "r")){
           tdBody.innerHTML = ""
         }
@@ -112,7 +113,7 @@ function table(data, nos, scriptHash){
                 }
               }));
         }
-        tdBody.innerHTML = "Loading" // + loading gif
+         // + loading gif
 
       }
       else{
@@ -126,7 +127,6 @@ function table(data, nos, scriptHash){
 
   $("#recap").on("click",".getRefundButton", function (){
     let i = $(this).parents("tr").find("th").text() - 1
-    console.log(i)
     let operation = "withdraw_refund"
     let args = []
 

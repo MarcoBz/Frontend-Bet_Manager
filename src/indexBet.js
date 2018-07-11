@@ -396,6 +396,7 @@ async function instantiateBet(data, player, nos, scriptHash){
 				winners : [],
 				needRefund : null
 			}
+			console.log(bet.blocks.createAtBlock)
 			bet.blocks.openBlock = bet.blocks.createAtBlock + data[3][0]
 			bet.blocks.closeBlock = bet.blocks.openBlock + data[3][1]
 			bet.blocks.convalidateBlock = bet.blocks.closeBlock + data[3][2]
@@ -447,6 +448,7 @@ async function getBetStatus(data, nos, scriptHash){
 				      convalidateBlock : null
 				    }
 				  }
+				
 			  bet.blocks.openBlock = bet.blocks.createAtBlock + data[3][0]
 			  bet.blocks.closeBlock = bet.blocks.openBlock + data[3][1]
 			  bet.blocks.convalidateBlock = bet.blocks.closeBlock + data[3][2]
