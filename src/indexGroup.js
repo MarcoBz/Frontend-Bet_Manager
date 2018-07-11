@@ -88,7 +88,6 @@ function list(data, name, nos, scriptHash){
 	clearMainButton.value = "Clear"
 	clearMain.appendChild(clearMainButton)
 	main.appendChild(clearMain)
-	
 }
 
 function create(nos, scriptHash){
@@ -165,7 +164,7 @@ function create(nos, scriptHash){
 	clearMainButton.type = "button"
 	clearMainButton.value = "Clear"
 	clearMain.appendChild(clearMainButton)
-	main.appendChild(clearMain)		
+	main.appendChild(clearMain)	
 }
 
 module.exports.list = list

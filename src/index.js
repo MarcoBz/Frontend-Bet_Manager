@@ -1,7 +1,8 @@
 const des = require('./deserialize')
+require('babel-polyfill')
 const indexGroup = require('./indexGroup')
 const indexBet = require('./indexBet')
-
+const indexRecap = require('./indexRecap')
 import { u, wallet } from '@cityofzion/neon-js';
 import { str2hexstring, int2hex, hexstring2str } from '@cityofzion/neon-js/src/utils'
 import {unhexlify,hexlify} from 'binascii';
@@ -13,13 +14,13 @@ $(document).ready(function (){
 	nos.getAddress()
 		.then((loggedAddress) => {
 			if (loggedAddress){
+				document.getElementById('chooseGroup').innerHTML = "";
+				document.getElementById('createGroup').innerHTML = "";
 				let key = unhexlify(u.reverseHex(wallet.getScriptHashFromAddress(loggedAddress)))
 				let decodeOutput = false
 				nos.getStorage({scriptHash, key, decodeOutput})
 					.then((rawData) =>{
 						var data = des.deserialize(rawData)
-						document.getElementById('chooseGroup').innerHTML = "";
-						document.getElementById('createGroup').innerHTML = "";
 						for (let i = 0; i < data[0].length; i++){
 						  let groupElement = document.createElement("div")
 						  groupElement.className = "groupElement"
@@ -30,25 +31,6 @@ $(document).ready(function (){
 						  groupElement.appendChild(groupButton)
 						  document.getElementById('chooseGroup').appendChild(groupElement)
 						 }
-						let createNewElement = document.createElement("div")
-						createNewElement.className = "createElement col-6"
-						let createButton = document.createElement("input")
-						createButton.id = "createGroupButton"
-						createButton.type = "button"
-						createButton.className = "btn btn-outline-primary"
-						createButton.value = "Create new group"
-						createNewElement.appendChild(createButton)
-						document.getElementById('createGroup').appendChild(createNewElement)
-						let tableElement = document.createElement("div")
-						tableElement.className = "tableElement col-6"
-						let tableButton = document.createElement("input")
-						tableButton.type = "button"
-						tableButton.className = "btn btn-outline-primary"
-						tableButton.value = "Recap"
-						tableButton.id = "recapButton"
-						tableElement.appendChild(tableButton)
-						document.getElementById('createGroup').appendChild(tableElement)
-
 						$('#createGroup').on("click", "#recapButton", function (){
 							$("#recap").empty()
 							$("#main").empty()
@@ -65,20 +47,34 @@ $(document).ready(function (){
 								}
 								dataRecap.push(dataTemp)
 							}
-							indexRecap.table(dataRecap, nos, scriptHash)
+						indexRecap.table(dataRecap, nos, scriptHash)
 						});
 					})
 					////.catch ##############
+				let createNewElement = document.createElement("div")
+				createNewElement.className = "createElement col-6"
+				let createButton = document.createElement("input")
+				createButton.id = "createGroupButton"
+				createButton.type = "button"
+				createButton.className = "btn btn-outline-primary"
+				createButton.value = "Create new group"
+				createNewElement.appendChild(createButton)
+				document.getElementById('createGroup').appendChild(createNewElement)
+				let tableElement = document.createElement("div")
+				tableElement.className = "tableElement col-6"
+				let tableButton = document.createElement("input")
+				tableButton.type = "button"
+				tableButton.className = "btn btn-outline-primary"
+				tableButton.value = "Recap"
+				tableButton.id = "recapButton"
+				tableElement.appendChild(tableButton)
+				document.getElementById('createGroup').appendChild(tableElement)
 			}
 			else{
 				$('#chooseGroup').html("</div> You have to login <div>")
 			}
-
-
 		})
 		//.catch((err) => console.log(`Error: ${err.message}`)); //#######
-
-
 
 	$('#chooseGroup').on("click",".groupButton", function (){
 		$("#recap").empty()
@@ -122,14 +118,14 @@ $(document).ready(function (){
 	$('#main').on("click","#createBet", function (){
 		$("#side").empty()
 			nos.getAddress()
-			.then((betterAddress) => {
-				if (betterAddress){
-					betterAddress = unhexlify(u.reverseHex(wallet.getScriptHashFromAddress(betterAddress)))
-					indexBet.create(betterAddress, name, nos, scriptHash)
-				}
-				else{
-					$('#chooseGroup').html("</div> You have to login <div>")
-				}
+		.then((betterAddress) => {
+			if (betterAddress){
+				betterAddress = unhexlify(u.reverseHex(wallet.getScriptHashFromAddress(betterAddress)))
+				indexBet.create(betterAddress, name, nos, scriptHash)
+  			}
+			else{
+				$('#chooseGroup').html("</div> You have to login <div>")
+			}
   		});
 		////.catch ##############			
 	});
@@ -140,7 +136,7 @@ $(document).ready(function (){
 			$("#side").empty()
 			$("#main").empty()
 			indexGroup.create(nos, scriptHash)
-	});
+	  	});
 
 	$("#main").on("click","#addAddressButton", function(){
 		let address = $(this).parents("#addAddress").find("#addAddressForm").val()
@@ -207,7 +203,6 @@ $(document).ready(function (){
     		//.catch((err) => alert(`Error: ${err.message}`));
   	});
 
-	
 	$('#recap').on("click", "#clearRecapButton", function (){
 			$("#recap").empty()
 	});
@@ -220,8 +215,8 @@ $(document).ready(function (){
 	$("#side").on("click", "#clearSideButton", function (){
 				$("#side").empty()
 	});
-
-		$("#side").on("click","#addProposalButton", function(){
+	
+	$("#side").on("click","#addProposalButton", function(){
 		let Proposal = $(this).parents("#addProposal").find("#addProposalForm").val()
 		$(this).parents("#addProposal").find("#addProposalForm").val("")
 		let addedProposal = document.createElement("div")
@@ -284,3 +279,7 @@ $(document).ready(function (){
 
 
 
+//perche doppia virgola
+//perchè continua dopo ultimo termine
+//suddividere per ogni singolo array
+//sistemare discorso numeri e address
