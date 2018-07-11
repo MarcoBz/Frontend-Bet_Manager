@@ -81,15 +81,15 @@ function list(data, name, nos, scriptHash){
 	clearMain.id = "clearMain"
 	clearMain.className = "col-2"
 	let clearMainButton = document.createElement("input")
-	clearMainButton.id = "clearSideButton"
+	clearMainButton.id = "clearMainButton"
 	clearMainButton.className = "text-center btn btn-dark"
 	clearMainButton.type = "button"
 	clearMainButton.value = "Clear"
-	clearMain.appendChild("clearMainButton")
-	main.appendChild("clearMain")
+	clearMain.appendChild(clearMainButton)
+	
 	
 	document.getElementById('main').appendChild(table)
-	
+	main.appendChild(clearMain)
 }
 
 function create(nos, scriptHash){
@@ -161,12 +161,12 @@ function create(nos, scriptHash){
 	clearMain.id = "clearMain"
 	clearMain.className = "col-2"
 	let clearMainButton = document.createElement("input")
-	clearMainButton.id = "clearSideButton"
+	clearMainButton.id = "clearMainButton"
 	clearMainButton.className = "text-center btn btn-dark"
 	clearMainButton.type = "button"
 	clearMainButton.value = "Clear"
-	clearMain.appendChild("clearMainButton")
-	main.appendChild("clearMain")	
+	clearMain.appendChild(clearMainButton)
+	main.appendChild(clearMain)	
 	
 	$("#main").on("click","#addAddressButton", function(){
 		let address = $(this).parents("#addAddress").find("#addAddressForm").val()
@@ -209,7 +209,7 @@ function create(nos, scriptHash){
 	});
 
 	$('#main').on("click","#invokeCreateGroup", function (){
-		let operation = ('create_league')
+		let operation = ('create_group')
 		let args = []
 		let groupName = document.getElementById("groupName").value
 		$('.addedAddress').each(function(i) {
