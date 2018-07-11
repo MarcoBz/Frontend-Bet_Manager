@@ -243,17 +243,22 @@ function create(player, groupName, nos, scriptHash){
 
 
 function checkBetStatus(bet){
-	if (bet.currentBlock < bet.openBlock){
-		bet.status = "open"
-	}
-	else if((bet.openBlock <= bet.currentBlock) && (bet.currentBlock < bet.closeBlock)){
-		bet.status = "close"
-	}
-	else if((bet.closeBlock <= bet.currentBlock) && (bet.currentBlock < bet.convalidateBlock)){
-		bet.status = "onConvalidation"
+	if (bet.alreadyPayed == 1){
+		bet.status = "payed"
 	}
 	else{
-		bet.status ="convalidated"
+		if (bet.currentBlock < bet.openBlock){
+			bet.status = "open"
+		}
+		else if((bet.openBlock <= bet.currentBlock) && (bet.currentBlock < bet.closeBlock)){
+			bet.status = "close"
+		}
+		else if((bet.closeBlock <= bet.currentBlock) && (bet.currentBlock < bet.convalidateBlock)){
+			bet.status = "onConvalidation"
+		}
+		else{
+			bet.status ="convalidated"
+		}
 	}
 	return bet
 }
@@ -274,31 +279,14 @@ function checkPlayerStatus(bet){
 			}
 		}
 	}
-	if (bet.player.hasBet){
-		if (bet.hasWinningProposal){
-			if (bet.player.betProposal == bet.winningProposal){
-				bet.player.hasWon = true
-				for (var j = 0; j < bet.proposals[bet.winningProposalIndex].nAlreadyPayed; j++){
-					if (bet.proposals[bet.winningProposalIndex].alreadyPayed[j] == bet.player.address){
-						bet.player.payed = true,
-					}	
-				}
-			}
-			else{
-				bet.player.hasWon = false
-			}
+	if (bet.hasWinningProposal){
+		if (bet.player.betProposal == bet.winningProposal){
+			bet.player.hasWon = true
 		}
-		if (bet.needRefund){
-			bet.player.refund = true
-			for(var i = 0; i < bet.nProposals; i++){
-				for (var j = 0; j < bet.proposals[i].nAlreadyPayed; j++){
-					if (bet.proposals[i].alreadyPayed[j] == bet.player.address){
-						bet.player.payed = true,
-					}	
-				}
-			}
+		else{
+			bet.player.hasWon = false
 		}
-	} 
+	}
 	return  bet
 }
 
@@ -311,7 +299,7 @@ function checkWinningProposal(bet){
 				bet.winningProposal = bet.proposals[bet.winningProposalIndex].text
 			}
 		}
-		if (!bet.hasWinningProposal){
+		if (not bet.hasWinningProposal){
 			bet.needRefund = true
 		}
 	}
@@ -321,15 +309,9 @@ function checkWinningProposal(bet){
 
 function checkResults(bet){
 	if (bet.hasWinningProposal){
+
 		for (var j = 0; j < bet.proposals[bet.winningProposalIndex].nBetters; j++){
 			bet.winners.push(bet.proposals[bet.winningProposalIndex].betters[j])
-		}
-	}
-	else if (bet.needRefund){
-		for (let i = 0; i < bet.nProposals; j++){
-			for (var j = 0; j < bet.proposals[i].nBetters; j++){
-				bet.toRefund.push(bet.proposals[i].betters[j])
-			}
 		}
 	}
 	return bet
@@ -461,7 +443,7 @@ function instantiateBet(data, player){
 		nProposals : null,
 		addProposal : null, //true, false
 		proposals : [],
-			// ["yes" , { betters : null, convalidators : null, alreadyPayed : null }]
+			// ["yes" , { betters : null, convalidators : null }]
 		player : {
 			address : player,
 			hasBet : false, //yes, no
@@ -469,15 +451,14 @@ function instantiateBet(data, player){
 			hasConvalidated : false, //yes, no
 			convalidationProposal : null, 
 			hasWon : false, //yes, no
-			refund: false,
-			payed : false 
+			payed : false //check nello storage ?
 		},
 		hasWinningProposal : false,
 		winningProposalIndex : null,
 		winningProposal : null,
 		winners : [],
 		needRefund : null,
-		toRefund : []
+		alreadyPayed : data[6]
 	}
 	bet.blocks.openBlock = bet.blocks.createAtBlock + data[3][0]
 	bet.blocks.closeBlock = bet.blocks.openBlock + data[3][1]
@@ -486,19 +467,15 @@ function instantiateBet(data, player){
 	bet.nProposals = data[4].length
 
 	for (var i = 0; i < bet.nProposals; i++){
-		bet.proposals.push({text : data[4][i][0], betters : [], convalidators : [], alreadyPayed : [], nBetters : 0, nConvalidators : 0, nAlreadyPayed : 0 })
+		bet.proposals.push({text : data[4][i][0], betters : [], convalidators : [], nBetters : 0, nConvalidators : 0 })
 		for(var j = 0; j < data[4][i][1].length; j++){
 			bet.proposals[i].betters.push(data[4][i][1][j])
 		}
 		for(var j = 0; j < data[4][i][2].length; j++){
 			bet.proposals[i].convalidators.push(data[4][i][2][j])
 		}
-		for(var j = 0; j < data[4][i][3].length; j++){
-			bet.proposals[i].alreadyPayed.push(data[4][i][2][j])
-		}
 		bet.proposals[i].nBetters = data[4][i][1].length
 		bet.proposals[i].nConvalidators = data[4][i][2].length
-		bet.proposals[i].nAlreadyPayed = data[4][i][3].length
 	}
 
 	if (bet.nPlayers % 2 == 0){

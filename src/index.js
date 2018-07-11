@@ -47,24 +47,7 @@ $(document).ready(function (){
 						tableButton.id = "recapButton"
 						tableElement.appendChild(tableButton)
 						document.getElementById('createGroup').appendChild(tableElement)
-						$('#createGroup').on("click", "#recapButton", function (){
-							$("#recap").empty()
-							$("#main").empty()
-							$("#side").empty()
-							dataRecap = []
-							for (let i = 0; i < data[1].length; i++){
-								dataTemp = {
-									betText : data[1][i][0],
-									groupName : data[1][i][1],
-									blocks : data[1][i][2],
-									createdAt : data[1][i][3],
-									payed : data[1][i][4]
-									amountBet : data[1][i][5]
-								}
-								dataRecap.push(dataTemp)
-							}
-						indexRecap.table(dataRecap, nos, scriptHash)
-						});
+
 					})
 					////.catch ##############
 			}
@@ -73,6 +56,26 @@ $(document).ready(function (){
 			}
 		})
 		//.catch((err) => console.log(`Error: ${err.message}`)); //#######
+
+	$('#createGroup').on("click", "#recapButton", function (){
+		$("#recap").empty()
+		$("#main").empty()
+		$("#side").empty()
+		dataRecap = []
+		for (let i = 0; i < data[1].length; i++){
+			dataTemp = {
+				betText : data[1][i][0],
+				groupName : data[1][i][1],
+				blocks : data[1][i][2],
+				createdAt : data[1][i][3],
+				payed : data[1][i][4]
+				amountBet : data[1][i][5]
+			}
+			dataRecap.push(dataTemp)
+		}
+	indexRecap.table(dataRecap, nos, scriptHash)
+	});
+
 
 	$('#chooseGroup').on("click",".groupButton", function (){
 		$("#recap").empty()
@@ -104,23 +107,29 @@ $(document).ready(function (){
 				  			let text = indexBet.list(dataBet, betterAddress, nos, scriptHash)
 				  			$('#side').html(text)
 			  			}
+						else{
+							$('#chooseGroup').html("</div> You have to login <div>")
+						}
 			  		});
 		  		})
 				//.catch((err) => console.log(`Error: ${err.message}`));
 		  	});
-	  	});
+	});
 
-		$('#main').on("click","#createBet", function (){
-			$("#side").empty()
-  			nos.getAddress()
+	$('#main').on("click","#createBet", function (){
+		$("#side").empty()
+			nos.getAddress()
 			.then((betterAddress) => {
 				if (betterAddress){
 					betterAddress = unhexlify(u.reverseHex(wallet.getScriptHashFromAddress(betterAddress)))
 					indexBet.create(betterAddress, name, nos, scriptHash)
-	  			}
-	  		});
-			////.catch ##############			
-		});
+				}
+				else{
+					$('#chooseGroup').html("</div> You have to login <div>")
+				}
+  		});
+		////.catch ##############			
+	});
 
 
 	$('#createGroup').on("click", "#createGroupButton", function (){
@@ -128,7 +137,73 @@ $(document).ready(function (){
 			$("#side").empty()
 			$("#main").empty()
 			indexGroup.create(nos, scriptHash)
-	  	});
+	});
+
+	$("#main").on("click","#addAddressButton", function(){
+		let address = $(this).parents("#addAddress").find("#addAddressForm").val()
+		let nickname = $(this).parents("#addAddress").find("#addNicknameForm").val()
+		$(this).parents("#addAddress").find("#addAddressForm").val("")
+		$(this).parents("#addAddress").find("#addNicknameForm").val("")
+		let addedAddress = document.createElement("div")
+		addedAddress.className = "form-row addedAddress"
+		let div5 = document.createElement("div")
+		div5.className = "col-6"
+		let inputAddress = document.createElement("input")
+		inputAddress.className = "form-control address"
+		inputAddress.disabled = true
+		inputAddress.type = "text"
+		inputAddress.value = address
+		div5.appendChild(inputAddress)
+		addedAddress.appendChild(div5)
+		let div6 = document.createElement("div")
+		div6.className = "col-5"
+		let inputNickname = document.createElement("input")
+		inputNickname.className = "form-control nickname"
+		inputNickname.disabled = true
+		inputNickname.type = "text"
+		inputNickname.value = nickname
+		div6.appendChild(inputNickname)
+		addedAddress.appendChild(div6)
+		let div7 = document.createElement("div")
+		div7.className = "col-auto"
+		let added = document.createElement("input")
+		added.type = "button"
+		added.className = "btn btn-dark"
+		added.id =  "removeAddressButton"
+		added.innerHTML = ""
+		div7.appendChild(added)
+		addedAddress.appendChild(div7)
+		document.getElementById("createGroupForm").appendChild(addedAddress)
+	});
+	
+	$("#main").on("click","#removeAddressButton", function(){
+		$(this).parents(".addedAddress").remove()
+	});
+
+	$('#main').on("click","#invokeCreateGroup", function (){
+		let operation = ('create_league')
+		let args = []
+		let groupName = document.getElementById("groupName").value
+		$('.addedAddress').each(function(i) {
+			let addressPartecipant  = $(this).find(".address").val()
+			if (addressPartecipant){
+				args.push(addressPartecipant)
+			}
+		});
+
+		$('.addedAddress').each(function(i) {
+			let nicknamePartecipant = $(this).find(".nickname").val()
+			if (nicknamePartecipant){
+				args.push(nicknamePartecipant)
+			}
+		});
+
+		args.push(groupName)
+		nos.invoke({scriptHash, operation, args})
+    		.then((txid) => alert(`Invoke txid: ${txid} `))
+    		//.catch((err) => alert(`Error: ${err.message}`));
+  	});
+
 	
 	$('#recap').on("click", "#clearRecapButton", function (){
 			$("#recap").empty()
@@ -137,18 +212,14 @@ $(document).ready(function (){
 	$('#main').on("click", "#clearMainButton", function (){
 				$("#side").empty()
 				$("#main").empty()
-	  	});
+	});
 
 	$("#side").on("click", "#clearSideButton", function (){
 				$("#side").empty()
-	  	});
+	});
 })
 
 
 
 
 
-//perche doppia virgola
-//perchè continua dopo ultimo termine
-//suddividere per ogni singolo array
-//sistemare discorso numeri e address
