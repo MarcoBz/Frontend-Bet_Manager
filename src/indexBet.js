@@ -3,7 +3,7 @@ import { str2hexstring, int2hex, hexstring2str } from '@cityofzion/neon-js/src/u
 import {unhexlify,hexlify} from 'binascii';
 
 function list(data, player, nos, scriptHash){
-	let bet = instantiateBet(data, player, nos, scriptHash)
+	let bet = instantiateBet(data, player)
 	var text = "<b>" + bet.text + "</b></br>"
 	text += "Group :" + bet.group + "</br>"
 	text += "Created by :" + bet.creator + "</br>"
@@ -40,7 +40,7 @@ function list(data, player, nos, scriptHash){
 		}
 		table += "</td></tr>"
 	}
-	if ((bet.addProposal == "y" && bet.status == "open") && (!bet.player.hasBet)){
+	if ((bet.addProposal == "y" && bet.status == "open") && not (bet.player.hasBet)){
 		table += "<tr><td><div class = 'proposalAdd'><input type = 'text' name = 'addProposalInput'><input class = 'proposalButton' type = 'button' value = 'Add Proposal'></div></td><td></td><td></td></tr>"
 	}
 	table += "</table>"
@@ -66,6 +66,7 @@ function list(data, player, nos, scriptHash){
 			operation = "partecipate_bet"
 			args.push($(this).parent().find('input[name = "addProposalInput"]').val())
 		}
+	console.log('prova1')
 		nos.invoke({scriptHash,operation,args})
     		.then((txid) => alert(`Invoke txid: ${txid} `))
     		//.catch((err) => alert(`Error: ${err.message}`));
@@ -178,81 +179,28 @@ function create(player, groupName, nos, scriptHash){
 	clearSideButton.className = "text-center btn btn-dark"
 	clearSideButton.type = "button"
 	clearSideButton.value = "Clear"
-	clearSide.appendChild("clearSideButton")
-	side.appendChild("clearSide")
-	
-	$("#side").on("click","#addProposalButton", function(){
-		let Proposal = $(this).parents("#addProposal").find("#addProposalForm").val()
-		$(this).parents("#addProposal").find("#addProposalForm").val("")
-		let addedProposal = document.createElement("div")
-		addedProposal.className = "form-row addedProposal"
-		let div5 = document.createElement("div")
-		div5.className = "col-11"
-		let inputProposal = document.createElement("input")
-		inputProposal.className = "form-control proposal"
-		inputProposal.disabled = true
-		inputProposal.type = "text"
-		inputProposal.value = Proposal
-		div5.appendChild(inputProposal)
-		addedProposal.appendChild(div5)
-		let div7 = document.createElement("div")
-		div7.className = "col-auto"
-		let added = document.createElement("input")
-		added.type = "button"
-		added.className = "btn btn-dark"
-		added.id =  "removeProposalButton"
-		added.innerHTML = ""
-		div7.appendChild(added)
-		addedProposal.appendChild(div7)
-		document.getElementById("createBetForm").appendChild(addedProposal)
-	});
-
-	$("#side").on("click","#removeProposalButton", function(){
-		$(this).parents(".addedProposal").remove()
-	});
-	$("#side").on("click","#invokeCreateBetButton", function (){
-		let operation = ('create_bet')
-		let args = []
-		args.push(player)
-		args.push(groupName)
-		args.push($("#side").find('#betText').val())
-		args.push($("#side").find('#openBlock').val())
-		args.push($("#side").find('#closeBlock').val())
-		args.push($("#side").find('#convalidateBlock').val())
-		args.push($("#side").find('#amountToBet').val())
-		args.push($("#side").find('#tokenUsed').val())
-		if ($("#canAddProposal").is(':checked')){
-			args.push('y')
-		}
-		else{
-			args.push('n')
-		}
-		$('.addedProposal').each(function(i) {
-			let addedProposal  = $(this).find(".proposal").val()
-			if (addedProposal){
-				args.push(addedProposal)
-			}
-
-		});
-		nos.invoke({scriptHash,operation,args})
-		.then((txid) => alert(`Invoke txid: ${txid} `))
-		//.catch((err) => alert(`Error: ${err.message}`));
-	});
+	clearSide.appendChild(clearSideButton)
+	side.appendChild(clearSide)
 }
 
 
 function checkBetStatus(bet){
-	if (bet.blocks.currentBlock < bet.blocks.openBlock){
-		bet.status = "open"
-	}
-	else if((bet.blocks.openBlock <= bet.blocks.currentBlock) && (bet.blocks.currentBlock < bet.blocks.closeBlock)){
-		bet.status = "close"
-	}
-	else if((bet.blocks.closeBlock <= bet.blocks.currentBlock) && (bet.blocks.currentBlock < bet.blocks.convalidateBlock)){
-		bet.status = "onConvalidation"
+	if (bet.alreadyPayed == 1){
+		bet.status = "payed"
 	}
 	else{
-		bet.status ="convalidated"
+		if (bet.currentBlock < bet.openBlock){
+			bet.status = "open"
+		}
+		else if((bet.openBlock <= bet.currentBlock) && (bet.currentBlock < bet.closeBlock)){
+			bet.status = "close"
+		}
+		else if((bet.closeBlock <= bet.currentBlock) && (bet.currentBlock < bet.convalidateBlock)){
+			bet.status = "onConvalidation"
+		}
+		else{
+			bet.status ="convalidated"
+		}
 	}
 	return bet
 }
@@ -312,19 +260,23 @@ function checkResults(bet){
 }
 
 function getTextBetStatus(bet){
-	if (bet.blocks.currentBlock < bet.blocks.openBlock){
-		var text = "Bet open"
-	}
-	else if((bet.blocks.openBlock <= bet.blocks.currentBlock) && (bet.blocks.currentBlock < bet.blocks.closeBlock)){
-		var text = "Bet close"
-	}
-	else if((bet.blocks.closeBlock <= bet.blocks.currentBlock) && (bet.blocks.currentBlock < bet.blocks.convalidateBlock)){
-		var text = "Bet to convalidate"
+	if (bet.alreadyPayed == 1){
+		var text = "Bet payed"
 	}
 	else{
-		var text = "Bet convalidated and to pay"
+		if (bet.currentBlock < bet.openBlock){
+			var text = "Bet open"
+		}
+		else if((bet.openBlock <= bet.currentBlock) && (bet.currentBlock < bet.closeBlock)){
+			var text = "Bet close"
+		}
+		else if((bet.closeBlock <= bet.currentBlock) && (bet.currentBlock < bet.convalidateBlock)){
+			var text = "Bet to convalidate"
+		}
+		else{
+			var text = "Bet convalidated and to pay"
+		}
 	}
-
 	return text
 }
 
@@ -403,7 +355,7 @@ function getTextProposal(bet, index){
 	if ((bet.status == "open" && bet.player.hasBet) || (bet.status == "close") || (bet.status == "payed") || (bet.status == "convalidated")){
 		table += "<div class = 'proposalId'>" + bet.proposals[index].text + "</div>"
 	}
-	else if((bet.status == "open") && (!bet.player.hasBet)){
+	else if((bet.status == "open") && not (bet.player.hasBet)){
 		table += "<div class = 'proposalPartecipate'><input class = 'proposalButton' type = 'button' value = '" + bet.proposals[index].text +"'></div>"  
 	}
 	else if (bet.status == "onConvalidation"){
@@ -412,110 +364,97 @@ function getTextProposal(bet, index){
 	return table
 }
 
-async function instantiateBet(data, player, nos, scriptHash){
-	let operation = "get_height"
-	let args = []
-	let bet
-	await nos.testInvoke({scriptHash,operation,args})
-		.then((returnArray) => {
-			bet = {
-				text : data[1],
-				status : null, //open, close, onConvalidation, convalidated, payed
-				group : data[0],
-				creator : data[2], 
-				amountToBet : data[3][3],
-				usedToken : data[3][4],
-				magicNumber : null,
-				nPlayers : data[3][6],
-				blocks : {
-					currentBlock :  returnArray["stack"][0]["value"][0]["value"],
-					createAtBlock : data[5],
-					openBlock : null,
-					closeBlock : null,
-					convalidateBlock : null
-				},
-				nProposals : null,
-				addProposal : null, //true, false
-				proposals : [],
-					// ["yes" , { betters : null, convalidators : null }]
-				player : {
-					address : player,
-					hasBet : false, //yes, no
-					betProposal : null,
-					hasConvalidated : false, //yes, no
-					convalidationProposal : null, 
-					hasWon : false, //yes, no
-					payed : false //check nello storage ?
-				},
-				hasWinningProposal : false,
-				winningProposalIndex : null,
-				winningProposal : null,
-				winners : [],
-				needRefund : null
-			}
-			bet.blocks.openBlock = bet.blocks.createAtBlock + data[3][0]
-			bet.blocks.closeBlock = bet.blocks.openBlock + data[3][1]
-			bet.blocks.convalidateBlock = bet.blocks.closeBlock + data[3][2]
+function instantiateBet(data, player){
 
-			bet.nProposals = data[4].length
+	let bet = {
+		text : data[1],
+		status : null, //open, close, onConvalidation, convalidated, payed
+		group : data[0],
+		creator : data[2], 
+		amountToBet : data[3][3],
+		usedToken : data[3][4],
+		magicNumber : null,
+		nPlayers : data[3][6],
+		blocks : {
+			currentBlock : null, ////capire come fare
+			createAtBlock : data[5],
+			openBlock : null,
+			closeBlock : null,
+			convalidateBlock : null
+		},
+		nProposals : null,
+		addProposal : null, //true, false
+		proposals : [],
+			// ["yes" , { betters : null, convalidators : null }]
+		player : {
+			address : player,
+			hasBet : false, //yes, no
+			betProposal : null,
+			hasConvalidated : false, //yes, no
+			convalidationProposal : null, 
+			hasWon : false, //yes, no
+			payed : false //check nello storage ?
+		},
+		hasWinningProposal : false,
+		winningProposalIndex : null,
+		winningProposal : null,
+		winners : [],
+		needRefund : null,
+		alreadyPayed : data[6]
+	}
+	bet.blocks.openBlock = bet.blocks.createAtBlock + data[3][0]
+	bet.blocks.closeBlock = bet.blocks.openBlock + data[3][1]
+	bet.blocks.convalidateBlock = bet.blocks.closeBlock + data[3][2]
 
-			for (var i = 0; i < bet.nProposals; i++){
-				bet.proposals.push({text : data[4][i][0], betters : [], convalidators : [], nBetters : 0, nConvalidators : 0 })
-				for(var j = 0; j < data[4][i][1].length; j++){
-					bet.proposals[i].betters.push(data[4][i][1][j])
-				}
-				for(var j = 0; j < data[4][i][2].length; j++){
-					bet.proposals[i].convalidators.push(data[4][i][2][j])
-				}
-				bet.proposals[i].nBetters = data[4][i][1].length
-				bet.proposals[i].nConvalidators = data[4][i][2].length
-			}
+	bet.nProposals = data[4].length
 
-			if (bet.nPlayers % 2 == 0){
-				bet.magicNumber = (bet.nPlayers / 2) + 1
-			}
-			else{
-				bet.magicNumber = (bet.nPlayers + 1) / 2
-			}
+	for (var i = 0; i < bet.nProposals; i++){
+		bet.proposals.push({text : data[4][i][0], betters : [], convalidators : [], nBetters : 0, nConvalidators : 0 })
+		for(var j = 0; j < data[4][i][1].length; j++){
+			bet.proposals[i].betters.push(data[4][i][1][j])
+		}
+		for(var j = 0; j < data[4][i][2].length; j++){
+			bet.proposals[i].convalidators.push(data[4][i][2][j])
+		}
+		bet.proposals[i].nBetters = data[4][i][1].length
+		bet.proposals[i].nConvalidators = data[4][i][2].length
+	}
 
-			checkBetStatus(bet)
-			checkWinningProposal(bet)
-			checkResults(bet)
-			checkPlayerStatus(bet)
-			
-		})
-		//.catch((err) => alert(`Error: ${err.message}`));
+	if (bet.nPlayers % 2 == 0){
+		bet.magicNumber = (bet.nPlayers / 2) + 1
+	}
+	else{
+		bet.magicNumber = (bet.nPlayers + 1) / 2
+	}
+
+	checkBetStatus(bet)
+	checkWinningProposal(bet)
+	checkResults(bet)
+	checkPlayerStatus(bet)
 	return bet
 }
 
-async function getBetStatus(data, nos, scriptHash){
-	let operation = "get_height"
-	let args = []
-	let bet
-	await nos.testInvoke({scriptHash,operation,args})
-		.then((returnArray) => {
-			  bet = {
-				    status : null, //open, close, onConvalidation, convalidated, payed
-				    blocks : {
-				      currentBlock : returnArray["stack"][0]["value"][0]["value"], 
-				      createAtBlock : data[5],
-				      openBlock : null,
-				      closeBlock : null,
-				      convalidateBlock : null
-				    }
-				  }
-			  bet.blocks.openBlock = bet.blocks.createAtBlock + data[3][0]
-			  bet.blocks.closeBlock = bet.blocks.openBlock + data[3][1]
-			  bet.blocks.convalidateBlock = bet.blocks.closeBlock + data[3][2]
-			  checkBetStatus(bet)
-			  
-			  
-		});
-	return bet.status
+function getBetStatus(data){
+  let bet = {
+    alreadyPayed : null,
+    status : null, //open, close, onConvalidation, convalidated, payed
+    blocks : {
+      currentBlock : null, ////capire come fare
+      createAtBlock : data[5],
+      openBlock : null,
+      closeBlock : null,
+      convalidateBlock : null
+    }
+  }
+  bet.blocks.openBlock = bet.blocks.createAtBlock + data[3][0]
+  bet.blocks.closeBlock = bet.blocks.openBlock + data[3][1]
+  bet.blocks.convalidateBlock = bet.blocks.closeBlock + data[3][2]
+  checkBetStatus(bet)
+  return bet.status
 }
 
-async function getBetResult(data, player, nos, scriptHash){
-	let bet = await instantiateBet(data, player, nos, scriptHash)
+function getBetResult(data, player){
+	let bet = instantiateBet(data, player)
 	let betResult = ""
 	if (bet.hasWinningProposal){
 		if (bet.player.hasWon){
