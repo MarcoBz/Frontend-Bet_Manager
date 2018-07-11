@@ -8,6 +8,7 @@ import { str2hexstring, int2hex, hexstring2str } from '@cityofzion/neon-js/src/u
 import {unhexlify,hexlify} from 'binascii';
 const address = unhexlify(u.reverseHex(wallet.getScriptHashFromAddress('AK2nJJpJr6o664CWJKi1QRXjqeic2zRp8y')))
 const scriptHash = '7cbd0436107124b6d4c45edfcef99a7013e5afeb';
+
 const nos = window.NOS.V1;
 
 $(document).ready(function (){
@@ -196,7 +197,6 @@ $(document).ready(function (){
 				args.push(nicknamePartecipant)
 			}
 		});
-
 		args.push(groupName)
 		nos.invoke({scriptHash, operation, args})
     		.then((txid) => alert(`Invoke txid: ${txid} `))
@@ -206,6 +206,7 @@ $(document).ready(function (){
 	$('#recap').on("click", "#clearRecapButton", function (){
 			$("#recap").empty()
 	});
+
 
 	$('#main').on("click", "#clearMainButton", function (){
 				$("#side").empty()

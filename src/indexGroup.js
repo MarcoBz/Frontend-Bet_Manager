@@ -46,7 +46,6 @@ function list(data, name, nos, scriptHash){
 		let decodeOutput = false
 		nos.getStorage({scriptHash, key, decodeOutput})
 			.then((rawData) => {
-
 				let dataBet = des.deserialize(rawData)
 				Promise.resolve(indexBet.getBetStatus(dataBet, nos, scriptHash))
 				.then((betStatus) => {
@@ -68,6 +67,7 @@ function list(data, name, nos, scriptHash){
 					}
 				})
 			})
+
 			//.catch((err) => console.log(`Error: ${err.message}`));
 	}
 	let createBet = document.createElement("div")
@@ -76,7 +76,6 @@ function list(data, name, nos, scriptHash){
 	createBet.id = "createBet"
 	table.appendChild(betsTable)
 	table.appendChild(createBet)
-	
 	main.appendChild(table)
 
 	let clearMain = document.createElement("div")
@@ -166,6 +165,7 @@ function create(nos, scriptHash){
 	clearMainButton.value = "Clear"
 	clearMain.appendChild(clearMainButton)
 	main.appendChild(clearMain)	
+
 }
 
 module.exports.list = list

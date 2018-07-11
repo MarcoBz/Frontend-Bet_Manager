@@ -114,7 +114,6 @@ function table(data, nos, scriptHash){
               }));
         }
          // + loading gif
-
       }
       else{
         tdBody.innerHTML = data[i][body[j]]
