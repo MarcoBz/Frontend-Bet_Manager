@@ -91,7 +91,7 @@ function create(player, groupName, nos, scriptHash){
 	//}
 	let form = document.createElement("form")
 	form.id = "createBetForm"
-
+	console.log(groupName)
 	let betLabels = ["Bet text", "Amount to bet", "Open for blocks", "Close for blocks", "Convalidation for blocks", "Token used"]
 	let betArgs = ["betText", "amountToBet", "openBlock", "closeBlock", "convalidateBlock", "tokenUsed"]
 	let betExample = ["Is NEO the best?", "0", "0", "0", "0", "602c79718b16e442de58778e148d0b1084e3b2dffd5de6b7b16cee7969282de7"]
@@ -109,7 +109,12 @@ function create(player, groupName, nos, scriptHash){
 		let inputArgForm = document.createElement("input")
 		inputArgForm.className = "form-control"
 		inputArgForm.id = betArgs[i]
-		inputArgForm.type = "text"
+		if (betArgs[i] == "tokenUsed" || betArgs[i] == "betText"){
+			inputArgForm.type = "text"
+		}
+		else{
+			inputArgForm.type = "number"
+		}
 		inputArgForm.placeholder = betExample[i]
 		div1.appendChild(inputArgForm)
 		argForm.appendChild(labelArgForm)

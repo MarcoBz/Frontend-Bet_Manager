@@ -47,6 +47,8 @@ function list(data, name, nos, scriptHash){
 		nos.getStorage({scriptHash, key, decodeOutput})
 			.then((rawData) => {
 				let dataBet = des.deserialize(rawData)
+				//let blocks = 
+				//[0,0,0,data[i]["blocks"],0,data[i]["createdAt"]]
 				Promise.resolve(indexBet.getBetStatus(dataBet, nos, scriptHash))
 				.then((betStatus) => {
 					if (betStatus == "open"){
@@ -88,6 +90,7 @@ function list(data, name, nos, scriptHash){
 	clearMainButton.value = "Clear"
 	clearMain.appendChild(clearMainButton)
 	main.appendChild(clearMain)
+
 }
 
 function create(nos, scriptHash){

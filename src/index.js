@@ -7,17 +7,20 @@ import { u, wallet } from '@cityofzion/neon-js';
 import { str2hexstring, int2hex, hexstring2str } from '@cityofzion/neon-js/src/utils'
 import {unhexlify,hexlify} from 'binascii';
 const address = unhexlify(u.reverseHex(wallet.getScriptHashFromAddress('AK2nJJpJr6o664CWJKi1QRXjqeic2zRp8y')))
-const scriptHash = '7cbd0436107124b6d4c45edfcef99a7013e5afeb';
+const scriptHash = 'fdccd25aaf05b4070fd4766166cd4e75f1c18eeb';
 
 const nos = window.NOS.V1;
 
 $(document).ready(function (){
+	let player
+	let name
 	nos.getAddress()
 		.then((loggedAddress) => {
 			if (loggedAddress){
 				document.getElementById('chooseGroup').innerHTML = "";
 				document.getElementById('createGroup').innerHTML = "";
 				let key = unhexlify(u.reverseHex(wallet.getScriptHashFromAddress(loggedAddress)))
+				player = key
 				let decodeOutput = false
 				nos.getStorage({scriptHash, key, decodeOutput})
 					.then((rawData) =>{
@@ -75,7 +78,7 @@ $(document).ready(function (){
 				$('#chooseGroup').html("</div> You have to login <div>")
 			}
 		})
-		//.catch((err) => console.log(`Error: ${err.message}`)); //#######
+		//.catch((err) => console.log(`Error: ${err.message}`)); //####### 
 
 	$('#chooseGroup').on("click",".groupButton", function (){
 		$("#recap").empty()
@@ -90,7 +93,7 @@ $(document).ready(function (){
 	  			indexGroup.list(data, key, nos, scriptHash)
 	  		})
 			//.catch((err) => console.log(`Error: ${err.message}`)); //#######
-		let name = key
+		name = key
 
 		$('#main').on("click",".getBetButton", function (){
 			$("#side").empty()
@@ -118,7 +121,7 @@ $(document).ready(function (){
 
 	$('#main').on("click","#createBet", function (){
 		$("#side").empty()
-			nos.getAddress()
+		nos.getAddress()
 		.then((betterAddress) => {
 			if (betterAddress){
 				betterAddress = unhexlify(u.reverseHex(wallet.getScriptHashFromAddress(betterAddress)))
@@ -181,7 +184,7 @@ $(document).ready(function (){
 	});
 
 	$('#main').on("click","#invokeCreateGroup", function (){
-		let operation = ('create_league')
+		let operation = ('create_group')
 		let args = []
 		let groupName = document.getElementById("groupName").value
 		$('.addedAddress').each(function(i) {
@@ -189,6 +192,7 @@ $(document).ready(function (){
 			if (addressPartecipant){
 				args.push(addressPartecipant)
 			}
+			console.log(addressPartecipant)
 		});
 
 		$('.addedAddress').each(function(i) {
@@ -196,8 +200,10 @@ $(document).ready(function (){
 			if (nicknamePartecipant){
 				args.push(nicknamePartecipant)
 			}
+			console.log(nicknamePartecipant)
 		});
 		args.push(groupName)
+		console.log(groupName)
 		nos.invoke({scriptHash, operation, args})
     		.then((txid) => alert(`Invoke txid: ${txid} `))
     		//.catch((err) => alert(`Error: ${err.message}`));
@@ -250,12 +256,12 @@ $(document).ready(function (){
 		let operation = ('create_bet')
 		let args = []
 		args.push(player)
-		args.push(groupName)
+		args.push(name)
 		args.push($("#side").find('#betText').val())
-		args.push($("#side").find('#openBlock').val())
-		args.push($("#side").find('#closeBlock').val())
-		args.push($("#side").find('#convalidateBlock').val())
-		args.push($("#side").find('#amountToBet').val())
+		args.push(parseInt($("#side").find('#openBlock').val(), 16))
+		args.push(parseInt($("#side").find('#closeBlock').val(), 16))
+		args.push(parseInt($("#side").find('#convalidateBlock').val(), 16))
+		args.push(parseInt($("#side").find('#amountToBet').val(), 16))
 		args.push($("#side").find('#tokenUsed').val())
 		if ($("#canAddProposal").is(':checked')){
 			args.push('y')
@@ -270,7 +276,7 @@ $(document).ready(function (){
 			}
 
 		});
-		nos.invoke({scriptHash,operation,args})
+		nos.invoke({scriptHash, operation, args})
 		.then((txid) => alert(`Invoke txid: ${txid} `))
 		//.catch((err) => alert(`Error: ${err.message}`));
 	});
