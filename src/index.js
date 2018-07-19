@@ -1,8 +1,9 @@
 const des = require('./deserialize')
 require('babel-polyfill')
-const indexGroup = require('./indexGroup')
-const indexBet = require('./indexBet')
-const indexRecap = require('./indexRecap')
+const groupFile = require('./groupFile')
+const betFile = require('./betFile')
+const recapFile = require('./recapFile')
+const checker = require('./checkInput')
 import { u, wallet } from '@cityofzion/neon-js';
 import { str2hexstring, int2hex, hexstring2str } from '@cityofzion/neon-js/src/utils'
 import {unhexlify,hexlify} from 'binascii';
@@ -51,7 +52,25 @@ $(document).ready(function (){
 								}
 								dataRecap.push(dataTemp)
 							}
-						indexRecap.table(dataRecap, nos, scriptHash)
+						recapFile.table(dataRecap, nos, scriptHash)
+						});
+
+						$('#createGroup').on("click", "#balanceButton", function (){
+							$("#recap").empty()
+							$("#main").empty()
+							$("#side").empty()
+							let dataBalance = []
+							let totalBalance = data[3]
+							for (let i = 0; i < data[2].length; i++){
+								let dataTemp = {
+									betText : data[2][i][0],
+									groupName : data[2][i][1],
+									tokenFlow : data[2][i][2],
+									amount : data[2][i][3]
+								}
+								dataBalance.push(dataTemp)
+							}
+						recapFile.balance(dataBalance, totalBalance)
 						});
 					})
 					////.catch ##############
@@ -72,6 +91,12 @@ $(document).ready(function (){
 				tableButton.value = "Recap"
 				tableButton.id = "recapButton"
 				tableElement.appendChild(tableButton)
+				let balanceButton = document.createElement("input")
+				balanceButton.type = "button"
+				balanceButton.className = "btn btn-outline-primary"
+				balanceButton.value = "Balance"
+				balanceButton.id = "balanceButton"
+				tableElement.appendChild(balanceButton)
 				document.getElementById('createGroup').appendChild(tableElement)
 			}
 			else{
@@ -90,7 +115,7 @@ $(document).ready(function (){
 		nos.getStorage({scriptHash, key, decodeOutput})
 	  		.then((rawData) => {
 	  			data = des.deserialize(rawData)
-	  			indexGroup.list(data, key, nos, scriptHash)
+	  			groupFile.list(data, key, nos, scriptHash)
 	  		})
 			//.catch((err) => console.log(`Error: ${err.message}`)); //#######
 		name = key
@@ -107,7 +132,7 @@ $(document).ready(function (){
 						if (betterAddress){
 							betterAddress = unhexlify(u.reverseHex(wallet.getScriptHashFromAddress(betterAddress)))
 				  			let dataBet = des.deserialize(rawData)
-				  			let text = indexBet.list(dataBet, betterAddress, nos, scriptHash)
+				  			let text = betFile.list(dataBet, betterAddress, nos, scriptHash)
 				  			$('#side').html(text)
 			  			}
 						else{
@@ -125,7 +150,7 @@ $(document).ready(function (){
 		.then((betterAddress) => {
 			if (betterAddress){
 				betterAddress = unhexlify(u.reverseHex(wallet.getScriptHashFromAddress(betterAddress)))
-				indexBet.create(betterAddress, name, nos, scriptHash)
+				betFile.create(betterAddress, name, nos, scriptHash)
   			}
 			else{
 				$('#chooseGroup').html("</div> You have to login <div>")
@@ -139,44 +164,68 @@ $(document).ready(function (){
 			$("#recap").empty()
 			$("#side").empty()
 			$("#main").empty()
-			indexGroup.create(nos, scriptHash)
+			groupFile.create(nos, scriptHash)
 	  	});
 
 	$("#main").on("click","#addAddressButton", function(){
+
+		let newAddress = []
 		let address = $(this).parents("#addAddress").find("#addAddressForm").val()
 		let nickname = $(this).parents("#addAddress").find("#addNicknameForm").val()
-		$(this).parents("#addAddress").find("#addAddressForm").val("")
-		$(this).parents("#addAddress").find("#addNicknameForm").val("")
-		let addedAddress = document.createElement("div")
-		addedAddress.className = "form-row addedAddress"
-		let div5 = document.createElement("div")
-		div5.className = "col-6"
-		let inputAddress = document.createElement("input")
-		inputAddress.className = "form-control address"
-		inputAddress.disabled = true
-		inputAddress.type = "text"
-		inputAddress.value = address
-		div5.appendChild(inputAddress)
-		addedAddress.appendChild(div5)
-		let div6 = document.createElement("div")
-		div6.className = "col-5"
-		let inputNickname = document.createElement("input")
-		inputNickname.className = "form-control nickname"
-		inputNickname.disabled = true
-		inputNickname.type = "text"
-		inputNickname.value = nickname
-		div6.appendChild(inputNickname)
-		addedAddress.appendChild(div6)
-		let div7 = document.createElement("div")
-		div7.className = "col-auto"
-		let added = document.createElement("input")
-		added.type = "button"
-		added.className = "btn btn-dark"
-		added.id =  "removeAddressButton"
-		added.innerHTML = ""
-		div7.appendChild(added)
-		addedAddress.appendChild(div7)
-		document.getElementById("createGroupForm").appendChild(addedAddress)
+		newAddress.push(address)
+		newAddress.push(nickname)
+
+		let allAddresses = []
+
+		$('.addedAddress').each(function(i) {
+			let actualAddress = []
+			let addressPartecipant  = $(this).find(".address").val()
+			actualAddress.push(addressPartecipant)
+			let nicknamePartecipant = $(this).find(".nickname").val()
+			actualAddress.push(nicknamePartecipant)
+			allAddresses.push(actualAddress)
+		});
+
+		let checkerNewAddress = checker.checkNewAddress(newAddress, allAddresses)
+		if (checkerNewAddress != "ok"){
+			document.getElementById("addAddressForm").parentNode.parentNode.className += " border border-danger border-15"
+			alert(`Error: ${checkerNewAddress}`)	
+		}
+
+		else{
+			$(this).parents("#addAddress").find("#addAddressForm").val("")
+			$(this).parents("#addAddress").find("#addNicknameForm").val("")
+			let addedAddress = document.createElement("div")
+			addedAddress.className = "form-row addedAddress"
+			let div5 = document.createElement("div")
+			div5.className = "col-6"
+			let inputAddress = document.createElement("input")
+			inputAddress.className = "form-control address"
+			inputAddress.disabled = true
+			inputAddress.type = "text"
+			inputAddress.value = address
+			div5.appendChild(inputAddress)
+			addedAddress.appendChild(div5)
+			let div6 = document.createElement("div")
+			div6.className = "col-5"
+			let inputNickname = document.createElement("input")
+			inputNickname.className = "form-control nickname"
+			inputNickname.disabled = true
+			inputNickname.type = "text"
+			inputNickname.value = nickname
+			div6.appendChild(inputNickname)
+			addedAddress.appendChild(div6)
+			let div7 = document.createElement("div")
+			div7.className = "col-auto"
+			let added = document.createElement("input")
+			added.type = "button"
+			added.className = "btn btn-dark"
+			added.id =  "removeAddressButton"
+			added.innerHTML = ""
+			div7.appendChild(added)
+			addedAddress.appendChild(div7)
+			document.getElementById("createGroupForm").appendChild(addedAddress)
+		}
 	});
 	
 	$("#main").on("click","#removeAddressButton", function(){
@@ -184,15 +233,17 @@ $(document).ready(function (){
 	});
 
 	$('#main').on("click","#invokeCreateGroup", function (){
+		let groupName = document.getElementById("groupName").value
+		let checkGroupName = checker.checkString(groupName)
 		let operation = ('create_group')
 		let args = []
-		let groupName = document.getElementById("groupName").value
+		let addresses = []
 		$('.addedAddress').each(function(i) {
 			let addressPartecipant  = $(this).find(".address").val()
 			if (addressPartecipant){
 				args.push(addressPartecipant)
+				addresses.push(addressPartecipant)
 			}
-			console.log(addressPartecipant)
 		});
 
 		$('.addedAddress').each(function(i) {
@@ -200,19 +251,35 @@ $(document).ready(function (){
 			if (nicknamePartecipant){
 				args.push(nicknamePartecipant)
 			}
-			console.log(nicknamePartecipant)
 		});
-		args.push(groupName)
-		console.log(groupName)
-		nos.invoke({scriptHash, operation, args})
-    		.then((txid) => alert(`Invoke txid: ${txid} `))
+		let checkNumAddresses = checker.checkNumAddress(addresses)
+		if (checkGroupName != "ok"){
+			document.getElementById("groupName").parentNode.parentNode.className += " border border-danger border-15"
+			alert(`Error: ${checkGroupName}`)			
+		}
+
+		else if (checkNumAddresses != "ok"){
+			alert(`Error: ${checkNumAddresses}`)
+		}
+
+		else{
+			args.push(groupName)
+			nos.invoke({scriptHash, operation, args})
+			.then((txid) => {
+				alert(`Invoke txid: ${txid} `)
+				window.location.reload(true)
+			})
     		//.catch((err) => alert(`Error: ${err.message}`));
+	    }
   	});
 
 	$('#recap').on("click", "#clearRecapButton", function (){
 			$("#recap").empty()
 	});
 
+	$('#recap').on("click", "#clearBalanceButton", function (){
+			$("#recap").empty()
+	});
 
 	$('#main').on("click", "#clearMainButton", function (){
 				$("#side").empty()
@@ -224,37 +291,79 @@ $(document).ready(function (){
 	});
 	
 	$("#side").on("click","#addProposalButton", function(){
-		let Proposal = $(this).parents("#addProposal").find("#addProposalForm").val()
-		$(this).parents("#addProposal").find("#addProposalForm").val("")
-		let addedProposal = document.createElement("div")
-		addedProposal.className = "form-row addedProposal"
-		let div5 = document.createElement("div")
-		div5.className = "col-11"
-		let inputProposal = document.createElement("input")
-		inputProposal.className = "form-control proposal"
-		inputProposal.disabled = true
-		inputProposal.type = "text"
-		inputProposal.value = Proposal
-		div5.appendChild(inputProposal)
-		addedProposal.appendChild(div5)
-		let div7 = document.createElement("div")
-		div7.className = "col-auto"
-		let added = document.createElement("input")
-		added.type = "button"
-		added.className = "btn btn-dark"
-		added.id =  "removeProposalButton"
-		added.innerHTML = ""
-		div7.appendChild(added)
-		addedProposal.appendChild(div7)
-		document.getElementById("createBetForm").appendChild(addedProposal)
+		let newProposal = $(this).parents("#addProposal").find("#addProposalForm").val()
+		let allProposals = []
+
+		$('.addedProposal').each(function(i) {
+			let addedProposal  = $(this).find(".proposal").val()
+			if (addedProposal){
+				allProposals.push(addedProposal)
+			}
+		});		
+
+		let checkerNewProposals = checker.checkNewProposal(newProposal, allProposals)
+		if (checkerNewProposals != "ok"){
+			document.getElementById("addProposalForm").parentNode.parentNode.className += " border border-danger border-15"
+			alert(`Error: ${checkerNewProposals}`)	
+		}
+
+		else{
+			$(this).parents("#addProposal").find("#addProposalForm").val("")
+			let addedProposal = document.createElement("div")
+			addedProposal.className = "form-row addedProposal"
+			let div5 = document.createElement("div")
+			div5.className = "col-11"
+			let inputProposal = document.createElement("input")
+			inputProposal.className = "form-control proposal"
+			inputProposal.disabled = true
+			inputProposal.type = "text"
+			inputProposal.value = newProposal
+			div5.appendChild(inputProposal)
+			addedProposal.appendChild(div5)
+			let div7 = document.createElement("div")
+			div7.className = "col-auto"
+			let added = document.createElement("input")
+			added.type = "button"
+			added.className = "btn btn-dark"
+			added.id =  "removeProposalButton"
+			added.innerHTML = ""
+			div7.appendChild(added)
+			addedProposal.appendChild(div7)
+			document.getElementById("createBetForm").appendChild(addedProposal)
+		}
 	});
 
 	$("#side").on("click","#removeProposalButton", function(){
 		$(this).parents(".addedProposal").remove()
 	});
 	$("#side").on("click","#invokeCreateBetButton", function (){
+		let betArgs = ["betText", "amountToBet", "openBlock", "closeBlock", "convalidateBlock"]
+
+		let checkAllFields = true
+
+		for (let i = 0; i < betArgs.length; i++){
+			if (checkAllFields){
+				let inputValue = document.getElementById(betArgs[i]).value
+				let checkInputValue
+				if (betArgs[i] == "betText"){
+					checkInputValue = checker.checkString(inputValue)
+				}
+				else if (betArgs[i] == "amountToBet"){
+					checkInputValue = checker.checkAmount(inputValue)
+				}
+				else{
+					checkInputValue = checker.checkBlock(inputValue)
+				}
+				if (checkInputValue != "ok"){
+					document.getElementById(betArgs[i]).parentNode.parentNode.className += " border border-danger border-15"
+					alert(`Error: ${checkInputValue}`)
+					checkAllFields = false			
+				}
+			}
+		}
 		let operation = ('create_bet')
 		let args = []
+		let proposals = []
 		args.push(player)
 		args.push(name)
 		args.push($("#side").find('#betText').val())
@@ -273,12 +382,27 @@ $(document).ready(function (){
 			let addedProposal  = $(this).find(".proposal").val()
 			if (addedProposal){
 				args.push(addedProposal)
+				proposals.push(addedProposal)
 			}
 
-		});
-		nos.invoke({scriptHash, operation, args})
-		.then((txid) => alert(`Invoke txid: ${txid} `))
-		//.catch((err) => alert(`Error: ${err.message}`));
+		});		
+		let checkNumProposals = checker.checkNumProposals(proposals)
+
+		if (checkAllFields){
+			if (checkNumProposals != "ok"){
+				alert(`Error: ${checkNumProposals}`)
+			}
+			else {
+				nos.invoke({scriptHash, operation, args})
+				.then((txid) => {
+					alert(`Invoke txid: ${txid} `)
+					window.location.reload(true)
+				})
+				//.catch((err) => alert(`Error: ${err.message}`));				
+			}
+		}
+
+
 	});
 })
 
@@ -286,7 +410,3 @@ $(document).ready(function (){
 
 
 
-//perche doppia virgola
-//perchè continua dopo ultimo termine
-//suddividere per ogni singolo array
-//sistemare discorso numeri e address
