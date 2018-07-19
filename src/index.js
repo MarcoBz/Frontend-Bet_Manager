@@ -410,3 +410,7 @@ $(document).ready(function (){
 
 
 
+//perche doppia virgola
+//perchè continua dopo ultimo termine
+//suddividere per ogni singolo array
+//sistemare discorso numeri e address

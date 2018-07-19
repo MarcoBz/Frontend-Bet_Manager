@@ -1,10 +1,100 @@
 import { u, wallet } from '@cityofzion/neon-js';
 import { str2hexstring, int2hex, hexstring2str } from '@cityofzion/neon-js/src/utils'
 import {unhexlify,hexlify} from 'binascii';
-const indexBet = require('./indexBet')
+const betFile = require('./betFile')
 const des = require('./deserialize')
 
+function balance(data, totalBalance){
+  let recap = document.getElementById("recap")
 
+  let totalBalanceDiv = document.createElement("div")
+  totalBalanceDiv.classname = "col col-4 text-center"
+  let totalBalanceTable = document.createElement("ul")
+  totalBalanceTable.className = ("list-group")
+  let balance = document.createElement("li")
+  
+  totalBalance = parseFloat(totalBalance) / Math.pow(10, 8)
+  console.log(totalBalance)
+  balance.className = ("list-group-item active text-center")
+  if (totalBalance > 0){
+    balance.className += " bg-success"
+  }
+  else if (totalBalance == 0){
+    balance.className += " bg-warning"
+  }
+  else{
+    balance.className += " bg-danger"
+  }
+  balance.innerHTML = "Total Balance : " + totalBalance
+  totalBalanceTable.appendChild(balance)
+  totalBalanceDiv.appendChild(totalBalanceTable)
+  recap.appendChild(totalBalanceDiv)
+
+  let table = document.createElement("table")
+  table.className = "table"
+  let tableHead = document.createElement("thead")
+  let head = ["#", "Bet Text", "Group Name", "Token Flow", "Amount"]
+  let trHead = document.createElement('tr')
+  for (let i = 0; i < head.length; i++){
+    let thHead = document.createElement('th')
+    thHead.scope = "col-auto"
+    thHead.innerHTML = head[i]
+    trHead.appendChild(thHead)
+  }
+  tableHead.appendChild(trHead)
+  table.appendChild(tableHead)
+  let tableBody = document.createElement("tbody")
+  let body = ["betText", "groupName", "tokenFlow", "amount"]
+  for (let i = 0; i < data.length; i++){
+    let trBody = document.createElement('tr')
+    let thBody = document.createElement('th')
+    let betStatus = ""
+    thBody.scope = "col"
+    thBody.innerHTML = i+1
+    trBody.appendChild(thBody)
+    for (let j = 0; j < body.length; j++){
+      let tdBody = document.createElement('td')
+      tdBody.className = body[j]
+      trBody.appendChild(tdBody)
+      if (body[j] == "tokenFlow"){
+        if (data[i][body[j]] == 'p'){
+          tdBody.innerHTML = "Payment"
+          tdBody.className += " text-primary"
+        }
+        else if (data[i][body[j]] == 'w'){
+          tdBody.innerHTML = "Win"  
+          tdBody.className += " text-success"
+        }
+        else if (data[i][body[j]] == 'r'){
+          tdBody.innerHTML = "Refund"
+          tdBody.className += " text-warning"
+        }
+      }
+      else if (body[j] == "amount"){
+        let amount = parseFloat(data[i][body[j]]) / Math.pow(10, 8)
+        tdBody.innerHTML = amount
+      }
+      else{
+        tdBody.innerHTML = data[i][body[j]]
+      }
+    }
+    tableBody.appendChild(trBody)
+  }
+  table.appendChild(tableBody)
+  recap.appendChild(table)
+
+  let clearBalance = document.createElement("div")
+  clearBalance.id = "clearBalance"
+  clearBalance.className = "col-2"
+  let clearBalanceButton = document.createElement("input")
+  clearBalanceButton.id = "clearBalanceButton"
+  clearBalanceButton.className = "text-center btn btn-dark"
+  clearBalanceButton.type = "button"
+  clearBalanceButton.value = "Clear"
+  clearBalance.appendChild(clearBalanceButton)
+  recap.appendChild(clearBalance) 
+
+}
 
 function table(data, nos, scriptHash){  
   let recap = document.getElementById("recap")
@@ -12,7 +102,6 @@ function table(data, nos, scriptHash){
   let currentAddress
   table.className = "table"
   let tableHead = document.createElement("thead")
-  //let data = [{"betText" : 'a', "groupName" : 'b', "createdAt" : 'c', "amountBet" : "d", "status" : "e", "getToken" : "f"}]
   let head = ["#", "Bet Text", "Group Name", "Created at", "Amount Bet", "Status", "Get Wins/Refunds"]
   let trHead = document.createElement('tr')
   for (let i = 0; i < head.length; i++){
@@ -56,7 +145,7 @@ function table(data, nos, scriptHash){
         }
         else{
             let tdStatus = tdBody.parentNode.childNodes[5]
-            Promise.resolve(indexBet.getBetStatus([0,0,0,data[i]["blocks"],0,data[i]["createdAt"]], nos, scriptHash)
+            Promise.resolve(betFile.getBetStatus([0,0,0,data[i]["blocks"],0,data[i]["createdAt"]], nos, scriptHash)
                 .then((betStatus) => {
                 if (betStatus != "convalidated"){
                   
@@ -82,7 +171,7 @@ function table(data, nos, scriptHash){
                             betterAddress = unhexlify(u.reverseHex(wallet.getScriptHashFromAddress(betterAddress)))
                             currentAddress = betterAddress
                             let dataBet = des.deserialize(rawData)
-                            Promise.resolve(indexBet.getBetResult(dataBet, betterAddress, nos, scriptHash) //trovare un modo per num dipeople)
+                            Promise.resolve(betFile.getBetResult(dataBet, betterAddress, nos, scriptHash) //trovare un modo per num dipeople)
                                 .then((betResult) => {
                                   if (betResult == "win"){
                                     tdStatus.innerHTML = "Winner"
@@ -148,6 +237,18 @@ function table(data, nos, scriptHash){
         .then((txid) => alert(`Invoke txid: ${txid} `))    
   });
 
+  let clearRecap = document.createElement("div")
+  clearRecap.id = "clearBalance"
+  clearRecap.className = "col-2"
+  let clearRecapButton = document.createElement("input")
+  clearRecapButton.id = "clearBalanceButton"
+  clearRecapButton.className = "text-center btn btn-dark"
+  clearRecapButton.type = "button"
+  clearRecapButton.value = "Clear"
+  clearRecap.appendChild(clearRecapButton)
+  recap.appendChild(clearRecap)
+
 }
 
 module.exports.table = table
+module.exports.balance = balance

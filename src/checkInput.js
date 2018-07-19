@@ -5,11 +5,16 @@ import {unhexlify,hexlify} from 'binascii';
 function checkNewAddress(newAddress, allAddresses){
 
 	let dimAddress = checkAddress(newAddress[0])
+	let dimNickname = checkString(newAddress[1])
 	if (dimAddress != "ok"){
-		return "Error in length"
+		return dimAddress
 	}
 
-	for (let i = 0; i < allAddresses; i++){
+	if (dimNickname != "ok"){
+		return dimNickname
+	}
+
+	for (let i = 0; i < allAddresses.length; i++){
 		if (allAddresses[i][0] == newAddress[0]){
 			return "Address already present"
 		}
@@ -25,17 +30,23 @@ function checkAddress(address){
 
 	let retStr = ""
 
-	if (address.lenght != 20){
-		retStr = "Error in dimension"
+	if (address.length != 34){
+		retStr = "Error in Address length"
 		return retStr
 	}
 
 	retStr = "ok"
-	return reStr
+	return retStr
 }
 
-function chekBlock(numBlock){
+function checkBlock(numBlock){
 
+	let dimBlockString = checkString(numBlock)
+
+	if (dimBlockString != "ok"){
+		return dimBlockString
+	}
+	
 	let intBlock = parseFloat(numBlock)
 	if (isNaN(intBlock)){
 		return "Not right number"
@@ -54,6 +65,12 @@ function chekBlock(numBlock){
 
 function checkAmount(amount){
 
+	let dimAmountString = checkString(amount)
+
+	if (dimAmountString != "ok"){
+		return dimAmountString
+	}
+
 	let numAmount = parseFloat(amount)
 	if (isNaN(numAmount)){
 		return "Not right amount"
@@ -68,7 +85,13 @@ function checkAmount(amount){
 
 function checkNewProposal(newProposal, allProposals){
 
-	for (let i = 0; i < allProposals; i++){
+	let dimProposal = checkString(newProposal)
+
+	if (dimProposal != "ok"){
+		return dimProposal
+	}
+
+	for (let i = 0; i < allProposals.length; i++){
 		if (allProposals[i][0] == newProposal[0]){
 			return "Proposal already present"
 		}
@@ -87,7 +110,6 @@ function checkNumProposals(proposals){
 }
 
 function checkNumAddress(addresses){
-
 	if(addresses.length < 3){
 		return "At least 3 addresses"
 	}
@@ -100,7 +122,6 @@ function checkString(string){
 	if (string.length == 0){
 		return "At least 1 letter"
 	}
-
 return "ok"
 }
 

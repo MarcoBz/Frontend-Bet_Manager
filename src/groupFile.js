@@ -2,7 +2,7 @@ import { u, wallet } from '@cityofzion/neon-js';
 import { str2hexstring, int2hex, hexstring2str } from '@cityofzion/neon-js/src/utils'
 import {unhexlify,hexlify} from 'binascii';
 const des = require('./deserialize')
-const indexBet = require('./indexBet')
+const betFile = require('./betFile')
 
 function list(data, name, nos, scriptHash){
 
@@ -47,9 +47,7 @@ function list(data, name, nos, scriptHash){
 		nos.getStorage({scriptHash, key, decodeOutput})
 			.then((rawData) => {
 				let dataBet = des.deserialize(rawData)
-				//let blocks = 
-				//[0,0,0,data[i]["blocks"],0,data[i]["createdAt"]]
-				Promise.resolve(indexBet.getBetStatus(dataBet, nos, scriptHash))
+				Promise.resolve(betFile.getBetStatus([0,0,0,[dataBet[3][0],dataBet[3][1],dataBet[3][2]],0,dataBet[5]], nos, scriptHash))
 				.then((betStatus) => {
 					if (betStatus == "open"){
 						badge.className = "badge badge-primary"
@@ -168,6 +166,10 @@ function create(nos, scriptHash){
 	clearMainButton.value = "Clear"
 	clearMain.appendChild(clearMainButton)
 	main.appendChild(clearMain)	
+
+	$("input").keydown(function(){
+		$(this).parent().parent().removeClass("border border-danger border-15")
+	});
 
 }
 

@@ -109,12 +109,7 @@ function create(player, groupName, nos, scriptHash){
 		let inputArgForm = document.createElement("input")
 		inputArgForm.className = "form-control"
 		inputArgForm.id = betArgs[i]
-		if (betArgs[i] == "tokenUsed" || betArgs[i] == "betText"){
-			inputArgForm.type = "text"
-		}
-		else{
-			inputArgForm.type = "number"
-		}
+		inputArgForm.type = "text"
 		inputArgForm.placeholder = betExample[i]
 		div1.appendChild(inputArgForm)
 		argForm.appendChild(labelArgForm)
@@ -185,6 +180,10 @@ function create(player, groupName, nos, scriptHash){
 	clearSideButton.value = "Clear"
 	clearSide.appendChild(clearSideButton)
 	side.appendChild(clearSide)
+
+	$("input").keydown(function(){
+		$(this).parent().parent().removeClass("border border-danger border-15")
+	});
 
 
 }
