@@ -3,7 +3,7 @@ import { str2hexstring, int2hex, hexstring2str } from '@cityofzion/neon-js/src/u
 import {unhexlify,hexlify} from 'binascii';
 
 function list(data, player, nos, scriptHash){
-	let bet = instantiateBet(data, player, nos, scriptHash)
+	let bet = instantiateBet(data, player)
 	var text = "<b>" + bet.text + "</b></br>"
 	text += "Group :" + bet.group + "</br>"
 	text += "Created by :" + bet.creator + "</br>"
@@ -91,7 +91,6 @@ function create(player, groupName, nos, scriptHash){
 	//}
 	let form = document.createElement("form")
 	form.id = "createBetForm"
-	console.log(groupName)
 	let betLabels = ["Bet text", "Amount to bet", "Open for blocks", "Close for blocks", "Convalidation for blocks", "Token used"]
 	let betArgs = ["betText", "amountToBet", "openBlock", "closeBlock", "convalidateBlock", "tokenUsed"]
 	let betExample = ["Is NEO the best?", "0", "0", "0", "0", "602c79718b16e442de58778e148d0b1084e3b2dffd5de6b7b16cee7969282de7"]
@@ -360,110 +359,121 @@ function getTextProposal(bet, index){
 	return table
 }
 
-async function instantiateBet(data, player, nos, scriptHash){
+async function getHeight(){
+
+	let height = new XMLHttpRequest()
+	height.open('GET', 'http://localhost:4000//api/main_net/v1/get_height',true)
+	let currentBlockHeight
+	height.onload = function(){ 
+		let data = JSON.parse(this.response); 
+		currentBlockHeight = data.height
+	}
+	height.send();
+	return currentBlockHeight
+
+}
+
+function instantiateBet(data, player){
 	let operation = "get_height"
 	let args = []
 	let bet
-	await nos.testInvoke({scriptHash,operation,args})
-		.then((returnArray) => {
-			bet = {
-				text : data[1],
-				status : null, //open, close, onConvalidation, convalidated, payed
-				group : data[0],
-				creator : data[2], 
-				amountToBet : data[3][3],
-				usedToken : data[3][4],
-				magicNumber : null,
-				nPlayers : data[3][6],
-				blocks : {
-					currentBlock :  returnArray["stack"][0]["value"][0]["value"],
-					createAtBlock : data[5],
-					openBlock : null,
-					closeBlock : null,
-					convalidateBlock : null
-				},
-				nProposals : null,
-				addProposal : null, //true, false
-				proposals : [],
-					// ["yes" , { betters : null, convalidators : null }]
-				player : {
-					address : player,
-					hasBet : false, //yes, no
-					betProposal : null,
-					hasConvalidated : false, //yes, no
-					convalidationProposal : null, 
-					hasWon : false, //yes, no
-					payed : false //check nello storage ?
-				},
-				hasWinningProposal : false,
-				winningProposalIndex : null,
-				winningProposal : null,
-				winners : [],
-				needRefund : null
-			}
-			bet.blocks.openBlock = bet.blocks.createAtBlock + data[3][0]
-			bet.blocks.closeBlock = bet.blocks.openBlock + data[3][1]
-			bet.blocks.convalidateBlock = bet.blocks.closeBlock + data[3][2]
+	Promise.resolve(getHeight())
+	.then((currentBlockHeight) => {
+	console.log(currentBlockHeight)
+	bet = {
+		text : data[1],
+		status : null, //open, close, onConvalidation, convalidated, payed
+		group : data[0],
+		creator : data[2], 
+		amountToBet : data[3][3],
+		usedToken : data[3][4],
+		magicNumber : null,
+		nPlayers : data[3][6],
+		blocks : {
+			currentBlock :  currentBlockHeight,
+			createAtBlock : data[5],
+			openBlock : null,
+			closeBlock : null,
+			convalidateBlock : null
+		},
+		nProposals : null,
+		addProposal : null, //true, false
+		proposals : [],
+			// ["yes" , { betters : null, convalidators : null }]
+		player : {
+			address : player,
+			hasBet : false, //yes, no
+			betProposal : null,
+			hasConvalidated : false, //yes, no
+			convalidationProposal : null, 
+			hasWon : false, //yes, no
+			payed : false //check nello storage ?
+		},
+		hasWinningProposal : false,
+		winningProposalIndex : null,
+		winningProposal : null,
+		winners : [],
+		needRefund : null
+	}
+	bet.blocks.openBlock = bet.blocks.createAtBlock + data[3][0]
+	bet.blocks.closeBlock = bet.blocks.openBlock + data[3][1]
+	bet.blocks.convalidateBlock = bet.blocks.closeBlock + data[3][2]
 
-			bet.nProposals = data[4].length
+	bet.nProposals = data[4].length
+	for (var i = 0; i < bet.nProposals; i++){
+		bet.proposals.push({text : data[4][i][0], betters : [], convalidators : [], nBetters : 0, nConvalidators : 0 })
+		for(var j = 0; j < data[4][i][1].length; j++){
+			bet.proposals[i].betters.push(data[4][i][1][j])
+		}
+		for(var j = 0; j < data[4][i][2].length; j++){
+			bet.proposals[i].convalidators.push(data[4][i][2][j])
+		}
+		bet.proposals[i].nBetters = data[4][i][1].length
+		bet.proposals[i].nConvalidators = data[4][i][2].length
+	}
 
-			for (var i = 0; i < bet.nProposals; i++){
-				bet.proposals.push({text : data[4][i][0], betters : [], convalidators : [], nBetters : 0, nConvalidators : 0 })
-				for(var j = 0; j < data[4][i][1].length; j++){
-					bet.proposals[i].betters.push(data[4][i][1][j])
-				}
-				for(var j = 0; j < data[4][i][2].length; j++){
-					bet.proposals[i].convalidators.push(data[4][i][2][j])
-				}
-				bet.proposals[i].nBetters = data[4][i][1].length
-				bet.proposals[i].nConvalidators = data[4][i][2].length
-			}
+	if (bet.nPlayers % 2 == 0){
+		bet.magicNumber = (bet.nPlayers / 2) + 1
+	}
+	else{
+		bet.magicNumber = (bet.nPlayers + 1) / 2
+	}
 
-			if (bet.nPlayers % 2 == 0){
-				bet.magicNumber = (bet.nPlayers / 2) + 1
-			}
-			else{
-				bet.magicNumber = (bet.nPlayers + 1) / 2
-			}
+	checkBetStatus(bet)
+	checkWinningProposal(bet)
+	checkResults(bet)
+	checkPlayerStatus(bet)
+})
 
-			checkBetStatus(bet)
-			checkWinningProposal(bet)
-			checkResults(bet)
-			checkPlayerStatus(bet)
-			
-		})
 		//.catch((err) => alert(`Error: ${err.message}`));
 	return bet
 }
 
-async function getBetStatus(data, nos, scriptHash){
+function getBetStatus(data){
 	let operation = "get_height"
 	let args = []
 	let bet
-	await nos.testInvoke({scriptHash,operation,args})
-		.then((returnArray) => {
-			  bet = {
-				    status : null, //open, close, onConvalidation, convalidated, payed
-				    blocks : {
-				      currentBlock : returnArray["stack"][0]["value"][0]["value"], 
-				      createAtBlock : data[5],
-				      openBlock : null,
-				      closeBlock : null,
-				      convalidateBlock : null
-				    }
-				  }
-			  bet.blocks.openBlock = bet.blocks.createAtBlock + data[3][0]
-			  bet.blocks.closeBlock = bet.blocks.openBlock + data[3][1]
-			  bet.blocks.convalidateBlock = bet.blocks.closeBlock + data[3][2]
-			  checkBetStatus(bet)
+	let currentBlockHeight = getHeight()
+	bet = {
+	    status : null, //open, close, onConvalidation, convalidated, payed
+	    blocks : {
+	      currentBlock : currentBlockHeight, 
+	      createAtBlock : data[5],
+	      openBlock : null,
+	      closeBlock : null,
+	      convalidateBlock : null
+	    }
+	  }
+	bet.blocks.openBlock = bet.blocks.createAtBlock + data[3][0]
+	bet.blocks.closeBlock = bet.blocks.openBlock + data[3][1]
+	bet.blocks.convalidateBlock = bet.blocks.closeBlock + data[3][2]
+	checkBetStatus(bet)
 			  
-			  
-		});
 	return bet.status
 }
 
-async function getBetResult(data, player, nos, scriptHash){
-	let bet = await instantiateBet(data, player, nos, scriptHash)
+function getBetResult(data, player){
+	let bet = instantiateBet(data, player)
 	let betResult = ""
 	if (bet.hasWinningProposal){
 		if (bet.player.hasWon){

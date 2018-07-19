@@ -47,8 +47,7 @@ function list(data, name, nos, scriptHash){
 		nos.getStorage({scriptHash, key, decodeOutput})
 			.then((rawData) => {
 				let dataBet = des.deserialize(rawData)
-				Promise.resolve(betFile.getBetStatus([0,0,0,[dataBet[3][0],dataBet[3][1],dataBet[3][2]],0,dataBet[5]], nos, scriptHash))
-				.then((betStatus) => {
+				let betStatus = betFile.getBetStatus([0,0,0,[dataBet[3][0],dataBet[3][1],dataBet[3][2]],0,dataBet[5]], nos, scriptHash)
 					if (betStatus == "open"){
 						badge.className = "badge badge-primary"
 						badge.innerHTML = "Open"
@@ -66,7 +65,6 @@ function list(data, name, nos, scriptHash){
 						badge.innerHTML = "Convalidated"    
 					}
 				})
-			})
 
 			//.catch((err) => console.log(`Error: ${err.message}`));
 	}

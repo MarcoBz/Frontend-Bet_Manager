@@ -25,7 +25,13 @@ function balance(data, totalBalance){
   else{
     balance.className += " bg-danger"
   }
-  balance.innerHTML = "Total Balance : " + totalBalance
+  if (isNaN(totalBalance)){
+    balance.innerHTML = "Total Balance : -" 
+  }
+  else{
+    balance.innerHTML = "Total Balance : " + totalBalance
+  }
+  
   totalBalanceTable.appendChild(balance)
   totalBalanceDiv.appendChild(totalBalanceTable)
   recap.appendChild(totalBalanceDiv)
@@ -48,7 +54,6 @@ function balance(data, totalBalance){
   for (let i = 0; i < data.length; i++){
     let trBody = document.createElement('tr')
     let thBody = document.createElement('th')
-    let betStatus = ""
     thBody.scope = "col"
     thBody.innerHTML = i+1
     trBody.appendChild(thBody)
@@ -145,8 +150,7 @@ function table(data, nos, scriptHash){
         }
         else{
             let tdStatus = tdBody.parentNode.childNodes[5]
-            Promise.resolve(betFile.getBetStatus([0,0,0,data[i]["blocks"],0,data[i]["createdAt"]], nos, scriptHash)
-                .then((betStatus) => {
+            betStatus = betFile.getBetStatus([0,0,0,data[i]["blocks"],0,data[i]["createdAt"]])
                 if (betStatus != "convalidated"){
                   
                   if (betStatus == "open"){
@@ -171,36 +175,34 @@ function table(data, nos, scriptHash){
                             betterAddress = unhexlify(u.reverseHex(wallet.getScriptHashFromAddress(betterAddress)))
                             currentAddress = betterAddress
                             let dataBet = des.deserialize(rawData)
-                            Promise.resolve(betFile.getBetResult(dataBet, betterAddress, nos, scriptHash) //trovare un modo per num dipeople)
-                                .then((betResult) => {
-                                  if (betResult == "win"){
-                                    tdStatus.innerHTML = "Winner"
-                                    let payButton = document.createElement("input")
-                                    payButton.type = "button"
-                                    payButton.className = "btn btn-success getWinButton"
-                                    payButton.value = "Get win"
-                                    tdBody.appendChild(payButton)
-                                  }
-                                  else if (betResult == "lose"){
-                                    tdStatus.innerHTML = "Loser"
-                                    tdBody.innerHMTL = ""
-                                  }
-                                  else if (betResult == "refund"){
-                                    tdStatus.innerHTML = "Refund"
-                                    tdBody.innerHTML = ""
-                                    let payButton = document.createElement("input")
-                                    payButton.type = "button"
-                                    payButton.className = "btn btn-warning getRefundButton"
-                                    payButton.value = "Get refund"
-                                    tdBody.appendChild(payButton)
-                                  }
-                                }));
+                            let betResult = betFile.getBetResult(dataBet, betterAddress, nos, scriptHash) //trovare un modo per num dipeople)
+
+                                if (betResult == "win"){
+                                  tdStatus.innerHTML = "Winner"
+                                  let payButton = document.createElement("input")
+                                  payButton.type = "button"
+                                  payButton.className = "btn btn-success getWinButton"
+                                  payButton.value = "Get win"
+                                  tdBody.appendChild(payButton)
+                                }
+                                else if (betResult == "lose"){
+                                  tdStatus.innerHTML = "Loser"
+                                  tdBody.innerHMTL = ""
+                                }
+                                else if (betResult == "refund"){
+                                  tdStatus.innerHTML = "Refund"
+                                  tdBody.innerHTML = ""
+                                  let payButton = document.createElement("input")
+                                  payButton.type = "button"
+                                  payButton.className = "btn btn-warning getRefundButton"
+                                  payButton.value = "Get refund"
+                                  tdBody.appendChild(payButton)
+                                }
                           }
                         });
                     });
                   //.catch((err) => console.log(`Error: ${err.message}`));
                 }
-              }));
         }
          // + loading gif
       }
