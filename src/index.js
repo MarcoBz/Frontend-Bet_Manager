@@ -8,7 +8,7 @@ import { u, wallet } from '@cityofzion/neon-js';
 import { str2hexstring, int2hex, hexstring2str } from '@cityofzion/neon-js/src/utils'
 import {unhexlify,hexlify} from 'binascii';
 const address = unhexlify(u.reverseHex(wallet.getScriptHashFromAddress('AK2nJJpJr6o664CWJKi1QRXjqeic2zRp8y')))
-const scriptHash = 'fdccd25aaf05b4070fd4766166cd4e75f1c18eeb';
+const scriptHash = '0d7693d1b7c9145eda625c2d4578579ffe596b75';
 
 const nos = window.NOS.V1;
 
@@ -25,6 +25,7 @@ $(document).ready(function (){
 				let decodeOutput = false
 				nos.getStorage({scriptHash, key, decodeOutput})
 					.then((rawData) =>{
+	  					console.log('boh')
 						var data = des.deserialize(rawData)
 						for (let i = 0; i < data[0].length; i++){
 						  let groupElement = document.createElement("div")
@@ -47,8 +48,8 @@ $(document).ready(function (){
 									groupName : data[1][i][1],
 									blocks : data[1][i][2],
 									createdAt : data[1][i][3],
-									payed : data[1][i][4],
-									amountBet : data[1][i][5]
+									payed : parseInt(data[1][i][4], 10),
+									amountBet : parseFloat(data[1][i][5]) / Math.pow(10, 8)
 								}
 								dataRecap.push(dataTemp)
 							}
@@ -61,6 +62,7 @@ $(document).ready(function (){
 							$("#side").empty()
 							let dataBalance = []
 							let totalBalance = data[3]
+							let sign = data[4]
 							for (let i = 0; i < data[2].length; i++){
 								let dataTemp = {
 									betText : data[2][i][0],
@@ -103,7 +105,7 @@ $(document).ready(function (){
 				$('#chooseGroup').html("</div> You have to login <div>")
 			}
 		})
-		//.catch((err) => console.log(`Error: ${err.message}`)); //####### 
+		.catch((err) => console.log(`Error: ${err.message}`)); //####### 
 
 	$('#chooseGroup').on("click",".groupButton", function (){
 		$("#recap").empty()
@@ -117,7 +119,7 @@ $(document).ready(function (){
 	  			data = des.deserialize(rawData)
 	  			groupFile.list(data, key, nos, scriptHash)
 	  		})
-			//.catch((err) => console.log(`Error: ${err.message}`)); //#######
+			.catch((err) => console.log(`Error: ${err.message}`)); //#######
 		name = key
 
 		$('#main').on("click",".getBetButton", function (){
@@ -140,7 +142,7 @@ $(document).ready(function (){
 						}
 			  		});
 		  		})
-				//.catch((err) => console.log(`Error: ${err.message}`));
+				.catch((err) => console.log(`Error: ${err.message}`));
 		  	});
 	});
 
@@ -156,7 +158,6 @@ $(document).ready(function (){
 				$('#chooseGroup').html("</div> You have to login <div>")
 			}
   		});
-		////.catch ##############			
 	});
 
 
@@ -367,16 +368,16 @@ $(document).ready(function (){
 		args.push(player)
 		args.push(name)
 		args.push($("#side").find('#betText').val())
-		args.push(parseInt($("#side").find('#openBlock').val(), 16))
-		args.push(parseInt($("#side").find('#closeBlock').val(), 16))
-		args.push(parseInt($("#side").find('#convalidateBlock').val(), 16))
-		args.push(parseInt($("#side").find('#amountToBet').val(), 16))
+		args.push(parseInt($("#side").find('#openBlock').val(), 10))
+		args.push(parseInt($("#side").find('#closeBlock').val(), 10))
+		args.push(parseInt($("#side").find('#convalidateBlock').val(), 10))
+		args.push(parseInt($("#side").find('#amountToBet').val(), 10))
 		args.push($("#side").find('#tokenUsed').val())
 		if ($("#canAddProposal").is(':checked')){
-			args.push('y')
+			args.push(0)
 		}
 		else{
-			args.push('n')
+			args.push(1)
 		}
 		$('.addedProposal').each(function(i) {
 			let addedProposal  = $(this).find(".proposal").val()

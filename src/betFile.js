@@ -86,12 +86,8 @@ function list(data, player, nos, scriptHash){
 
 function create(player, groupName, nos, scriptHash){
 	let side = document.getElementById("side");
-	//while (side.firstChild) {
-		//side.removeChild(side.firstChild);
-	//}
 	let form = document.createElement("form")
 	form.id = "createBetForm"
-	console.log(groupName)
 	let betLabels = ["Bet text", "Amount to bet", "Open for blocks", "Close for blocks", "Convalidation for blocks", "Token used"]
 	let betArgs = ["betText", "amountToBet", "openBlock", "closeBlock", "convalidateBlock", "tokenUsed"]
 	let betExample = ["Is NEO the best?", "0", "0", "0", "0", "602c79718b16e442de58778e148d0b1084e3b2dffd5de6b7b16cee7969282de7"]
@@ -125,7 +121,7 @@ function create(player, groupName, nos, scriptHash){
 	checkBox.className = "form-check"
 	let labelCheckBox = document.createElement("label")
 	labelCheckBox.htmlFor = "canAddProposal"
-	labelCheckBox.className = "form-check-label"
+	labelCheckBox.className = "form-check-label col-5"
 	labelCheckBox.innerHTML = "Can player add proposals ?"
 	let inputCheckBox = document.createElement("input")
 	inputCheckBox.className = "form-check-input"

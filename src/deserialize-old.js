@@ -3,16 +3,13 @@ import { str2hexstring, int2hex, hexstring2str } from '@cityofzion/neon-js/src/u
 import {unhexlify,hexlify} from 'binascii';
 
 function deserialize(rawData){
-	
+
+
 	let rawSplitted = rawData.match(/.{2}/g);
-/*	let rawSplitted = []
-	for (let i = 0; i < rawData.length; i++){
-		rawSplitted.push(hexlify(rawData[i]))
-	}*/
-	console.log(rawSplitted)
 	let offset = 0
 	let data = []
 	let allData = deserializeRawData([offset, rawSplitted, data])
+	
 	return allData[2]
 }
 

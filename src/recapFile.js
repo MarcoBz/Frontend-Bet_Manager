@@ -4,7 +4,7 @@ import {unhexlify,hexlify} from 'binascii';
 const betFile = require('./betFile')
 const des = require('./deserialize')
 
-function balance(data, totalBalance){
+function balance(data, totalBalance, sign){
   let recap = document.getElementById("recap")
 
   let totalBalanceDiv = document.createElement("div")
@@ -12,20 +12,26 @@ function balance(data, totalBalance){
   let totalBalanceTable = document.createElement("ul")
   totalBalanceTable.className = ("list-group")
   let balance = document.createElement("li")
-  
   totalBalance = parseFloat(totalBalance) / Math.pow(10, 8)
-  console.log(totalBalance)
   balance.className = ("list-group-item active text-center")
-  if (totalBalance > 0){
-    balance.className += " bg-success"
-  }
-  else if (totalBalance == 0){
-    balance.className += " bg-warning"
+  if (sign == 0){
+    if (totalBalance == 0){
+      balance.className += " bg-warning"
+    }
+    else if (totalBalance == 0){
+      balance.className += " bg-success"
+    }
   }
   else{
     balance.className += " bg-danger"
+    totalBalance = totalBalance * -1
   }
-  balance.innerHTML = "Total Balance : " + totalBalance
+  if (isNaN(totalBalance)){
+    balance.innerHTML = "Total Balance : -" 
+  }
+  else{
+    balance.innerHTML = "Total Balance : " + totalBalance
+  }
   totalBalanceTable.appendChild(balance)
   totalBalanceDiv.appendChild(totalBalanceTable)
   recap.appendChild(totalBalanceDiv)
@@ -128,10 +134,10 @@ function table(data, nos, scriptHash){
       trBody.appendChild(tdBody)
       if (tdBody.className == "status"){
 
-        if (data[i]["payed"] == "w"){
+        if (data[i]["payed"] == 1){
           tdBody.innerHTML = "Winner"
         }
-        else if (data[i]["payed"] == "r"){
+        else if (data[i]["payed"] == 2){
           tdBody.innerHTML = "Refund"
         }
         else{
@@ -140,7 +146,7 @@ function table(data, nos, scriptHash){
       }
       else if (tdBody.className == "getToken"){
         tdBody.innerHTML = "Loading"
-        if ((data[i]["payed"] == "w") || (data[i]["payed"] == "r")){
+        if ((data[i]["payed"] == 1) || (data[i]["payed"] == 2)){
           tdBody.innerHTML = ""
         }
         else{
@@ -198,7 +204,6 @@ function table(data, nos, scriptHash){
                           }
                         });
                     });
-                  //.catch((err) => console.log(`Error: ${err.message}`));
                 }
               }));
         }

@@ -1,5 +1,5 @@
 import { u, wallet } from '@cityofzion/neon-js';
-import { str2hexstring, int2hex, hexstring2str } from '@cityofzion/neon-js/src/utils'
+import { str2hexstring, int2hex, hex2int, hexstring2str } from '@cityofzion/neon-js/src/utils'
 import {unhexlify,hexlify} from 'binascii';
 const des = require('./deserialize')
 const betFile = require('./betFile')
@@ -46,7 +46,16 @@ function list(data, name, nos, scriptHash){
 		let decodeOutput = false
 		nos.getStorage({scriptHash, key, decodeOutput})
 			.then((rawData) => {
+
+
 				let dataBet = des.deserialize(rawData)
+
+				for (let i = 0; i < 4; i++){
+					if (typeof dataBet[3][i] == "string"){
+						let string = '0x' + u.reverseHex(hexlify(dataBet[3][i]))
+						dataBet[3][i] = parseInt(string)
+					}
+				}
 				Promise.resolve(betFile.getBetStatus([0,0,0,[dataBet[3][0],dataBet[3][1],dataBet[3][2]],0,dataBet[5]], nos, scriptHash))
 				.then((betStatus) => {
 					if (betStatus == "open"){
@@ -68,7 +77,7 @@ function list(data, name, nos, scriptHash){
 				})
 			})
 
-			//.catch((err) => console.log(`Error: ${err.message}`));
+			.catch((err) => console.log(`Error: ${err.message}`));
 	}
 	let createBet = document.createElement("div")
 	createBet.className = ("list-group-item list-group-item-action active bg-success text-center") 
