@@ -63,15 +63,17 @@ function balance(data, totalBalance, sign){
       tdBody.className = body[j]
       trBody.appendChild(tdBody)
       if (body[j] == "tokenFlow"){
-        if (data[i][body[j]] == 'p'){
+        console.log(data[i][body[j]])
+        console.log(typeof data[i][body[j]])
+        if (data[i][body[j]] == '0'){
           tdBody.innerHTML = "Payment"
           tdBody.className += " text-primary"
         }
-        else if (data[i][body[j]] == 'w'){
+        else if (data[i][body[j]] == '1'){
           tdBody.innerHTML = "Win"  
           tdBody.className += " text-success"
         }
-        else if (data[i][body[j]] == 'r'){
+        else if (data[i][body[j]] == '2'){
           tdBody.innerHTML = "Refund"
           tdBody.className += " text-warning"
         }

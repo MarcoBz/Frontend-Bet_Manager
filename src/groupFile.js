@@ -49,7 +49,7 @@ function list(data, name, nos, scriptHash){
 
 
 				let dataBet = des.deserialize(rawData)
-
+				console.log(dataBet)
 				for (let i = 0; i < 4; i++){
 					if (typeof dataBet[3][i] == "string"){
 						let string = '0x' + u.reverseHex(hexlify(dataBet[3][i]))

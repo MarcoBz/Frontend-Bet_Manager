@@ -25,7 +25,6 @@ $(document).ready(function (){
 				let decodeOutput = false
 				nos.getStorage({scriptHash, key, decodeOutput})
 					.then((rawData) =>{
-	  					console.log('boh')
 						var data = des.deserialize(rawData)
 						for (let i = 0; i < data[0].length; i++){
 						  let groupElement = document.createElement("div")
@@ -134,8 +133,7 @@ $(document).ready(function (){
 						if (betterAddress){
 							betterAddress = unhexlify(u.reverseHex(wallet.getScriptHashFromAddress(betterAddress)))
 				  			let dataBet = des.deserialize(rawData)
-				  			let text = betFile.list(dataBet, betterAddress, nos, scriptHash)
-				  			$('#side').html(text)
+				  			Promise.resolve(betFile.list(dataBet, betterAddress, nos, scriptHash))
 			  			}
 						else{
 							$('#chooseGroup').html("</div> You have to login <div>")
@@ -337,6 +335,38 @@ $(document).ready(function (){
 	$("#side").on("click","#removeProposalButton", function(){
 		$(this).parents(".addedProposal").remove()
 	});
+
+	$("#side").on("click",".proposalButton", function (){
+		let operation = $(this).data('operation')
+		let args = []
+		args.push(player)
+		args.push($(this).data('group'))
+		args.push($(this).data('text'))
+		args.push($(this).val())
+		console.log(args)
+		nos.invoke({scriptHash, operation, args})
+		.then((txid) => {
+			alert(`Invoke txid: ${txid} `)
+			window.location.reload(true)
+		})					
+	});
+
+	$("#side").on("click",".payButton", function (){
+		let operation = $(this).data('operation')
+		let args = []
+		args.push(player)
+		args.push($(this).data('group'))
+		args.push($(this).data('text'))
+		args.push($(this).val())
+		console.log(args)
+		nos.invoke({scriptHash, operation, args})
+		.then((txid) => {
+			alert(`Invoke txid: ${txid} `)
+			window.location.reload(true)
+		})					
+	});
+
+
 	$("#side").on("click","#invokeCreateBetButton", function (){
 		let betArgs = ["betText", "amountToBet", "openBlock", "closeBlock", "convalidateBlock"]
 
@@ -367,12 +397,13 @@ $(document).ready(function (){
 		let proposals = []
 		args.push(player)
 		args.push(name)
-		args.push($("#side").find('#betText').val())
-		args.push(parseInt($("#side").find('#openBlock').val(), 10))
-		args.push(parseInt($("#side").find('#closeBlock').val(), 10))
-		args.push(parseInt($("#side").find('#convalidateBlock').val(), 10))
-		args.push(parseInt($("#side").find('#amountToBet').val(), 10))
+		args.push($("#side").find('#betText').val())    
+		args.push(unhexlify(u.reverseHex(int2hex(parseInt($("#side").find('#openBlock').val())))))
+		args.push(unhexlify(u.reverseHex(int2hex(parseInt($("#side").find('#closeBlock').val())))))
+		args.push(unhexlify(u.reverseHex(int2hex(parseInt($("#side").find('#convalidateBlock').val())))))
+		args.push(unhexlify(u.reverseHex(int2hex(parseInt($("#side").find('#amountToBet').val()) * Math.pow(10, 8)))))
 		args.push($("#side").find('#tokenUsed').val())
+		console.log(args)
 		if ($("#canAddProposal").is(':checked')){
 			args.push(0)
 		}
@@ -405,6 +436,10 @@ $(document).ready(function (){
 
 
 	});
+
+
+
+
 })
 
 

@@ -2,9 +2,50 @@ import { u, wallet } from '@cityofzion/neon-js';
 import { str2hexstring, int2hex, hexstring2str } from '@cityofzion/neon-js/src/utils'
 import {unhexlify,hexlify} from 'binascii';
 
-function list(data, player, nos, scriptHash){
+function decodeData(dataBet){
+
+	let data = []
+	data.push(dataBet[0])
+	data.push(dataBet[1])
+	data.push(wallet.getAddressFromScriptHash(u.reverseHex(hexlify(dataBet[2]))))
+	let dataBlocks = []
+	for (let i = 0; i < 4; i++){
+		if (typeof dataBet[3][i] == "string"){
+			let string = '0x' + u.reverseHex(hexlify(dataBet[3][i]))
+			dataBet[3][i] = parseInt(string)
+		}
+		dataBlocks.push(dataBet[3][i])
+	}	
+	for (let i = 4; i < 7; i++){
+		dataBlocks.push(dataBet[3][i])
+	}
+	data.push(dataBlocks)
+	data.push([])
+	for (let i = 0; i < dataBet[4].length; i++){
+		let dataTemp = []
+		dataTemp.push(dataBet[4][i][0])
+		for (let j = 1; j < 4; j++){
+			dataTemp.push([])
+			for (let h = 0; h < dataBet[4][i][j].length; h++){
+				dataTemp[j].push(wallet.getAddressFromScriptHash(u.reverseHex(hexlify(dataBet[4][i][j][h]))))
+			}
+		}
+		data[4].push(dataTemp)
+	}
+	if (typeof dataBet[5] == "string"){
+		let string = '0x' + u.reverseHex(hexlify(dataBet[5]))
+		dataBet[5] = parseInt(string)
+	}
+	data.push(dataBet[5])
+	return data
+}
+
+
+async function list(dataBet, player, nos, scriptHash){
+	let data = decodeData(dataBet)
+	let playerAdd = wallet.getAddressFromScriptHash(u.reverseHex(hexlify(player)))
 	document.getElementById("side").innerHTML = ""
-	let await bet = instantiateBet(data, player, nos, scriptHash)
+	let bet = await instantiateBet(data, playerAdd, nos, scriptHash)
 	let table = document.createElement("div")
 	table.classname = "col col-4"
 	let betStatus = document.createElement("ul")
@@ -58,8 +99,9 @@ function list(data, player, nos, scriptHash){
 				  let payButton = document.createElement("input")
 				  payButton.type = "button"
 				  payButton.dataset.group = bet.group
-				  payButton.dataset.text = bet.text  
-				  payButton.className = "btn btn-success"
+				  payButton.dataset.text = bet.text
+				  payButton.dataset.operation = "withdraw_win"
+				  payButton.className = "btn btn-success payButton"
 				  payButton.value = "Get win"
 				  tdBody.appendChild(payButton)  
 				}
@@ -72,8 +114,9 @@ function list(data, player, nos, scriptHash){
 				  let payButton = document.createElement("input")
 				  payButton.type = "button"
 				  payButton.dataset.group = bet.group
-				  payButton.dataset.text = bet.text  
-				  payButton.className = "btn btn-warning"
+				  payButton.dataset.text = bet.text 
+				  payButton.dataset.operation = "withdraw_refund" 
+				  payButton.className = "btn btn-warning payButton"
 				  payButton.value = "Get refund"
 				  tdBody.appendChild(payButton)
 				}
@@ -94,8 +137,8 @@ function list(data, player, nos, scriptHash){
 	table.appendChild(playerStatus) 
 	let allProposalTable = getTextProposal(bet)
 	table.appendChild(allProposalTable)
-	let	betDetailsLabels = ["Text", "Group", "Creator", "Can add proposal", "Token used", "Created at block", "Open until block", "Close untile block", "On convalidation until block"]
-	let betDetails = [bet.text, bet.group, bet.creator, bet.addProposal, bet.usedToken, bet.blocks.createAtBlock, bet.blocks.openBlock, bet.blocks.closeBlock, bet.blocks.convalidateBlock]
+	let	betDetailsLabels = ["Text", "Group", "Creator", "Can add proposal", "Token used", "Created at block", "Open until block", "Close untile block", "On convalidation until block", "Amount Bet"]
+	let betDetails = [bet.text, bet.group, bet.creator, bet.addProposal, bet.usedToken, bet.blocks.createAtBlock, bet.blocks.openBlock, bet.blocks.closeBlock, bet.blocks.convalidateBlock, bet.amountToBet]
 	let betDetailsTable = document.createElement("ul")
 	betDetailsTable.className = ("list-group")
 	let detailTitle = document.createElement("li")
@@ -117,17 +160,17 @@ function list(data, player, nos, scriptHash){
 	winnersTable.appendChild(winnersTitle)
 	if (bet.winners.length > 0){
 		for (let i = 0; i < bet.winners.length; i++){
-				  let winner = document.createElement("li")
-			  winner.className = "list-group-item text-center "
-			  winner.innerHTML = bet.winners[i]
-			  winnersTable.appendChild(winner)	     
+			let winner = document.createElement("li")
+			winner.className = "list-group-item text-center "
+			winner.innerHTML = bet.winners[i]
+			winnersTable.appendChild(winner)   
 		}  
 	}
 	else{
 			let winner = document.createElement("li")
-		  winner.className = "list-group-item text-center "
-		  winner.innerHTML = -
-		  winnersTable.appendChild(winner)	  
+			winner.className = "list-group-item text-center "
+			winner.innerHTML = "-"
+			winnersTable.appendChild(winner)  
 	}
 	table.appendChild(winnersTable)
   	document.getElementById("side").appendChild(table)
@@ -251,10 +294,11 @@ function checkBetStatus(bet){
 }
 
 function checkPlayerStatus(bet){
- 
 	for(var i = 0; i < bet.nProposals; i++){
 		for (var j = 0; j < bet.proposals[i].nBetters; j++){
+
 			if (bet.proposals[i].betters[j] == bet.player.address){
+
 				bet.player.hasBet = true,
 				bet.player.betProposal = bet.proposals[i].text
 				bet.player.betProposalIndex = i
@@ -298,7 +342,7 @@ function checkPlayerStatus(bet){
 }
 
 function checkWinningProposal(bet){
-	if (bet.status = "convalidated"){
+	if (bet.status == "convalidated"){
 		for(var i = 0; i < bet.nProposals; i++){	
 			if (bet.proposals[i].nConvalidators >= bet.magicNumber){
 				bet.hasWinningProposal = true
@@ -492,8 +536,13 @@ function getTextProposal(bet, index){
 			proposalButton.type = "button"
 			proposalButton.dataset.group = bet.group
 			proposalButton.dataset.text = bet.text
-			proposalButton.className = "btn btn-light"
-			proposalButton.id =  "proposalButton"
+			if (bet.status == "open"){
+				proposalButton.dataset.operation = "partecipate_bet"
+			}
+			else{
+				proposalButton.dataset.operation = "convalidate_bet"
+			}
+			proposalButton.className = "btn btn-light proposalButton"
 			proposalButton.value = bet.proposals[i]['text'] 
 			proposalTextTd.appendChild(proposalButton)
 		}
@@ -529,10 +578,10 @@ function getTextProposal(bet, index){
 		proposalTrBody.appendChild(nConvalidationsTd) 
 		proposalTableBody.appendChild(proposalTrBody)
 	}
-    if ( bet.addProposal){
+    if ( bet.addProposal && bet.status == "open" && !bet.player.hasBet){
       let proposalTrBody = document.createElement('tr')
       let thBody = document.createElement('th')
-      thBody.scope = "row"
+      thBody.scope = "col"
       thBody.innerHTML = bet.nProposals+1
       proposalTrBody.appendChild(thBody)
       let addProposalTd = document.createElement('td')
@@ -544,7 +593,8 @@ function getTextProposal(bet, index){
       addProposalInput.placeholder = "Another?"
       addProposalTd.appendChild(addProposalInput)
       let addProposalButton = document.createElement("input")
-      addProposalButton.type = "button"	
+      addProposalButton.type = "button"
+      addProposalButton.dataset.operation = "partecipate_bet"	
       addProposalButton.className = "btn btn-light"
       addProposalButton.id =  "addProposalButton"
       addProposalButton.innerHTML = ""
@@ -556,7 +606,7 @@ function getTextProposal(bet, index){
     return proposalTable
 }
 
-async function instantiateBet(data, player){
+async function instantiateBet(data, player, nos, scriptHash){
 	let operation = "get_height"
 	let args = []
 	let bet
@@ -567,12 +617,12 @@ async function instantiateBet(data, player){
 				status : null, //open, close, onConvalidation, convalidated
 				group : data[0],
 				creator : data[2], 
-				amountToBet : data[3][3],
+				amountToBet : parseFloat(data[3][3]) / Math.pow(10, 8),
 				usedToken : data[3][4],
 				magicNumber : null,
 				nPlayers : data[3][6],
 				blocks : {
-					currentBlock : returnArray["stack"][0]["value"][0]["value"],
+					currentBlock : parseInt(returnArray["stack"][0]["value"][0]["value"]),
 					createAtBlock : data[5],
 					openBlock : null,
 					closeBlock : null,
@@ -634,7 +684,6 @@ async function instantiateBet(data, player){
 			else{
 				bet.magicNumber = (bet.nPlayers + 1) / 2
 			}
-
 			checkBetStatus(bet)
 			checkWinningProposal(bet)
 			checkResults(bet)
