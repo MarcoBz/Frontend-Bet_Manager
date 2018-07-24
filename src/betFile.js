@@ -325,20 +325,39 @@ function checkResults(bet){
 }
 
 function getTextBetStatus(bet){
-	if (bet.blocks.currentBlock < bet.blocks.openBlock){
-		var text = "Bet open"
+	let text
+	let textColor
+	let secondText
+	if (bet.status == "open"){
+		text = "Bet open"
+		textColor = "text-primary"
 	}
-	else if((bet.blocks.openBlock <= bet.blocks.currentBlock) && (bet.blocks.currentBlock < bet.blocks.closeBlock)){
-		var text = "Bet close"
+	else if(bet.status == "close"){
+		text = "Bet close"
+		textColor = "text-primary"
 	}
-	else if((bet.blocks.closeBlock <= bet.blocks.currentBlock) && (bet.blocks.currentBlock < bet.blocks.convalidateBlock)){
-		var text = "Bet to convalidate"
+	else if(bet.status == "onConvalidation"){
+		text = "Bet on convalidation"
+		textColor = "text-warning"
 	}
 	else{
-		var text = "Bet convalidated and to pay"
+		text = "Bet convalidated"
+		if (bet.hasWinningProposal){
+			secondText = "Win : " + bet.winningProposal
+			textColor = "text-success"
+		}
+		else if (bet.needRefund){    
+			secondText = "Refund"
+			textColor = "text-warning"
+		}
 	}
 
-	return text
+	let returnArr = []
+	returnArr.push(text)
+	returnArr.push(textColor)
+	returnArr.push(secondText)
+
+	return returnArr
 }
 
 
