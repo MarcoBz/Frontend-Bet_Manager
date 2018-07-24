@@ -3,85 +3,134 @@ import { str2hexstring, int2hex, hexstring2str } from '@cityofzion/neon-js/src/u
 import {unhexlify,hexlify} from 'binascii';
 
 function list(data, player, nos, scriptHash){
-	let bet = instantiateBet(data, player, nos, scriptHash)
-	var text = "<b>" + bet.text + "</b></br>"
-	text += "Group :" + bet.group + "</br>"
-	text += "Created by :" + bet.creator + "</br>"
-	text += "Created at block :" + bet.blocks.createAtBlock + "</br>"
-	text += "Open until block :" + bet.blocks.openBlock  + "</br>"
-	text += "Close until block :" + bet.blocks.closeBlock  + "</br>"
-	text += "Convalidation until block :" + bet.blocks.convalidateBlock  + "</br>"
-	text += "Used token :" + bet.usedToken + "</br>"
-	text += "Amount to bet :" + bet.amountToBet + "</br>"
-	if (bet.addProposal == "y"){
-		text += "Can add results : Yes</br>"
+	document.getElementById("side").innerHTML = ""
+	let await bet = instantiateBet(data, player, nos, scriptHash)
+	let table = document.createElement("div")
+	table.classname = "col col-4"
+	let betStatus = document.createElement("ul")
+	betStatus.className = ("list-group")
+	let title = document.createElement("li")
+	title.className = ("list-group-item active bg-success text-center")
+	title.innerHTML = "Bet Status"
+	betStatus.appendChild(title)
+	let status = document.createElement("li")
+	status.className = "list-group-item text-center " + getTextBetStatus(bet)[1]
+	status.innerHTML = getTextBetStatus(bet)[0]
+  	betStatus.appendChild(status)
+	if (getTextBetStatus(bet)[2]){
+		let winOrRefund = document.createElement("li")
+		winOrRefund.className = "list-group-item text-center " + getTextBetStatus(bet)[1]
+		winOrRefund.innerHTML = getTextBetStatus(bet)[2]
+		betStatus.appendChild(winOrRefund)  
+	}
+	table.appendChild(betStatus)
+	let playerStatus = document.createElement("ul")
+	playerStatus.className = ("list-group")
+	let playerTitle = document.createElement("li")
+	playerTitle.className = ("list-group-item active bg-success text-center")
+	playerTitle.innerHTML = "Player Status"
+	playerStatus.appendChild(playerTitle)
+	let playerList = document.createElement("li")
+	playerList.className = "list-group-item"
+	let playerTable = document.createElement("table")
+	playerTable.className = "table"
+	let playerStats = ["Partecipation", "Convalidation", "Result", "Payments"]
+	let playerThead = document.createElement("thead")
+	let trHead = document.createElement('tr')
+	for (let i = 0; i < playerStats.length; i++){
+		let thHead = document.createElement('th')
+		thHead.scope = "col-auto"
+		thHead.className = "text-center"
+		thHead.innerHTML = playerStats[i]
+		trHead.appendChild(thHead)
+	}
+	playerThead.appendChild(trHead)
+	playerTable.appendChild(playerThead)
+	let playerTbody = document.createElement("tbody")
+	let getPlayerStatus = getTextPlayerStatus(bet)
+	let trBody = document.createElement('tr')
+	for (let i = 0; i < playerStats.length; i ++){  
+		let tdBody = document.createElement('td')
+		tdBody.className = "text-center " + getPlayerStatus[1][i]    
+		if (i == 3){
+			if (getPlayerStatus[0][2] == "Winner"){
+				if (getPlayerStatus[0][2] != "winPayed"){
+				  let payButton = document.createElement("input")
+				  payButton.type = "button"
+				  payButton.dataset.group = bet.group
+				  payButton.dataset.text = bet.text  
+				  payButton.className = "btn btn-success"
+				  payButton.value = "Get win"
+				  tdBody.appendChild(payButton)  
+				}
+				else{
+				  tdBody.innerHTML = "Payed"
+				}
+			}
+			else if (getPlayerStatus[0][2] == "Refund"){ 
+				if (getPlayerStatus[0][2] != "refundPayed"){
+				  let payButton = document.createElement("input")
+				  payButton.type = "button"
+				  payButton.dataset.group = bet.group
+				  payButton.dataset.text = bet.text  
+				  payButton.className = "btn btn-warning"
+				  payButton.value = "Get refund"
+				  tdBody.appendChild(payButton)
+				}
+				else{
+				  tdBody.innerHTML = "Payed"
+				}
+			}
+		}
+		else{
+		    tdBody.innerHTML = getPlayerStatus[0][i]
+		}
+		trBody.appendChild(tdBody)
+	}
+	playerTbody.appendChild(trBody) 
+	playerTable.appendChild(playerTbody)
+	playerList.appendChild(playerTable)
+	playerStatus.appendChild(playerList)
+	table.appendChild(playerStatus) 
+	let allProposalTable = getTextProposal(bet)
+	table.appendChild(allProposalTable)
+	let	betDetailsLabels = ["Text", "Group", "Creator", "Can add proposal", "Token used", "Created at block", "Open until block", "Close untile block", "On convalidation until block"]
+	let betDetails = [bet.text, bet.group, bet.creator, bet.addProposal, bet.usedToken, bet.blocks.createAtBlock, bet.blocks.openBlock, bet.blocks.closeBlock, bet.blocks.convalidateBlock]
+	let betDetailsTable = document.createElement("ul")
+	betDetailsTable.className = ("list-group")
+	let detailTitle = document.createElement("li")
+	detailTitle.className = ("list-group-item active bg-success text-center")
+	detailTitle.innerHTML = "Bet Details"
+	betDetailsTable.appendChild(detailTitle)
+	for (let i = 0; i < betDetailsLabels.length; i++){
+		let detail = document.createElement("li")
+		detail.className = "list-group-item text-center "
+		detail.innerHTML = betDetailsLabels[i] + "   :   " + betDetails[i]
+		betDetailsTable.appendChild(detail)	
+	}
+	table.appendChild(betDetailsTable)
+	let winnersTable = document.createElement("ul")
+	winnersTable.className = ("list-group")
+	let winnersTitle = document.createElement("li")
+	winnersTitle.className = ("list-group-item active bg-success text-center")
+	winnersTitle.innerHTML = "Winners"
+	winnersTable.appendChild(winnersTitle)
+	if (bet.winners.length > 0){
+		for (let i = 0; i < bet.winners.length; i++){
+				  let winner = document.createElement("li")
+			  winner.className = "list-group-item text-center "
+			  winner.innerHTML = bet.winners[i]
+			  winnersTable.appendChild(winner)	     
+		}  
 	}
 	else{
-		text += "Can add results : No</br>"
+			let winner = document.createElement("li")
+		  winner.className = "list-group-item text-center "
+		  winner.innerHTML = -
+		  winnersTable.appendChild(winner)	  
 	}
-	
-	text += "<b>" + getTextBetStatus(bet) + "</b></br>"
-	text += "<b>" + getTextPlayerStatus(bet) + "</b></br>"
-	text += "Results : " + getTextResults(bet)
-	var table = "<table>"
-	for (var i = 0; i < bet.nProposals; i++){
-		table += "<tr><td>"
-		table += getTextProposal(bet, i)
-
-		table += "</td><td>"
-
-		for (var j = 0;  j < bet.proposals[i].nBetters; j++){
-			table  += bet.proposals[i].betters[j] + "</br>"
-		}
-		table += "</td><td>"
-		
-		for (var j = 0;  j < bet.proposals[i].nConvalidators; j++){
-			table  += bet.proposals[i].convalidators[j] + "</br>"
-		}
-		table += "</td></tr>"
-	}
-	if ((bet.addProposal == "y" && bet.status == "open") && (!bet.player.hasBet)){
-		table += "<tr><td><div class = 'proposalAdd'><input type = 'text' name = 'addProposalInput'><input class = 'proposalButton' type = 'button' value = 'Add Proposal'></div></td><td></td><td></td></tr>"
-	}
-	table += "</table>"
-	text += "Proposals : </br>" + table
-	text += "</br></br><input id = 'clearSide' type = 'button' value = 'Clear'>"
-	
-
-	$("#side").on("click",".proposalButton", function (){
-		let operation 
-		let args = []
-		args.push(bet.player.address)
-		args.push(bet.group)
-		args.push(bet.text)
-		if ($(this).parent().attr('class') == 'proposalPartecipate'){
-			operation = "partecipate_bet"
-			args.push($(this).val())
-		}
-		else if ($(this).parent().attr('class') == 'proposalConvalidation'){
-			operation = "convalidate_bet"
-			args.push($(this).val())
-		}
-		else if ($(this).parent().attr('class') == 'proposalAdd'){
-			operation = "partecipate_bet"
-			args.push($(this).parent().find('input[name = "addProposalInput"]').val())
-		}
-		nos.invoke({scriptHash,operation,args})
-    		.then((txid) => alert(`Invoke txid: ${txid} `))
-    		//.catch((err) => alert(`Error: ${err.message}`));
-	});
-
-	$("#side").on("click","#pay", function (){
-		let operation = "pay_bet"
-		let args = []
-		args.push(bet.player.address)
-		args.push(bet.group)
-		args.push(bet.text)
-		nos.invoke({scriptHash,operation,args})
-    		.then((txid) => alert(`Invoke txid: ${txid} `))
-    		//.catch((err) => alert(`Error: ${err.message}`));
-	});		
-	return text
+	table.appendChild(winnersTable)
+  	document.getElementById("side").appendChild(table)
 }
 
 function create(player, groupName, nos, scriptHash){
@@ -190,7 +239,7 @@ function checkBetStatus(bet){
 		bet.status = "open"
 	}
 	else if((bet.blocks.openBlock <= bet.blocks.currentBlock) && (bet.blocks.currentBlock < bet.blocks.closeBlock)){
-		bet.status = "close"
+    	bet.status = "close"
 	}
 	else if((bet.blocks.closeBlock <= bet.blocks.currentBlock) && (bet.blocks.currentBlock < bet.blocks.convalidateBlock)){
 		bet.status = "onConvalidation"
@@ -208,6 +257,7 @@ function checkPlayerStatus(bet){
 			if (bet.proposals[i].betters[j] == bet.player.address){
 				bet.player.hasBet = true,
 				bet.player.betProposal = bet.proposals[i].text
+				bet.player.betProposalIndex = i
 			}
 		}
 		for (var j = 0; j < bet.proposals[i].nConvalidators; j++){
@@ -217,13 +267,32 @@ function checkPlayerStatus(bet){
 			}
 		}
 	}
+
 	if (bet.hasWinningProposal){
-		if (bet.player.betProposal == bet.winningProposal){
-			bet.player.hasWon = true
+		if (bet.player.hasBet){
+			if (bet.player.betProposal == bet.winningProposal){
+				bet.player.hasWon = true
+					for (var j = 0; j < bet.proposals[bet.winningProposalIndex].nAlreadyPayedPlayers; j++){
+						if (bet.proposals[bet.winningProposalIndex].alreadyPayedPlayers[j] == bet.player.address){
+							bet.player.payed = true
+						}
+					}
+			}
+			else{
+				bet.player.hasWon = false
+			}
 		}
-		else{
-			bet.player.hasWon = false
-		}
+	}
+
+	else if (bet.needRefund){
+		if (bet.player.hasBet){
+			for (var j = 0; j < bet.proposals[bet.player.betProposalIndex].nAlreadyPayedPlayers; j++){
+				if (bet.proposals[bet.player.betProposalIndex].alreadyPayedPlayers[j] == bet.player.address){
+					bet.player.payed = true
+				}
+			}
+			bet.player.refund = true
+		}	
 	}
 	return  bet
 }
@@ -274,89 +343,201 @@ function getTextBetStatus(bet){
 
 
 function getTextPlayerStatus(bet){
-	let text = ""
-	text += "Player : <ol>"
-	text += "<li>"
-
-	if (bet.player.hasBet){
-		text += "Bet : " + bet.player.betProposal 
-	}
-	else {
-		text += "No Bet"
-	}
-	text += "</li><li>"
-
-	if (bet.player.hasConvalidated){
-		text += "Convalidation : " + bet.player.convalidationProposal 
-	}
-	else {
-		text += "No Convalidation"
-	}
-	text += "</li><li>"
-
-	if (bet.status == "convalidated" || bet.staus == "payed"){
-		if (bet.player.hasBet && bet.hasWinningProposal){
-				if (bet.player.hasWon){
-					text += "Winner" //aggiungere quantità vinta?
-				}
-				else {
-					text += "Loser" //aggiungere quantità persa?
-				}
-			}
-			else{
-				text += "No Winning Proposal"
-			}	
-	}
-
-	text += "</li>" //gestire il payed
-	return text
+	let text = []
+    let textColor = []
+    if (bet.player.hasBet){
+      text.push(bet.player.betProposal)
+    }
+    else{
+      text.push("Not partecipated")
+    }
+    if (bet.player.hasConvalidated){
+      text.push(bet.player.convalidationProposal)
+    }
+    else{
+      text.push("Not convalidated")
+    }
+    textColor.push("text-primary")
+    textColor.push("text-primary")
+    if (bet.status == "convalidated"){
+      if (bet.player.hasBet){
+        if (bet.hasWinningProposal){
+          if (bet.player.hasWon){
+            text.push("Winner")
+            textColor.push("text-success")
+            if (bet.player.payed){
+              text.push("winPayed")
+              textColor.push("text-success")
+            }
+            else{
+              text.push(null)
+              textColor.push("text-success")              
+            }
+          }
+          else {
+            text.push("Loser")  
+            text.push("No payments")
+            textColor.push("text-danger")
+            textColor.push("text-danger")
+          }
+        }
+        else if (bet.player.refund){
+          text.push("Refund")
+          textColor.push("text-warning")
+          if (bet.player.payed){
+            text.push("refundPayed")
+            textColor.push("text-warning")
+          }
+          else{
+            text.push(null)
+            textColor.push("text-warning")             
+          }
+        }
+      }
+      else{
+        text.push(null)
+        text.push(null)
+        textColor.push(null)  
+        textColor.push(null)  
+      }
+    }
+    else{
+      text.push(null)
+      text.push(null)
+      textColor.push(null)  
+      textColor.push(null)  
+    }
+    return [text,textColor]
 }
 	
 function getTextResults(bet){
-	let text = ""
-	if (bet.hasWinningProposal){
-		if (bet.winners.length > 0){
-			text += "Winners are : <ol>"
-			for (var j = 0; j < bet.winners.length; j++){
-				text  += "<li>" + bet.winners[j] + "</li>"
-			}
-			text += "</ol>  </br>"
-		}
-		else{
-			text += "No winners  </br>"			
-		}
-	}
-	else{
-		text += "No convalidated proposal </br>"
-	}
-	if (bet.status == "convalidated"){
-		text += "<div id = 'payBet><input id = 'pay' type = 'button' value = 'Pay the Bet'></div>" //gestire il pagamento / refund  
-	}
-
-	else if(bet.status == "payed"){
-		text += "Bet Payed  </br>"
-	} 
-	else{
-		text = "No Results  </br>"
-	}
-	return text
+    let text
+    let textColor
+    let secondText
+    if (bet.status == "open"){
+      text = "Bet open"
+      textColor = "text-primary"
+    }
+    else if(bet.status == "close"){
+      text = "Bet close"
+      textColor = "text-primary"
+    }
+    else if(bet.status == "onConvalidation"){
+      text = "Bet on convalidation"
+      textColor = "text-warning"
+    }
+    else{
+      text = "Bet convalidated"
+      if (bet.hasWinningProposal){
+        secondText = "Win : " + bet.winningProposal
+        textColor = "text-success"
+      }
+      else if (bet.needRefund){    
+        secondText = "Refund"
+        textColor = "text-warning"
+      }
+    }
+    let returnArr = []
+    returnArr.push(text)
+    returnArr.push(textColor)
+    returnArr.push(secondText)
+    return returnArr
 }
 
 function getTextProposal(bet, index){
-	var table = ""
-	if ((bet.status == "open" && bet.player.hasBet) || (bet.status == "close") || (bet.status == "payed") || (bet.status == "convalidated")){
-		table += "<div class = 'proposalId'>" + bet.proposals[index].text + "</div>"
+	let proposalTable = document.createElement("table")
+    proposalTable.className = "table"
+    let proposalTableHead = document.createElement("thead")  
+    let head = ["#", "Proposal", "Partecipants", "Convalidators", "N. Convalidations"]
+    let proposalTrHead = document.createElement("tr")  
+    for (let i = 0; i < head.length; i++){
+      let proposalThHead = document.createElement('th')
+      proposalThHead.scope = "col-auto"
+      proposalThHead.className = "text-center"
+      proposalThHead.innerHTML = head[i]
+      proposalTrHead.appendChild(proposalThHead)
+    }
+    proposalTableHead.appendChild(proposalTrHead)
+    proposalTable.appendChild(proposalTableHead)
+    let proposalTableBody = document.createElement("tbody")
+	for (let i = 0; i < bet.nProposals; i++){
+		let proposalTrBody = document.createElement('tr')
+		let thBody = document.createElement('th')
+		thBody.scope = "row"
+		thBody.innerHTML = i+1
+		proposalTrBody.appendChild(thBody)
+		let proposalTextTd = document.createElement('td')
+		proposalTextTd.className = "text-center"
+		if (bet.status == "onConvalidation" || (bet.status == "open" && !bet.player.hasBet)){
+			let proposalButton = document.createElement("input")
+			proposalButton.type = "button"
+			proposalButton.dataset.group = bet.group
+			proposalButton.dataset.text = bet.text
+			proposalButton.className = "btn btn-light"
+			proposalButton.id =  "proposalButton"
+			proposalButton.value = bet.proposals[i]['text'] 
+			proposalTextTd.appendChild(proposalButton)
+		}
+		else{
+			proposalTextTd.innerHTML = bet.proposals[i]['text']
+		}
+		proposalTrBody.appendChild(proposalTextTd)    
+		let partecipantsTd = document.createElement('td')
+		partecipantsTd.className = "text-center"
+		partecipantsTd.innerHTML = ""
+		for (let j = 0; j < bet.proposals[i].nBetters; j++){
+	  		partecipantsTd.innerHTML += bet.proposals[i].betters[j] + "<br>"
+		}
+		proposalTrBody.appendChild(partecipantsTd)
+		let convalidatorsTd = document.createElement('td')
+		convalidatorsTd.className = "text-center"
+		convalidatorsTd.innerHTML = ""
+		for (let j = 0; j < bet.proposals[i].nConvalidators; j++){
+		  	convalidatorsTd.innerHTML += bet.proposals[i].convalidators[j] + "<br>"
+		}
+		proposalTrBody.appendChild(convalidatorsTd)
+		let nConvalidationsTd = document.createElement('td')
+		nConvalidationsTd.className = "text-center"
+		if (bet.status == "onConvalidation" || bet.status == "convalidated"){
+			if (bet.proposals[i].nConvalidators >= bet.magicNumber){
+		  		nConvalidationsTd.className += " text-success"
+			}
+			else{
+				nConvalidationsTd.className += " text-danger"
+			}
+		}
+		nConvalidationsTd.innerHTML = bet.proposals[i].nConvalidators + "/" + bet.magicNumber     
+		proposalTrBody.appendChild(nConvalidationsTd) 
+		proposalTableBody.appendChild(proposalTrBody)
 	}
-	else if((bet.status == "open") && (!bet.player.hasBet)){
-		table += "<div class = 'proposalPartecipate'><input class = 'proposalButton' type = 'button' value = '" + bet.proposals[index].text +"'></div>"  
-	}
-	else if (bet.status == "onConvalidation"){
-		table += "<div class = 'proposalConvalidation'><input class = 'proposalButton' type = 'button' value = '" + bet.proposals[index].text +"'></div>"  
-	}
-	return table
+    if ( bet.addProposal){
+      let proposalTrBody = document.createElement('tr')
+      let thBody = document.createElement('th')
+      thBody.scope = "row"
+      thBody.innerHTML = bet.nProposals+1
+      proposalTrBody.appendChild(thBody)
+      let addProposalTd = document.createElement('td')
+      addProposalTd.className = "text-center"
+      let addProposalInput = document.createElement("input")
+      addProposalInput.className = "text-center"
+      addProposalInput.id = "addProposalInput"
+      addProposalInput.type = "text"
+      addProposalInput.placeholder = "Another?"
+      addProposalTd.appendChild(addProposalInput)
+      let addProposalButton = document.createElement("input")
+      addProposalButton.type = "button"	
+      addProposalButton.className = "btn btn-light"
+      addProposalButton.id =  "addProposalButton"
+      addProposalButton.innerHTML = ""
+      addProposalTd.appendChild(addProposalButton)
+      proposalTrBody.appendChild(addProposalTd) 
+      proposalTableBody.appendChild(proposalTrBody)
+    }  
+    proposalTable.appendChild(proposalTableBody)    
+    return proposalTable
 }
 
-async function instantiateBet(data, player, nos, scriptHash){
+async function instantiateBet(data, player){
 	let operation = "get_height"
 	let args = []
 	let bet
@@ -364,7 +545,7 @@ async function instantiateBet(data, player, nos, scriptHash){
 		.then((returnArray) => {
 			bet = {
 				text : data[1],
-				status : null, //open, close, onConvalidation, convalidated, payed
+				status : null, //open, close, onConvalidation, convalidated
 				group : data[0],
 				creator : data[2], 
 				amountToBet : data[3][3],
@@ -372,7 +553,7 @@ async function instantiateBet(data, player, nos, scriptHash){
 				magicNumber : null,
 				nPlayers : data[3][6],
 				blocks : {
-					currentBlock :  returnArray["stack"][0]["value"][0]["value"],
+					currentBlock : returnArray["stack"][0]["value"][0]["value"],
 					createAtBlock : data[5],
 					openBlock : null,
 					closeBlock : null,
@@ -381,22 +562,31 @@ async function instantiateBet(data, player, nos, scriptHash){
 				nProposals : null,
 				addProposal : null, //true, false
 				proposals : [],
-					// ["yes" , { betters : null, convalidators : null }]
+					// ["yes" , { betters : null, convalidators : null, alreadyPayedPlayers : null }]
 				player : {
 					address : player,
 					hasBet : false, //yes, no
 					betProposal : null,
+					betProposalIndex : null,
 					hasConvalidated : false, //yes, no
 					convalidationProposal : null, 
 					hasWon : false, //yes, no
-					payed : false //check nello storage ?
+					refund : false,
+					payed : false 
 				},
 				hasWinningProposal : false,
 				winningProposalIndex : null,
 				winningProposal : null,
 				winners : [],
-				needRefund : null
+				needRefund : false
 			}
+  
+      if (data[3][5]  == "0"){
+        bet.addProposal = false
+      }
+      else{
+        bet.addProposal = true
+      }
 			bet.blocks.openBlock = bet.blocks.createAtBlock + data[3][0]
 			bet.blocks.closeBlock = bet.blocks.openBlock + data[3][1]
 			bet.blocks.convalidateBlock = bet.blocks.closeBlock + data[3][2]
@@ -404,15 +594,19 @@ async function instantiateBet(data, player, nos, scriptHash){
 			bet.nProposals = data[4].length
 
 			for (var i = 0; i < bet.nProposals; i++){
-				bet.proposals.push({text : data[4][i][0], betters : [], convalidators : [], nBetters : 0, nConvalidators : 0 })
+				bet.proposals.push({text : data[4][i][0], betters : [], convalidators : [], alreadyPayedPlayers : [], nBetters : 0, nConvalidators : 0, nAlreadyPayedPlayers : 0 })
 				for(var j = 0; j < data[4][i][1].length; j++){
 					bet.proposals[i].betters.push(data[4][i][1][j])
 				}
 				for(var j = 0; j < data[4][i][2].length; j++){
 					bet.proposals[i].convalidators.push(data[4][i][2][j])
 				}
+				for(var j = 0; j < data[4][i][3].length; j++){
+					bet.proposals[i].alreadyPayedPlayers.push(data[4][i][3][j])
+				}
 				bet.proposals[i].nBetters = data[4][i][1].length
 				bet.proposals[i].nConvalidators = data[4][i][2].length
+				bet.proposals[i].nAlreadyPayedPlayers = data[4][i][3].length
 			}
 
 			if (bet.nPlayers % 2 == 0){
@@ -426,8 +620,7 @@ async function instantiateBet(data, player, nos, scriptHash){
 			checkWinningProposal(bet)
 			checkResults(bet)
 			checkPlayerStatus(bet)
-			
-		})
+		});
 		//.catch((err) => alert(`Error: ${err.message}`));
 	return bet
 }
