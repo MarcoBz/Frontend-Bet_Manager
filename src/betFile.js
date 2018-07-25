@@ -174,6 +174,18 @@ async function list(dataBet, player, nos, scriptHash){
 	}
 	table.appendChild(winnersTable)
   	document.getElementById("side").appendChild(table)
+
+	let clearSide = document.createElement("div")
+	clearSide.id = "clearSide"
+	clearSide.className = "col-2"
+	let clearSideButton = document.createElement("input")
+	clearSideButton.id = "clearSideButton"
+	clearSideButton.className = "text-center btn btn-dark"
+	clearSideButton.type = "button"
+	clearSideButton.value = "Clear"
+	clearSide.appendChild(clearSideButton)
+	document.getElementById("side").appendChild(clearSide)
+
 }
 
 function create(player, groupName, nos, scriptHash){
@@ -240,7 +252,7 @@ function create(player, groupName, nos, scriptHash){
 	let add = document.createElement("input")
 	add.type = "button"	
 	add.className = "btn btn-light"
-	add.id =  "addProposalButton"
+	add.id =  "addProposalFieldButton"
 	add.innerHTML = ""
 	div4.appendChild(add)
 	addProposal.appendChild(div4)
@@ -579,28 +591,30 @@ function getTextProposal(bet, index){
 		proposalTableBody.appendChild(proposalTrBody)
 	}
     if ( bet.addProposal && bet.status == "open" && !bet.player.hasBet){
-      let proposalTrBody = document.createElement('tr')
-      let thBody = document.createElement('th')
-      thBody.scope = "col"
-      thBody.innerHTML = bet.nProposals+1
-      proposalTrBody.appendChild(thBody)
-      let addProposalTd = document.createElement('td')
-      addProposalTd.className = "text-center"
-      let addProposalInput = document.createElement("input")
-      addProposalInput.className = "text-center"
-      addProposalInput.id = "addProposalInput"
-      addProposalInput.type = "text"
-      addProposalInput.placeholder = "Another?"
-      addProposalTd.appendChild(addProposalInput)
-      let addProposalButton = document.createElement("input")
-      addProposalButton.type = "button"
-      addProposalButton.dataset.operation = "partecipate_bet"	
-      addProposalButton.className = "btn btn-light"
-      addProposalButton.id =  "addProposalButton"
-      addProposalButton.innerHTML = ""
-      addProposalTd.appendChild(addProposalButton)
-      proposalTrBody.appendChild(addProposalTd) 
-      proposalTableBody.appendChild(proposalTrBody)
+		let proposalTrBody = document.createElement('tr')
+		let thBody = document.createElement('th')
+		thBody.scope = "col"
+		thBody.innerHTML = bet.nProposals+1
+		proposalTrBody.appendChild(thBody)
+		let addProposalTd = document.createElement('td')
+		addProposalTd.className = "text-center"
+		let addProposalFieldInput = document.createElement("input")
+		addProposalFieldInput.className = "text-center"
+		addProposalFieldInput.id = "addProposalFieldInput"
+		addProposalFieldInput.type = "text"
+		addProposalFieldInput.placeholder = "Another?"
+		addProposalTd.appendChild(addProposalFieldInput)
+		let addProposalFieldButton = document.createElement("input")
+		addProposalFieldButton.type = "button"
+		addProposalFieldaddProposalFieldButton.dataset.group = bet.group
+		addProposalFieldButton.dataset.text = bet.text
+		addProposalFieldButton.dataset.operation = "partecipate_bet"	
+		addProposalFieldButton.className = "btn btn-light"
+		addProposalFieldButton.id =  "addProposalFieldButton"
+		addProposalFieldButton.innerHTML = ""
+		addProposalTd.appendChild(addProposalFieldButton)
+		proposalTrBody.appendChild(addProposalTd) 
+		proposalTableBody.appendChild(proposalTrBody)
     }  
     proposalTable.appendChild(proposalTableBody)    
     return proposalTable

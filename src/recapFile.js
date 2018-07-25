@@ -63,8 +63,6 @@ function balance(data, totalBalance, sign){
       tdBody.className = body[j]
       trBody.appendChild(tdBody)
       if (body[j] == "tokenFlow"){
-        console.log(data[i][body[j]])
-        console.log(typeof data[i][body[j]])
         if (data[i][body[j]] == '0'){
           tdBody.innerHTML = "Payment"
           tdBody.className += " text-primary"
@@ -185,7 +183,10 @@ function table(data, nos, scriptHash){
                                     tdStatus.innerHTML = "Winner"
                                     let payButton = document.createElement("input")
                                     payButton.type = "button"
-                                    payButton.className = "btn btn-success getWinButton"
+                                    payButton.className = "btn btn-success payButton"         
+                                    payButton.dataset.group = bet.group
+                                    payButton.dataset.text = bet.text
+                                    payButton.dataset.operation = "withdraw_win"
                                     payButton.value = "Get win"
                                     tdBody.appendChild(payButton)
                                   }
@@ -198,7 +199,10 @@ function table(data, nos, scriptHash){
                                     tdBody.innerHTML = ""
                                     let payButton = document.createElement("input")
                                     payButton.type = "button"
-                                    payButton.className = "btn btn-warning getRefundButton"
+                                    payButton.className = "btn btn-warning payButton"         
+                                    payButton.dataset.group = bet.group
+                                    payButton.dataset.text = bet.text
+                                    payButton.dataset.operation = "withdraw_refund"
                                     payButton.value = "Get refund"
                                     tdBody.appendChild(payButton)
                                   }
@@ -219,30 +223,6 @@ function table(data, nos, scriptHash){
   }
   table.appendChild(tableBody)
   recap.appendChild(table)
-
-  $("#recap").on("click",".getRefundButton", function (){
-    let i = $(this).parents("tr").find("th").text() - 1
-    let operation = "withdraw_refund"
-    let args = []
-
-    args.push(currentAddress)
-    args.push(data[i]["groupName"])
-    args.push(data[i]["betText"])
-    nos.invoke({scriptHash,operation,args})
-        .then((txid) => alert(`Invoke txid: ${txid} `))    
-  });
-
-  $("#recap").on("click",".getWinButton", function (){
-    let i = $(this).parents("tr").find("th").text() - 1
-    let operation = "withdraw_win"
-    let args = []
-
-    args.push(currentAddress)
-    args.push(data[i]["groupName"])
-    args.push(data[i]["betText"])
-    nos.invoke({scriptHash,operation,args})
-        .then((txid) => alert(`Invoke txid: ${txid} `))    
-  });
 
   let clearRecap = document.createElement("div")
   clearRecap.id = "clearBalance"

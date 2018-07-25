@@ -343,7 +343,7 @@ $(document).ready(function (){
 		args.push($(this).data('group'))
 		args.push($(this).data('text'))
 		args.push($(this).val())
-		console.log(args)
+		console.lgg('diocan')
 		nos.invoke({scriptHash, operation, args})
 		.then((txid) => {
 			alert(`Invoke txid: ${txid} `)
@@ -358,6 +358,20 @@ $(document).ready(function (){
 		args.push($(this).data('group'))
 		args.push($(this).data('text'))
 		args.push($(this).val())
+		nos.invoke({scriptHash, operation, args})
+		.then((txid) => {
+			alert(`Invoke txid: ${txid} `)
+			window.location.reload(true)
+		})					
+	});
+
+	$("#side").on("click","#addProposalFieldButton", function (){
+		let operation = $(this).data('operation')
+		let args = []
+		args.push(player)
+		args.push($(this).data('group'))
+		args.push($(this).data('text'))
+		args.push($(this).parent().find("#addProposalFieldInput").val())
 		console.log(args)
 		nos.invoke({scriptHash, operation, args})
 		.then((txid) => {
@@ -366,6 +380,35 @@ $(document).ready(function (){
 		})					
 	});
 
+	$("#recap").on("click",".proposalButton", function (){
+		let operation = $(this).data('operation')
+		let args = []
+		args.push(player)
+		args.push($(this).data('group'))
+		args.push($(this).data('text'))
+		args.push($(this).val())
+		console.log(args)
+		nos.invoke({scriptHash, operation, args})
+		.then((txid) => {
+			alert(`Invoke txid: ${txid} `)
+			window.location.reload(true)
+		})					
+	});
+
+	$("#recap").on("click",".payButton", function (){
+		let operation = $(this).data('operation')
+		let args = []
+		args.push(player)
+		args.push($(this).data('group'))
+		args.push($(this).data('text'))
+		args.push($(this).val())
+		console.log(args)
+		nos.invoke({scriptHash, operation, args})
+		.then((txid) => {
+			alert(`Invoke txid: ${txid} `)
+			window.location.reload(true)
+		})					
+	});
 
 	$("#side").on("click","#invokeCreateBetButton", function (){
 		let betArgs = ["betText", "amountToBet", "openBlock", "closeBlock", "convalidateBlock"]
@@ -403,7 +446,6 @@ $(document).ready(function (){
 		args.push(unhexlify(u.reverseHex(int2hex(parseInt($("#side").find('#convalidateBlock').val())))))
 		args.push(unhexlify(u.reverseHex(int2hex(parseInt($("#side").find('#amountToBet').val()) * Math.pow(10, 8)))))
 		args.push($("#side").find('#tokenUsed').val())
-		console.log(args)
 		if ($("#canAddProposal").is(':checked')){
 			args.push(0)
 		}
