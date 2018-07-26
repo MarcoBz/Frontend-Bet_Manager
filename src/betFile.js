@@ -252,7 +252,7 @@ function create(player, groupName, nos, scriptHash){
 	let add = document.createElement("input")
 	add.type = "button"	
 	add.className = "btn btn-light"
-	add.id =  "addProposalFieldButton"
+	add.id =  "addProposalButton"
 	add.innerHTML = ""
 	div4.appendChild(add)
 	addProposal.appendChild(div4)
@@ -265,6 +265,7 @@ function create(player, groupName, nos, scriptHash){
 	let invokeCreateBetButton = document.createElement("input")
 	invokeCreateBetButton.type = "button"
 	invokeCreateBetButton.id = "invokeCreateBetButton"
+	invokeCreateBetButton.dataset.group = groupName
 	invokeCreateBetButton.value = "Submit to creation new Bet"
 	invokeCreateBetButton.className = "btn btn-success"
 	invokeCreateBet.appendChild(invokeCreateBetButton)
@@ -606,7 +607,7 @@ function getTextProposal(bet, index){
 		addProposalTd.appendChild(addProposalFieldInput)
 		let addProposalFieldButton = document.createElement("input")
 		addProposalFieldButton.type = "button"
-		addProposalFieldaddProposalFieldButton.dataset.group = bet.group
+		addProposalFieldButton.dataset.group = bet.group
 		addProposalFieldButton.dataset.text = bet.text
 		addProposalFieldButton.dataset.operation = "partecipate_bet"	
 		addProposalFieldButton.className = "btn btn-light"

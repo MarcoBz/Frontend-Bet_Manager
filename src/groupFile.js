@@ -36,6 +36,7 @@ function list(data, name, nos, scriptHash){
 		let bet = document.createElement("button")
 		bet.type = "button"
 		bet.className = ("list-group-item list-group-item-action text-center getBetButton")
+		bet.dataset.group = name
 		bet.value = data[1][i]
 		bet.innerHTML = data[1][i]
 		let badge = document.createElement("span")
@@ -49,7 +50,6 @@ function list(data, name, nos, scriptHash){
 
 
 				let dataBet = des.deserialize(rawData)
-				console.log(dataBet)
 				for (let i = 0; i < 4; i++){
 					if (typeof dataBet[3][i] == "string"){
 						let string = '0x' + u.reverseHex(hexlify(dataBet[3][i]))
@@ -75,14 +75,16 @@ function list(data, name, nos, scriptHash){
 						badge.innerHTML = "Convalidated"    
 					}
 				})
+				.catch((err) => handler.handleStorage(err));
 			})
 
-			.catch((err) => console.log(`Error: ${err.message}`));
+			.catch((err) => handler.handleStorage(err));
 	}
 	let createBet = document.createElement("div")
 	createBet.className = ("list-group-item list-group-item-action active bg-success text-center") 
 	createBet.innerHTML = "Create new bet"
 	createBet.id = "createBet"
+	createBet.dataset.group = name
 	table.appendChild(betsTable)
 	table.appendChild(createBet)
 	main.appendChild(table)
@@ -100,7 +102,7 @@ function list(data, name, nos, scriptHash){
 
 }
 
-function create(nos, scriptHash){
+function create(){
 	let form = document.createElement("form")
 	form.id = "createGroupForm"
 	let nameGroup = document.createElement("div")

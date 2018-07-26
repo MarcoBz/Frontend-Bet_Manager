@@ -4,17 +4,17 @@ const groupFile = require('./groupFile')
 const betFile = require('./betFile')
 const recapFile = require('./recapFile')
 const checker = require('./checkInput')
+const handler = require('./handleFile')
 import { u, wallet } from '@cityofzion/neon-js';
 import { str2hexstring, int2hex, hexstring2str } from '@cityofzion/neon-js/src/utils'
 import {unhexlify,hexlify} from 'binascii';
 const address = unhexlify(u.reverseHex(wallet.getScriptHashFromAddress('AK2nJJpJr6o664CWJKi1QRXjqeic2zRp8y')))
-const scriptHash = '0d7693d1b7c9145eda625c2d4578579ffe596b75';
+const scriptHash = '23190e9229e5185624a2f58053c681be2b48a6d5';
 
 const nos = window.NOS.V1;
 
 $(document).ready(function (){
 	let player
-	let name
 	nos.getAddress()
 		.then((loggedAddress) => {
 			if (loggedAddress){
@@ -73,8 +73,9 @@ $(document).ready(function (){
 							}
 						recapFile.balance(dataBalance, totalBalance)
 						});
+
 					})
-					////.catch ##############
+					.catch((err) => handler.handleStorage(err));
 				let createNewElement = document.createElement("div")
 				createNewElement.className = "createElement col-6"
 				let createButton = document.createElement("input")
@@ -104,7 +105,7 @@ $(document).ready(function (){
 				$('#chooseGroup').html("</div> You have to login <div>")
 			}
 		})
-		.catch((err) => console.log(`Error: ${err.message}`)); //####### 
+		.catch((err) => handler.handleStorage(err));
 
 	$('#chooseGroup').on("click",".groupButton", function (){
 		$("#recap").empty()
@@ -118,39 +119,41 @@ $(document).ready(function (){
 	  			data = des.deserialize(rawData)
 	  			groupFile.list(data, key, nos, scriptHash)
 	  		})
-			.catch((err) => console.log(`Error: ${err.message}`)); //#######
-		name = key
-
-		$('#main').on("click",".getBetButton", function (){
-			$("#side").empty()
-			let bet = $(this).val()
-			key = name + bet
-			decodeOutput = false
-			nos.getStorage({scriptHash, key, decodeOutput})
-		  		.then((rawData) => {
-		  			nos.getAddress()
-					.then((betterAddress) => {
-						if (betterAddress){
-							betterAddress = unhexlify(u.reverseHex(wallet.getScriptHashFromAddress(betterAddress)))
-				  			let dataBet = des.deserialize(rawData)
-				  			Promise.resolve(betFile.list(dataBet, betterAddress, nos, scriptHash))
-			  			}
-						else{
-							$('#chooseGroup').html("</div> You have to login <div>")
-						}
-			  		});
-		  		})
-				.catch((err) => console.log(`Error: ${err.message}`));
-		  	});
+			.catch((err) => handler.handleStorage(err));
 	});
 
+	$('#main').on("click",".getBetButton", function (){
+		$("#side").empty()
+		let bet = $(this).val()
+		let group = $(this).data('group')
+		let key = group + bet
+		let decodeOutput = false
+		nos.getStorage({scriptHash, key, decodeOutput})
+	  		.then((rawData) => {
+	  			nos.getAddress()
+				.then((betterAddress) => {
+					if (betterAddress){
+						betterAddress = unhexlify(u.reverseHex(wallet.getScriptHashFromAddress(betterAddress)))
+			  			let dataBet = des.deserialize(rawData)
+			  			Promise.resolve(betFile.list(dataBet, betterAddress, nos, scriptHash))
+		  			}
+					else{
+						$('#chooseGroup').html("</div> You have to login <div>")
+					}
+		  		});
+	  		})
+			.catch((err) => handler.handleStorage(err));
+	  	});
+
+	$('#main').off("click","#createBet")
 	$('#main').on("click","#createBet", function (){
 		$("#side").empty()
+		let groupName = $(this).data('group')
 		nos.getAddress()
 		.then((betterAddress) => {
 			if (betterAddress){
 				betterAddress = unhexlify(u.reverseHex(wallet.getScriptHashFromAddress(betterAddress)))
-				betFile.create(betterAddress, name, nos, scriptHash)
+				betFile.create(betterAddress, groupName, nos, scriptHash)
   			}
 			else{
 				$('#chooseGroup').html("</div> You have to login <div>")
@@ -163,7 +166,7 @@ $(document).ready(function (){
 			$("#recap").empty()
 			$("#side").empty()
 			$("#main").empty()
-			groupFile.create(nos, scriptHash)
+			groupFile.create()
 	  	});
 
 	$("#main").on("click","#addAddressButton", function(){
@@ -265,10 +268,9 @@ $(document).ready(function (){
 			args.push(groupName)
 			nos.invoke({scriptHash, operation, args})
 			.then((txid) => {
-				alert(`Invoke txid: ${txid} `)
-				window.location.reload(true)
+			handler.handleConfirmationTime(txid)
 			})
-    		//.catch((err) => alert(`Error: ${err.message}`));
+    		.catch((err) => handler.handleInvocation(err));
 	    }
   	});
 
@@ -285,6 +287,11 @@ $(document).ready(function (){
 				$("#main").empty()
 	});
 
+	$("#recap").on("click", "#notifyButton", function (){
+				$("#recap").empty()
+				window.location.reload(true)
+	});
+
 	$("#side").on("click", "#clearSideButton", function (){
 				$("#side").empty()
 	});
@@ -292,7 +299,6 @@ $(document).ready(function (){
 	$("#side").on("click","#addProposalButton", function(){
 		let newProposal = $(this).parents("#addProposal").find("#addProposalForm").val()
 		let allProposals = []
-
 		$('.addedProposal').each(function(i) {
 			let addedProposal  = $(this).find(".proposal").val()
 			if (addedProposal){
@@ -343,12 +349,11 @@ $(document).ready(function (){
 		args.push($(this).data('group'))
 		args.push($(this).data('text'))
 		args.push($(this).val())
-		console.lgg('diocan')
 		nos.invoke({scriptHash, operation, args})
 		.then((txid) => {
-			alert(`Invoke txid: ${txid} `)
-			window.location.reload(true)
-		})					
+			handler.handleConfirmationTime(txid)
+		})	
+		.catch((err) => handler.handleInvocation(err));				
 	});
 
 	$("#side").on("click",".payButton", function (){
@@ -360,9 +365,9 @@ $(document).ready(function (){
 		args.push($(this).val())
 		nos.invoke({scriptHash, operation, args})
 		.then((txid) => {
-			alert(`Invoke txid: ${txid} `)
-			window.location.reload(true)
-		})					
+			handler.handleConfirmationTime(txid)
+		})	
+		.catch((err) => handler.handleInvocation(err));				
 	});
 
 	$("#side").on("click","#addProposalFieldButton", function (){
@@ -375,9 +380,9 @@ $(document).ready(function (){
 		console.log(args)
 		nos.invoke({scriptHash, operation, args})
 		.then((txid) => {
-			alert(`Invoke txid: ${txid} `)
-			window.location.reload(true)
-		})					
+			handler.handleConfirmationTime(txid)
+		})	
+		.catch((err) => handler.handleInvocation(err));				
 	});
 
 	$("#recap").on("click",".proposalButton", function (){
@@ -390,9 +395,9 @@ $(document).ready(function (){
 		console.log(args)
 		nos.invoke({scriptHash, operation, args})
 		.then((txid) => {
-			alert(`Invoke txid: ${txid} `)
-			window.location.reload(true)
-		})					
+			handler.handleConfirmationTime(txid)
+		})	
+		.catch((err) => handler.handleInvocation(err));				
 	});
 
 	$("#recap").on("click",".payButton", function (){
@@ -405,9 +410,9 @@ $(document).ready(function (){
 		console.log(args)
 		nos.invoke({scriptHash, operation, args})
 		.then((txid) => {
-			alert(`Invoke txid: ${txid} `)
-			window.location.reload(true)
-		})					
+			handler.handleConfirmationTime(txid)
+		})	
+		.catch((err) => handler.handleInvocation(err));				
 	});
 
 	$("#side").on("click","#invokeCreateBetButton", function (){
@@ -439,7 +444,7 @@ $(document).ready(function (){
 		let args = []
 		let proposals = []
 		args.push(player)
-		args.push(name)
+		args.push($(this).data('group'))
 		args.push($("#side").find('#betText').val())    
 		args.push(unhexlify(u.reverseHex(int2hex(parseInt($("#side").find('#openBlock').val())))))
 		args.push(unhexlify(u.reverseHex(int2hex(parseInt($("#side").find('#closeBlock').val())))))
@@ -469,10 +474,9 @@ $(document).ready(function (){
 			else {
 				nos.invoke({scriptHash, operation, args})
 				.then((txid) => {
-					alert(`Invoke txid: ${txid} `)
-					window.location.reload(true)
+					handler.handleConfirmationTime(txid)
 				})
-				//.catch((err) => alert(`Error: ${err.message}`));				
+				.catch((err) => handler.handleInvocation(err));				
 			}
 		}
 
@@ -485,10 +489,3 @@ $(document).ready(function (){
 })
 
 
-
-
-
-//perche doppia virgola
-//perchè continua dopo ultimo termine
-//suddividere per ogni singolo array
-//sistemare discorso numeri e address

@@ -63,6 +63,7 @@ function balance(data, totalBalance, sign){
       tdBody.className = body[j]
       trBody.appendChild(tdBody)
       if (body[j] == "tokenFlow"){
+
         if (data[i][body[j]] == '0'){
           tdBody.innerHTML = "Payment"
           tdBody.className += " text-primary"

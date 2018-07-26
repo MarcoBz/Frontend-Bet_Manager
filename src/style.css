@@ -9,6 +9,15 @@
   padding : 5px;
   padding-top : 2px
 }
+
+.notify{
+
+  margin: auto;
+
+
+  
+}
+
 .glyphicon-refresh-animate {
     -animation: spin .7s infinite linear;
     -webkit-animation: spin2 .7s infinite linear;
