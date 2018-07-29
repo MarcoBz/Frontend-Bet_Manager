@@ -1,6 +1,7 @@
 import { u, wallet } from '@cityofzion/neon-js';
 import { str2hexstring, int2hex, hexstring2str } from '@cityofzion/neon-js/src/utils'
 import {unhexlify,hexlify} from 'binascii';
+const handler = require('./handleFile')
 
 function decodeData(dataBet){
 
@@ -75,7 +76,7 @@ async function list(dataBet, player, nos, scriptHash){
 	playerList.className = "list-group-item"
 	let playerTable = document.createElement("table")
 	playerTable.className = "table"
-	let playerStats = ["Partecipation", "Convalidation", "Result", "Payments"]
+	let playerStats = ["Partecipation", "validation", "Result", "Payments"]
 	let playerThead = document.createElement("thead")
 	let trHead = document.createElement('tr')
 	for (let i = 0; i < playerStats.length; i++){
@@ -95,7 +96,7 @@ async function list(dataBet, player, nos, scriptHash){
 		tdBody.className = "text-center " + getPlayerStatus[1][i]    
 		if (i == 3){
 			if (getPlayerStatus[0][2] == "Winner"){
-				if (getPlayerStatus[0][2] != "winPayed"){
+				if (getPlayerStatus[0][3] != "winPayed"){
 				  let payButton = document.createElement("input")
 				  payButton.type = "button"
 				  payButton.dataset.group = bet.group
@@ -110,7 +111,7 @@ async function list(dataBet, player, nos, scriptHash){
 				}
 			}
 			else if (getPlayerStatus[0][2] == "Refund"){ 
-				if (getPlayerStatus[0][2] != "refundPayed"){
+				if (getPlayerStatus[0][3] != "refundPayed"){
 				  let payButton = document.createElement("input")
 				  payButton.type = "button"
 				  payButton.dataset.group = bet.group
@@ -137,8 +138,8 @@ async function list(dataBet, player, nos, scriptHash){
 	table.appendChild(playerStatus) 
 	let allProposalTable = getTextProposal(bet)
 	table.appendChild(allProposalTable)
-	let	betDetailsLabels = ["Text", "Group", "Creator", "Can add proposal", "Token used", "Created at block", "Open until block", "Close untile block", "On convalidation until block", "Amount Bet"]
-	let betDetails = [bet.text, bet.group, bet.creator, bet.addProposal, bet.usedToken, bet.blocks.createAtBlock, bet.blocks.openBlock, bet.blocks.closeBlock, bet.blocks.convalidateBlock, bet.amountToBet]
+	let	betDetailsLabels = ["Text", "Group", "Creator", "Can add proposal", "Token used", "Created at block", "Open until block", "Close untile block", "On validation until block", "Amount Bet"]
+	let betDetails = [bet.text, bet.group, bet.creator, bet.addProposal, bet.usedToken, bet.blocks.createAtBlock, bet.blocks.openBlock, bet.blocks.closeBlock, bet.blocks.validateBlock, bet.amountToBet]
 	let betDetailsTable = document.createElement("ul")
 	betDetailsTable.className = ("list-group")
 	let detailTitle = document.createElement("li")
@@ -192,8 +193,8 @@ function create(player, groupName, nos, scriptHash){
 	let side = document.getElementById("side");
 	let form = document.createElement("form")
 	form.id = "createBetForm"
-	let betLabels = ["Bet text", "Amount to bet", "Open for blocks", "Close for blocks", "Convalidation for blocks", "Token used"]
-	let betArgs = ["betText", "amountToBet", "openBlock", "closeBlock", "convalidateBlock", "tokenUsed"]
+	let betLabels = ["Bet text", "Amount to bet", "Open for blocks", "Close for blocks", "validation for blocks", "Token used"]
+	let betArgs = ["betText", "amountToBet", "openBlock", "closeBlock", "validateBlock", "tokenUsed"]
 	let betExample = ["Is NEO the best?", "0", "0", "0", "0", "602c79718b16e442de58778e148d0b1084e3b2dffd5de6b7b16cee7969282de7"]
 
 
@@ -297,11 +298,11 @@ function checkBetStatus(bet){
 	else if((bet.blocks.openBlock <= bet.blocks.currentBlock) && (bet.blocks.currentBlock < bet.blocks.closeBlock)){
     	bet.status = "close"
 	}
-	else if((bet.blocks.closeBlock <= bet.blocks.currentBlock) && (bet.blocks.currentBlock < bet.blocks.convalidateBlock)){
-		bet.status = "onConvalidation"
+	else if((bet.blocks.closeBlock <= bet.blocks.currentBlock) && (bet.blocks.currentBlock < bet.blocks.validateBlock)){
+		bet.status = "onvalidation"
 	}
 	else{
-		bet.status ="convalidated"
+		bet.status ="validated"
 	}
 	return bet
 }
@@ -309,7 +310,6 @@ function checkBetStatus(bet){
 function checkPlayerStatus(bet){
 	for(var i = 0; i < bet.nProposals; i++){
 		for (var j = 0; j < bet.proposals[i].nBetters; j++){
-
 			if (bet.proposals[i].betters[j] == bet.player.address){
 
 				bet.player.hasBet = true,
@@ -317,10 +317,10 @@ function checkPlayerStatus(bet){
 				bet.player.betProposalIndex = i
 			}
 		}
-		for (var j = 0; j < bet.proposals[i].nConvalidators; j++){
-			if (bet.proposals[i].convalidators[j] == bet.player.address){
-				bet.player.hasConvalidated = true,
-				bet.player.convalidationProposal = bet.proposals[i].text
+		for (var j = 0; j < bet.proposals[i].nvalidators; j++){
+			if (bet.proposals[i].validators[j] == bet.player.address){
+				bet.player.hasvalidated = true,
+				bet.player.validationProposal = bet.proposals[i].text
 			}
 		}
 	}
@@ -328,6 +328,7 @@ function checkPlayerStatus(bet){
 	if (bet.hasWinningProposal){
 		if (bet.player.hasBet){
 			if (bet.player.betProposal == bet.winningProposal){
+
 				bet.player.hasWon = true
 					for (var j = 0; j < bet.proposals[bet.winningProposalIndex].nAlreadyPayedPlayers; j++){
 						if (bet.proposals[bet.winningProposalIndex].alreadyPayedPlayers[j] == bet.player.address){
@@ -355,9 +356,9 @@ function checkPlayerStatus(bet){
 }
 
 function checkWinningProposal(bet){
-	if (bet.status == "convalidated"){
+	if (bet.status == "validated"){
 		for(var i = 0; i < bet.nProposals; i++){	
-			if (bet.proposals[i].nConvalidators >= bet.magicNumber){
+			if (bet.proposals[i].nvalidators >= bet.magicNumber){
 				bet.hasWinningProposal = true
 				bet.winningProposalIndex = i
 				bet.winningProposal = bet.proposals[bet.winningProposalIndex].text
@@ -393,12 +394,12 @@ function getTextBetStatus(bet){
 		text = "Bet close"
 		textColor = "text-primary"
 	}
-	else if(bet.status == "onConvalidation"){
-		text = "Bet on convalidation"
+	else if(bet.status == "onvalidation"){
+		text = "Bet on validation"
 		textColor = "text-warning"
 	}
 	else{
-		text = "Bet convalidated"
+		text = "Bet validated"
 		if (bet.hasWinningProposal){
 			secondText = "Win : " + bet.winningProposal
 			textColor = "text-success"
@@ -427,15 +428,15 @@ function getTextPlayerStatus(bet){
     else{
       text.push("Not partecipated")
     }
-    if (bet.player.hasConvalidated){
-      text.push(bet.player.convalidationProposal)
+    if (bet.player.hasvalidated){
+      text.push(bet.player.validationProposal)
     }
     else{
-      text.push("Not convalidated")
+      text.push("Not validated")
     }
     textColor.push("text-primary")
     textColor.push("text-primary")
-    if (bet.status == "convalidated"){
+    if (bet.status == "validated"){
       if (bet.player.hasBet){
         if (bet.hasWinningProposal){
           if (bet.player.hasWon){
@@ -498,12 +499,12 @@ function getTextResults(bet){
       text = "Bet close"
       textColor = "text-primary"
     }
-    else if(bet.status == "onConvalidation"){
-      text = "Bet on convalidation"
+    else if(bet.status == "onvalidation"){
+      text = "Bet on validation"
       textColor = "text-warning"
     }
     else{
-      text = "Bet convalidated"
+      text = "Bet validated"
       if (bet.hasWinningProposal){
         secondText = "Win : " + bet.winningProposal
         textColor = "text-success"
@@ -524,7 +525,7 @@ function getTextProposal(bet, index){
 	let proposalTable = document.createElement("table")
     proposalTable.className = "table"
     let proposalTableHead = document.createElement("thead")  
-    let head = ["#", "Proposal", "Partecipants", "Convalidators", "N. Convalidations"]
+    let head = ["#", "Proposal", "Partecipants", "validators", "N. validations"]
     let proposalTrHead = document.createElement("tr")  
     for (let i = 0; i < head.length; i++){
       let proposalThHead = document.createElement('th')
@@ -544,7 +545,7 @@ function getTextProposal(bet, index){
 		proposalTrBody.appendChild(thBody)
 		let proposalTextTd = document.createElement('td')
 		proposalTextTd.className = "text-center"
-		if (bet.status == "onConvalidation" || (bet.status == "open" && !bet.player.hasBet)){
+		if (bet.status == "onvalidation" || (bet.status == "open" && !bet.player.hasBet)){
 			let proposalButton = document.createElement("input")
 			proposalButton.type = "button"
 			proposalButton.dataset.group = bet.group
@@ -553,7 +554,7 @@ function getTextProposal(bet, index){
 				proposalButton.dataset.operation = "partecipate_bet"
 			}
 			else{
-				proposalButton.dataset.operation = "convalidate_bet"
+				proposalButton.dataset.operation = "validate_bet"
 			}
 			proposalButton.className = "btn btn-light proposalButton"
 			proposalButton.value = bet.proposals[i]['text'] 
@@ -570,28 +571,28 @@ function getTextProposal(bet, index){
 	  		partecipantsTd.innerHTML += bet.proposals[i].betters[j] + "<br>"
 		}
 		proposalTrBody.appendChild(partecipantsTd)
-		let convalidatorsTd = document.createElement('td')
-		convalidatorsTd.className = "text-center"
-		convalidatorsTd.innerHTML = ""
-		for (let j = 0; j < bet.proposals[i].nConvalidators; j++){
-		  	convalidatorsTd.innerHTML += bet.proposals[i].convalidators[j] + "<br>"
+		let validatorsTd = document.createElement('td')
+		validatorsTd.className = "text-center"
+		validatorsTd.innerHTML = ""
+		for (let j = 0; j < bet.proposals[i].nvalidators; j++){
+		  	validatorsTd.innerHTML += bet.proposals[i].validators[j] + "<br>"
 		}
-		proposalTrBody.appendChild(convalidatorsTd)
-		let nConvalidationsTd = document.createElement('td')
-		nConvalidationsTd.className = "text-center"
-		if (bet.status == "onConvalidation" || bet.status == "convalidated"){
-			if (bet.proposals[i].nConvalidators >= bet.magicNumber){
-		  		nConvalidationsTd.className += " text-success"
+		proposalTrBody.appendChild(validatorsTd)
+		let nvalidationsTd = document.createElement('td')
+		nvalidationsTd.className = "text-center"
+		if (bet.status == "onvalidation" || bet.status == "validated"){
+			if (bet.proposals[i].nvalidators >= bet.magicNumber){
+		  		nvalidationsTd.className += " text-success"
 			}
 			else{
-				nConvalidationsTd.className += " text-danger"
+				nvalidationsTd.className += " text-danger"
 			}
 		}
-		nConvalidationsTd.innerHTML = bet.proposals[i].nConvalidators + "/" + bet.magicNumber     
-		proposalTrBody.appendChild(nConvalidationsTd) 
+		nvalidationsTd.innerHTML = bet.proposals[i].nvalidators + "/" + bet.magicNumber     
+		proposalTrBody.appendChild(nvalidationsTd) 
 		proposalTableBody.appendChild(proposalTrBody)
 	}
-    if ( bet.addProposal && bet.status == "open" && !bet.player.hasBet){
+    if ( bet.addProposal  && bet.status == "open" && !bet.player.hasBet){
 		let proposalTrBody = document.createElement('tr')
 		let thBody = document.createElement('th')
 		thBody.scope = "col"
@@ -624,12 +625,12 @@ function getTextProposal(bet, index){
 async function instantiateBet(data, player, nos, scriptHash){
 	let operation = "get_height"
 	let args = []
-	let bet
+	let bet 
 	await nos.testInvoke({scriptHash,operation,args})
 		.then((returnArray) => {
 			bet = {
 				text : data[1],
-				status : null, //open, close, onConvalidation, convalidated
+				status : null, //open, close, onvalidation, validated
 				group : data[0],
 				creator : data[2], 
 				amountToBet : parseFloat(data[3][3]) / Math.pow(10, 8),
@@ -641,19 +642,19 @@ async function instantiateBet(data, player, nos, scriptHash){
 					createAtBlock : data[5],
 					openBlock : null,
 					closeBlock : null,
-					convalidateBlock : null
+					validateBlock : null
 				},
 				nProposals : null,
 				addProposal : null, //true, false
 				proposals : [],
-					// ["yes" , { betters : null, convalidators : null, alreadyPayedPlayers : null }]
+					// ["yes" , { betters : null, validators : null, alreadyPayedPlayers : null }]
 				player : {
 					address : player,
 					hasBet : false, //yes, no
 					betProposal : null,
 					betProposalIndex : null,
-					hasConvalidated : false, //yes, no
-					convalidationProposal : null, 
+					hasvalidated : false, //yes, no
+					validationProposal : null, 
 					hasWon : false, //yes, no
 					refund : false,
 					payed : false 
@@ -664,47 +665,76 @@ async function instantiateBet(data, player, nos, scriptHash){
 				winners : [],
 				needRefund : false
 			}
-  
-      if (data[3][5]  == "0"){
-        bet.addProposal = false
-      }
-      else{
-        bet.addProposal = true
-      }
-			bet.blocks.openBlock = bet.blocks.createAtBlock + data[3][0]
-			bet.blocks.closeBlock = bet.blocks.openBlock + data[3][1]
-			bet.blocks.convalidateBlock = bet.blocks.closeBlock + data[3][2]
+  	
+	let stringAddProposal
 
-			bet.nProposals = data[4].length
+	if (data[3][5] == '1'){
+		stringAddProposal = 1
+	}
 
-			for (var i = 0; i < bet.nProposals; i++){
-				bet.proposals.push({text : data[4][i][0], betters : [], convalidators : [], alreadyPayedPlayers : [], nBetters : 0, nConvalidators : 0, nAlreadyPayedPlayers : 0 })
-				for(var j = 0; j < data[4][i][1].length; j++){
-					bet.proposals[i].betters.push(data[4][i][1][j])
-				}
-				for(var j = 0; j < data[4][i][2].length; j++){
-					bet.proposals[i].convalidators.push(data[4][i][2][j])
-				}
-				for(var j = 0; j < data[4][i][3].length; j++){
-					bet.proposals[i].alreadyPayedPlayers.push(data[4][i][3][j])
-				}
-				bet.proposals[i].nBetters = data[4][i][1].length
-				bet.proposals[i].nConvalidators = data[4][i][2].length
-				bet.proposals[i].nAlreadyPayedPlayers = data[4][i][3].length
-			}
+	else if (data[3][5]){
+		stringAddProposal = parseInt('0x' + u.reverseHex(hexlify(data[3][5])))
+	}
+	else{
+		stringAddProposal = 0
+	}
 
-			if (bet.nPlayers % 2 == 0){
-				bet.magicNumber = (bet.nPlayers / 2) + 1
-			}
-			else{
-				bet.magicNumber = (bet.nPlayers + 1) / 2
-			}
-			checkBetStatus(bet)
-			checkWinningProposal(bet)
-			checkResults(bet)
-			checkPlayerStatus(bet)
-		});
-		//.catch((err) => alert(`Error: ${err.message}`));
+	if (stringAddProposal  != 1){
+	bet.addProposal = false
+	}
+	else{
+	bet.addProposal = true
+	}
+
+	if (!data[3][0]){
+		bet.blocks.openBlock = bet.blocks.createAtBlock 
+	}
+	else{
+		bet.blocks.openBlock = bet.blocks.createAtBlock + data[3][0]
+	}
+	if (!data[3][1]){
+		bet.blocks.closeBlock = bet.blocks.openBlock
+	}
+	else{
+		bet.blocks.closeBlock = bet.blocks.openBlock + data[3][1]
+	}
+	if (!data[3][2]){
+		bet.blocks.validateBlock = bet.blocks.closeBlock
+	}
+	else{
+	bet.blocks.validateBlock = bet.blocks.closeBlock + data[3][2]
+	}
+
+	bet.nProposals = data[4].length
+
+	for (var i = 0; i < bet.nProposals; i++){
+		bet.proposals.push({text : data[4][i][0], betters : [], validators : [], alreadyPayedPlayers : [], nBetters : 0, nvalidators : 0, nAlreadyPayedPlayers : 0 })
+		for(var j = 0; j < data[4][i][1].length; j++){
+			bet.proposals[i].betters.push(data[4][i][1][j])
+		}
+		for(var j = 0; j < data[4][i][2].length; j++){
+			bet.proposals[i].validators.push(data[4][i][2][j])
+		}
+		for(var j = 0; j < data[4][i][3].length; j++){
+			bet.proposals[i].alreadyPayedPlayers.push(data[4][i][3][j])
+		}
+		bet.proposals[i].nBetters = data[4][i][1].length
+		bet.proposals[i].nvalidators = data[4][i][2].length
+		bet.proposals[i].nAlreadyPayedPlayers = data[4][i][3].length
+	}
+
+	if (bet.nPlayers % 2 == 0){
+		bet.magicNumber = (bet.nPlayers / 2) + 1
+	}
+	else{
+		bet.magicNumber = (bet.nPlayers + 1) / 2
+	}
+
+	checkBetStatus(bet)
+	checkWinningProposal(bet)
+	checkResults(bet)
+	checkPlayerStatus(bet)
+	});
 	return bet
 }
 
@@ -712,30 +742,35 @@ async function getBetStatus(data, nos, scriptHash){
 	let operation = "get_height"
 	let args = []
 	let bet
+
 	await nos.testInvoke({scriptHash,operation,args})
 		.then((returnArray) => {
 			  bet = {
-				    status : null, //open, close, onConvalidation, convalidated, payed
+				    status : null, //open, close, onvalidation, validated, payed
 				    blocks : {
 				      currentBlock : returnArray["stack"][0]["value"][0]["value"], 
 				      createAtBlock : data[5],
 				      openBlock : null,
 				      closeBlock : null,
-				      convalidateBlock : null
+				      validateBlock : null
 				    }
 				  }
 			  bet.blocks.openBlock = bet.blocks.createAtBlock + data[3][0]
 			  bet.blocks.closeBlock = bet.blocks.openBlock + data[3][1]
-			  bet.blocks.convalidateBlock = bet.blocks.closeBlock + data[3][2]
-			  checkBetStatus(bet)
+			  bet.blocks.validateBlock = bet.blocks.closeBlock + data[3][2]
 			  
+			  checkBetStatus(bet)
+			   
 			  
 		});
+
 	return bet.status
 }
 
-async function getBetResult(data, player, nos, scriptHash){
-	let bet = await instantiateBet(data, player, nos, scriptHash)
+async function getBetResult(dataBet, player, nos, scriptHash){
+	let playerAdd = wallet.getAddressFromScriptHash(u.reverseHex(hexlify(player)))
+	let data = decodeData(dataBet)
+	let bet = await instantiateBet(data, playerAdd, nos, scriptHash)
 	let betResult = ""
 	if (bet.hasWinningProposal){
 		if (bet.player.hasWon){
@@ -750,7 +785,13 @@ async function getBetResult(data, player, nos, scriptHash){
 			betResult = "refund"
 		}
 	}
- 	return betResult
+
+	let returnArr = []
+	returnArr.push(betResult)
+	returnArr.push(bet.group)
+	returnArr.push(bet.text)
+
+ 	return returnArr
 }
 	
 	

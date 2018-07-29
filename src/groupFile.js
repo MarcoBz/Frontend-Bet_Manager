@@ -3,6 +3,7 @@ import { str2hexstring, int2hex, hex2int, hexstring2str } from '@cityofzion/neon
 import {unhexlify,hexlify} from 'binascii';
 const des = require('./deserialize')
 const betFile = require('./betFile')
+const handler = require('./handleFile')
 
 function list(data, name, nos, scriptHash){
 
@@ -10,7 +11,8 @@ function list(data, name, nos, scriptHash){
 	let groupName = document.createElement("h2")
 	groupName.className = "text-center"
 	groupName.innerHTML = name
-	document.getElementById('main').appendChild(groupName)
+	document.getElementById('recap').innerHTML = ""
+	document.getElementById('recap').appendChild(groupName)
 	let table = document.createElement("div")
 	table.classname = "col col-4"
 	let peopleTable = document.createElement("ul")
@@ -66,13 +68,13 @@ function list(data, name, nos, scriptHash){
 						badge.className = "badge badge-secondary"
 						badge.innerHTML = "Closed"    
 					}
-					else if (betStatus == "onConvalidation"){
+					else if (betStatus == "onvalidation"){
 						badge.className = "badge badge-warning"
-						badge.innerHTML = "On convalidation"    
+						badge.innerHTML = "On validation"    
 					}
-					else if (betStatus == "convalidated"){
+					else if (betStatus == "validated"){
 						badge.className = "badge badge-success"
-						badge.innerHTML = "Convalidated"    
+						badge.innerHTML = "validated"    
 					}
 				})
 				.catch((err) => handler.handleStorage(err));
@@ -85,8 +87,8 @@ function list(data, name, nos, scriptHash){
 	createBet.innerHTML = "Create new bet"
 	createBet.id = "createBet"
 	createBet.dataset.group = name
-	table.appendChild(betsTable)
 	table.appendChild(createBet)
+	table.appendChild(betsTable)
 	main.appendChild(table)
 
 	let clearMain = document.createElement("div")

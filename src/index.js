@@ -9,7 +9,7 @@ import { u, wallet } from '@cityofzion/neon-js';
 import { str2hexstring, int2hex, hexstring2str } from '@cityofzion/neon-js/src/utils'
 import {unhexlify,hexlify} from 'binascii';
 const address = unhexlify(u.reverseHex(wallet.getScriptHashFromAddress('AK2nJJpJr6o664CWJKi1QRXjqeic2zRp8y')))
-const scriptHash = '23190e9229e5185624a2f58053c681be2b48a6d5';
+const scriptHash = '7bbfec6ab4a71c01921eb1655e313fef2cc7f867';
 
 const nos = window.NOS.V1;
 
@@ -25,7 +25,8 @@ $(document).ready(function (){
 				let decodeOutput = false
 				nos.getStorage({scriptHash, key, decodeOutput})
 					.then((rawData) =>{
-						var data = des.deserialize(rawData)
+						let data = des.deserialize(rawData)
+						document.getElementById('chooseGroup').innerHTML = "";
 						for (let i = 0; i < data[0].length; i++){
 						  let groupElement = document.createElement("div")
 						  groupElement.className = "groupElement"
@@ -75,7 +76,7 @@ $(document).ready(function (){
 						});
 
 					})
-					.catch((err) => handler.handleStorage(err));
+					
 				let createNewElement = document.createElement("div")
 				createNewElement.className = "createElement col-6"
 				let createButton = document.createElement("input")
@@ -84,6 +85,12 @@ $(document).ready(function (){
 				createButton.className = "btn btn-outline-primary"
 				createButton.value = "Create new group"
 				createNewElement.appendChild(createButton)
+				let getBlock = document.createElement("input")
+				getBlock.id = "getBlockButton"
+				getBlock.type = "button"
+				getBlock.className = "btn btn-outline-primary"
+				getBlock.value = "Get current block"
+				createNewElement.appendChild(getBlock)
 				document.getElementById('createGroup').appendChild(createNewElement)
 				let tableElement = document.createElement("div")
 				tableElement.className = "tableElement col-6"
@@ -105,7 +112,6 @@ $(document).ready(function (){
 				$('#chooseGroup').html("</div> You have to login <div>")
 			}
 		})
-		.catch((err) => handler.handleStorage(err));
 
 	$('#chooseGroup').on("click",".groupButton", function (){
 		$("#recap").empty()
@@ -122,6 +128,7 @@ $(document).ready(function (){
 			.catch((err) => handler.handleStorage(err));
 	});
 
+	$('#main').off("click",".getBetButton")
 	$('#main').on("click",".getBetButton", function (){
 		$("#side").empty()
 		let bet = $(this).val()
@@ -161,7 +168,7 @@ $(document).ready(function (){
   		});
 	});
 
-
+	$('#createGroup').off("click", "#createGroupButton")
 	$('#createGroup').on("click", "#createGroupButton", function (){
 			$("#recap").empty()
 			$("#side").empty()
@@ -169,6 +176,11 @@ $(document).ready(function (){
 			groupFile.create()
 	  	});
 
+	$('#createGroup').on("click", "#getBlockButton", function (){
+			handler.getBlock()
+  	});
+
+	$("#main").off("click","#addAddressButton")
 	$("#main").on("click","#addAddressButton", function(){
 
 		let newAddress = []
@@ -234,6 +246,7 @@ $(document).ready(function (){
 		$(this).parents(".addedAddress").remove()
 	});
 
+	$('#main').off("click","#invokeCreateGroup")
 	$('#main').on("click","#invokeCreateGroup", function (){
 		let groupName = document.getElementById("groupName").value
 		let checkGroupName = checker.checkString(groupName)
@@ -243,7 +256,7 @@ $(document).ready(function (){
 		$('.addedAddress').each(function(i) {
 			let addressPartecipant  = $(this).find(".address").val()
 			if (addressPartecipant){
-				args.push(addressPartecipant)
+				args.push(unhexlify(u.reverseHex(wallet.getScriptHashFromAddress(addressPartecipant))))
 				addresses.push(addressPartecipant)
 			}
 		});
@@ -268,7 +281,8 @@ $(document).ready(function (){
 			args.push(groupName)
 			nos.invoke({scriptHash, operation, args})
 			.then((txid) => {
-			handler.handleConfirmationTime(txid)
+				console.log(args)
+				handler.handleConfirmationTime(txid)
 			})
     		.catch((err) => handler.handleInvocation(err));
 	    }
@@ -287,7 +301,7 @@ $(document).ready(function (){
 				$("#main").empty()
 	});
 
-	$("#recap").on("click", "#notifyButton", function (){
+	$("#recap").on("click", ".notifyButton", function (){
 				$("#recap").empty()
 				window.location.reload(true)
 	});
@@ -296,6 +310,7 @@ $(document).ready(function (){
 				$("#side").empty()
 	});
 	
+	$("#side").off("click","#addProposalButton")
 	$("#side").on("click","#addProposalButton", function(){
 		let newProposal = $(this).parents("#addProposal").find("#addProposalForm").val()
 		let allProposals = []
@@ -362,7 +377,6 @@ $(document).ready(function (){
 		args.push(player)
 		args.push($(this).data('group'))
 		args.push($(this).data('text'))
-		args.push($(this).val())
 		nos.invoke({scriptHash, operation, args})
 		.then((txid) => {
 			handler.handleConfirmationTime(txid)
@@ -371,33 +385,35 @@ $(document).ready(function (){
 	});
 
 	$("#side").on("click","#addProposalFieldButton", function (){
-		let operation = $(this).data('operation')
-		let args = []
-		args.push(player)
-		args.push($(this).data('group'))
-		args.push($(this).data('text'))
-		args.push($(this).parent().find("#addProposalFieldInput").val())
-		console.log(args)
-		nos.invoke({scriptHash, operation, args})
-		.then((txid) => {
-			handler.handleConfirmationTime(txid)
-		})	
-		.catch((err) => handler.handleInvocation(err));				
-	});
+		let newProposal = $(this).parent().find("#addProposalFieldInput").val()
+		let allProposals = []
+		$('.proposalButton').each(function(i) {
+			let addedProposal  = $(this).val()
+			if (addedProposal){
+				allProposals.push(addedProposal)
+			}
+			console.log(addedProposal)
+		});		
 
-	$("#recap").on("click",".proposalButton", function (){
-		let operation = $(this).data('operation')
-		let args = []
-		args.push(player)
-		args.push($(this).data('group'))
-		args.push($(this).data('text'))
-		args.push($(this).val())
-		console.log(args)
-		nos.invoke({scriptHash, operation, args})
-		.then((txid) => {
-			handler.handleConfirmationTime(txid)
-		})	
-		.catch((err) => handler.handleInvocation(err));				
+		let checkerNewProposals = checker.checkNewProposal(newProposal, allProposals)
+		if (checkerNewProposals != "ok"){
+			alert(`Error: ${checkerNewProposals}`)	
+		}
+
+		else{
+			let operation = $(this).data('operation')
+			let args = []
+			args.push(player)
+			args.push($(this).data('group'))
+			args.push($(this).data('text'))
+			args.push(newProposal)
+			console.log(args)
+			nos.invoke({scriptHash, operation, args})
+			.then((txid) => {
+				handler.handleConfirmationTime(txid)
+			})	
+			.catch((err) => handler.handleInvocation(err));		
+		}		
 	});
 
 	$("#recap").on("click",".payButton", function (){
@@ -406,7 +422,6 @@ $(document).ready(function (){
 		args.push(player)
 		args.push($(this).data('group'))
 		args.push($(this).data('text'))
-		args.push($(this).val())
 		console.log(args)
 		nos.invoke({scriptHash, operation, args})
 		.then((txid) => {
@@ -415,8 +430,9 @@ $(document).ready(function (){
 		.catch((err) => handler.handleInvocation(err));				
 	});
 
+	$("#side").off("click","#invokeCreateBetButton")
 	$("#side").on("click","#invokeCreateBetButton", function (){
-		let betArgs = ["betText", "amountToBet", "openBlock", "closeBlock", "convalidateBlock"]
+		let betArgs = ["betText", "amountToBet", "openBlock", "closeBlock", "validateBlock"]
 
 		let checkAllFields = true
 
@@ -448,14 +464,14 @@ $(document).ready(function (){
 		args.push($("#side").find('#betText').val())    
 		args.push(unhexlify(u.reverseHex(int2hex(parseInt($("#side").find('#openBlock').val())))))
 		args.push(unhexlify(u.reverseHex(int2hex(parseInt($("#side").find('#closeBlock').val())))))
-		args.push(unhexlify(u.reverseHex(int2hex(parseInt($("#side").find('#convalidateBlock').val())))))
+		args.push(unhexlify(u.reverseHex(int2hex(parseInt($("#side").find('#validateBlock').val())))))
 		args.push(unhexlify(u.reverseHex(int2hex(parseInt($("#side").find('#amountToBet').val()) * Math.pow(10, 8)))))
 		args.push($("#side").find('#tokenUsed').val())
 		if ($("#canAddProposal").is(':checked')){
-			args.push(0)
+			args.push(1)
 		}
 		else{
-			args.push(1)
+			args.push(0)
 		}
 		$('.addedProposal').each(function(i) {
 			let addedProposal  = $(this).find(".proposal").val()
