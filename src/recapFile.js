@@ -1,9 +1,12 @@
 import { u, wallet } from '@cityofzion/neon-js';
 import { str2hexstring, int2hex, hexstring2str } from '@cityofzion/neon-js/src/utils'
 import {unhexlify,hexlify} from 'binascii';
-const betFile = require('./betFile')
-const des = require('./deserialize')
+const betFile = require('./betFile') //module to display bet information
+const des = require('./deserialize') //module to deserialize bytearray from the storage
 
+//module to display summary and balance information
+
+//create and display balance page
 function balance(data, totalBalance, sign){
   let recap = document.getElementById("recap")
 
@@ -103,6 +106,7 @@ function balance(data, totalBalance, sign){
 
 }
 
+//create and display summary on bets in which the player has participated
 function table(data, nos, scriptHash){  
   let recap = document.getElementById("recap")
   let table = document.createElement("table")

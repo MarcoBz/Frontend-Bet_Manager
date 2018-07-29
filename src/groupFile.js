@@ -1,10 +1,13 @@
 import { u, wallet } from '@cityofzion/neon-js';
 import { str2hexstring, int2hex, hex2int, hexstring2str } from '@cityofzion/neon-js/src/utils'
 import {unhexlify,hexlify} from 'binascii';
-const des = require('./deserialize')
-const betFile = require('./betFile')
-const handler = require('./handleFile')
+const des = require('./deserialize') //module to deserialize bytearray from the storage
+const betFile = require('./betFile')  //module to display bet information
+const handler = require('./handleFile') //module to handle responses from nos promises
 
+//module to display group information
+
+//list and display group details
 function list(data, name, nos, scriptHash){
 
 	document.getElementById('main').innerHTML = "";
@@ -21,11 +24,11 @@ function list(data, name, nos, scriptHash){
 	title.className = ("list-group-item active bg-success text-center")
 	title.innerHTML = "People"
 	peopleTable.appendChild(title)
-	for (let i = 0; i< data[0].length; i++){
-	  let person = document.createElement("li")
-	  person.className = ("list-group-item text-center")
-	  person.innerHTML = (wallet.getAddressFromScriptHash(u.reverseHex(hexlify(data[0][i][0]))) + " : " + data[0][i][1])
-	  peopleTable.appendChild(person)
+	for (let i = 0; i < data[0].length; i++){
+		  let person = document.createElement("li")
+		  person.className = ("list-group-item text-center")
+		  person.innerHTML = (wallet.getAddressFromScriptHash(u.reverseHex(hexlify(data[0][i][0]))) + " : " + data[0][i][1])
+		  peopleTable.appendChild(person)
 	}
 	table.appendChild(peopleTable)
 	let betsTable = document.createElement("div")
@@ -34,7 +37,7 @@ function list(data, name, nos, scriptHash){
 	betsTitle.className = ("list-group-item active bg-success text-center")
 	betsTitle.innerHTML = "Bets"
 	betsTable.appendChild(betsTitle)
-	for (let i = 0; i< data[1].length; i++){
+	for (let i = 0; i < data[1].length; i++){
 		let bet = document.createElement("button")
 		bet.type = "button"
 		bet.className = ("list-group-item list-group-item-action text-center getBetButton")
@@ -49,8 +52,6 @@ function list(data, name, nos, scriptHash){
 		let decodeOutput = false
 		nos.getStorage({scriptHash, key, decodeOutput})
 			.then((rawData) => {
-
-
 				let dataBet = des.deserialize(rawData)
 				for (let i = 0; i < 4; i++){
 					if (typeof dataBet[3][i] == "string"){
@@ -104,6 +105,7 @@ function list(data, name, nos, scriptHash){
 
 }
 
+//display page to create a new group
 function create(){
 	let form = document.createElement("form")
 	form.id = "createGroupForm"

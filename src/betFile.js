@@ -1,10 +1,12 @@
 import { u, wallet } from '@cityofzion/neon-js';
 import { str2hexstring, int2hex, hexstring2str } from '@cityofzion/neon-js/src/utils'
 import {unhexlify,hexlify} from 'binascii';
-const handler = require('./handleFile')
+const handler = require('./handleFile') //module to handle responses from nos promises
 
+//module to display bet informatio
+
+// decode data after desarialization from the storage
 function decodeData(dataBet){
-
 	let data = []
 	data.push(dataBet[0])
 	data.push(dataBet[1])
@@ -41,12 +43,12 @@ function decodeData(dataBet){
 	return data
 }
 
-
+//list and display bet details
 async function list(dataBet, player, nos, scriptHash){
 	let data = decodeData(dataBet)
 	let playerAdd = wallet.getAddressFromScriptHash(u.reverseHex(hexlify(player)))
 	document.getElementById("side").innerHTML = ""
-	let bet = await instantiateBet(data, playerAdd, nos, scriptHash)
+	let bet = await createBetObject(data, playerAdd, nos, scriptHash)
 	let table = document.createElement("div")
 	table.classname = "col col-4"
 	let betStatus = document.createElement("ul")
@@ -189,6 +191,7 @@ async function list(dataBet, player, nos, scriptHash){
 
 }
 
+//display page to create a new bet
 function create(player, groupName, nos, scriptHash){
 	let side = document.getElementById("side");
 	let form = document.createElement("form")
@@ -290,7 +293,7 @@ function create(player, groupName, nos, scriptHash){
 
 }
 
-
+//check the status of the current bet
 function checkBetStatus(bet){
 	if (bet.blocks.currentBlock < bet.blocks.openBlock){
 		bet.status = "open"
@@ -307,6 +310,7 @@ function checkBetStatus(bet){
 	return bet
 }
 
+//check the status of the player in the current bet
 function checkPlayerStatus(bet){
 	for(var i = 0; i < bet.nProposals; i++){
 		for (var j = 0; j < bet.proposals[i].nBetters; j++){
@@ -355,6 +359,7 @@ function checkPlayerStatus(bet){
 	return  bet
 }
 
+//check if there is a winning proposal for the current bet
 function checkWinningProposal(bet){
 	if (bet.status == "validated"){
 		for(var i = 0; i < bet.nProposals; i++){	
@@ -371,7 +376,7 @@ function checkWinningProposal(bet){
 	return bet
 }
 
-
+//check if there are some winners for the current bet
 function checkResults(bet){
 	if (bet.hasWinningProposal){
 
@@ -382,6 +387,7 @@ function checkResults(bet){
 	return bet
 }
 
+//create html to display the bet status
 function getTextBetStatus(bet){
 	let text
 	let textColor
@@ -418,7 +424,7 @@ function getTextBetStatus(bet){
 	return returnArr
 }
 
-
+//create html to display the player status
 function getTextPlayerStatus(bet){
 	let text = []
     let textColor = []
@@ -439,36 +445,36 @@ function getTextPlayerStatus(bet){
     if (bet.status == "validated"){
       if (bet.player.hasBet){
         if (bet.hasWinningProposal){
-          if (bet.player.hasWon){
-            text.push("Winner")
-            textColor.push("text-success")
-            if (bet.player.payed){
-              text.push("winPayed")
-              textColor.push("text-success")
-            }
-            else{
-              text.push(null)
-              textColor.push("text-success")              
-            }
-          }
-          else {
-            text.push("Loser")  
-            text.push("No payments")
-            textColor.push("text-danger")
-            textColor.push("text-danger")
-          }
+			if (bet.player.hasWon){
+				text.push("Winner")
+				textColor.push("text-success")
+				if (bet.player.payed){
+				  	text.push("winPayed")
+				  	textColor.push("text-success")
+				}
+				else{
+				  	text.push(null)
+				  	textColor.push("text-success")              
+				}
+			}
+			else {
+				text.push("Loser")  
+				text.push("No payments")
+				textColor.push("text-danger")
+				textColor.push("text-danger")
+			}
         }
         else if (bet.player.refund){
-          text.push("Refund")
-          textColor.push("text-warning")
-          if (bet.player.payed){
-            text.push("refundPayed")
-            textColor.push("text-warning")
-          }
-          else{
-            text.push(null)
-            textColor.push("text-warning")             
-          }
+			text.push("Refund")
+			textColor.push("text-warning")
+			if (bet.player.payed){
+				text.push("refundPayed")
+				textColor.push("text-warning")
+			}
+			else{
+				text.push(null)
+				textColor.push("text-warning")             
+			}
         }
       }
       else{
@@ -479,14 +485,15 @@ function getTextPlayerStatus(bet){
       }
     }
     else{
-      text.push(null)
-      text.push(null)
-      textColor.push(null)  
-      textColor.push(null)  
+		text.push(null)
+		text.push(null)
+		textColor.push(null)  
+		textColor.push(null)  
     }
     return [text,textColor]
 }
-	
+
+//create html to display the bet results
 function getTextResults(bet){
     let text
     let textColor
@@ -521,6 +528,7 @@ function getTextResults(bet){
     return returnArr
 }
 
+//create html to display the bet proposals table
 function getTextProposal(bet, index){
 	let proposalTable = document.createElement("table")
     proposalTable.className = "table"
@@ -528,11 +536,11 @@ function getTextProposal(bet, index){
     let head = ["#", "Proposal", "Partecipants", "validators", "N. validations"]
     let proposalTrHead = document.createElement("tr")  
     for (let i = 0; i < head.length; i++){
-      let proposalThHead = document.createElement('th')
-      proposalThHead.scope = "col-auto"
-      proposalThHead.className = "text-center"
-      proposalThHead.innerHTML = head[i]
-      proposalTrHead.appendChild(proposalThHead)
+		let proposalThHead = document.createElement('th')
+		proposalThHead.scope = "col-auto"
+		proposalThHead.className = "text-center"
+		proposalThHead.innerHTML = head[i]
+		proposalTrHead.appendChild(proposalThHead)
     }
     proposalTableHead.appendChild(proposalTrHead)
     proposalTable.appendChild(proposalTableHead)
@@ -622,7 +630,8 @@ function getTextProposal(bet, index){
     return proposalTable
 }
 
-async function instantiateBet(data, player, nos, scriptHash){
+//create an object win all the information about the current bet
+async function createBetObject(data, player, nos, scriptHash){
 	let operation = "get_height"
 	let args = []
 	let bet 
@@ -738,6 +747,7 @@ async function instantiateBet(data, player, nos, scriptHash){
 	return bet
 }
 
+//get only the status of the bet (for recap and group pages)
 async function getBetStatus(data, nos, scriptHash){
 	let operation = "get_height"
 	let args = []
@@ -748,11 +758,11 @@ async function getBetStatus(data, nos, scriptHash){
 			  bet = {
 				    status : null, //open, close, onvalidation, validated, payed
 				    blocks : {
-				      currentBlock : returnArray["stack"][0]["value"][0]["value"], 
-				      createAtBlock : data[5],
-				      openBlock : null,
-				      closeBlock : null,
-				      validateBlock : null
+						currentBlock : returnArray["stack"][0]["value"][0]["value"], 
+						createAtBlock : data[5],
+						openBlock : null,
+						closeBlock : null,
+						validateBlock : null
 				    }
 				  }
 			  bet.blocks.openBlock = bet.blocks.createAtBlock + data[3][0]
@@ -760,17 +770,16 @@ async function getBetStatus(data, nos, scriptHash){
 			  bet.blocks.validateBlock = bet.blocks.closeBlock + data[3][2]
 			  
 			  checkBetStatus(bet)
-			   
-			  
 		});
 
 	return bet.status
 }
 
+//get only the status of the bet (for recap page)
 async function getBetResult(dataBet, player, nos, scriptHash){
 	let playerAdd = wallet.getAddressFromScriptHash(u.reverseHex(hexlify(player)))
 	let data = decodeData(dataBet)
-	let bet = await instantiateBet(data, playerAdd, nos, scriptHash)
+	let bet = await createBetObject(data, playerAdd, nos, scriptHash)
 	let betResult = ""
 	if (bet.hasWinningProposal){
 		if (bet.player.hasWon){

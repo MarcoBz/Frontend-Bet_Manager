@@ -2,6 +2,9 @@ import { u, wallet } from '@cityofzion/neon-js';
 import { str2hexstring, int2hex, hexstring2str } from '@cityofzion/neon-js/src/utils'
 import {unhexlify,hexlify} from 'binascii';
 
+//module to check input before sending invocation transaction
+
+//check if there is repetition in added addresses
 function checkNewAddress(newAddress, allAddresses){
 
 	let dimAddress = checkAddress(newAddress[0])
@@ -26,6 +29,7 @@ function checkNewAddress(newAddress, allAddresses){
 	return "ok"
 }
 
+//check address length
 function checkAddress(address){
 
 	let retStr = ""
@@ -39,6 +43,7 @@ function checkAddress(address){
 	return retStr
 }
 
+//check if data for blocks are correct
 function checkBlock(numBlock){
 
 	let dimBlockString = checkString(numBlock)
@@ -63,6 +68,7 @@ function checkBlock(numBlock){
 	return "ok"
 }
 
+//check if data for amount to bet are correct
 function checkAmount(amount){
 
 	let dimAmountString = checkString(amount)
@@ -83,6 +89,7 @@ function checkAmount(amount){
 	return "ok"
 }
 
+//check if there is repetition in added proposals
 function checkNewProposal(newProposal, allProposals){
 
 	let dimProposal = checkString(newProposal)
@@ -100,6 +107,7 @@ function checkNewProposal(newProposal, allProposals){
 return "ok"
 }
 
+//check if there are at least two proposals
 function checkNumProposals(proposals){
 
 	if(proposals.length < 2){
@@ -109,6 +117,7 @@ function checkNumProposals(proposals){
 	return "ok"
 }
 
+//check if there are at least three addresses
 function checkNumAddress(addresses){
 	if(addresses.length < 3){
 		return "At least 3 addresses"
@@ -117,6 +126,7 @@ function checkNumAddress(addresses){
 return "ok"
 }
 
+//check if string exists
 function checkString(string){
 
 	if (string.length == 0){

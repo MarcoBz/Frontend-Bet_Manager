@@ -1,10 +1,10 @@
-const des = require('./deserialize')
+const des = require('./deserialize') //module to deserialize bytearray from the storage
 require('babel-polyfill')
-const groupFile = require('./groupFile')
-const betFile = require('./betFile')
-const recapFile = require('./recapFile')
-const checker = require('./checkInput')
-const handler = require('./handleFile')
+const groupFile = require('./groupFile') //module to display group information
+const betFile = require('./betFile') //module to display bet information
+const recapFile = require('./recapFile') //module to display summary and balance information
+const checker = require('./checkInput') //module to check input before sending invocation transaction
+const handler = require('./handleFile') //module to handle responses from nos promises
 import { u, wallet } from '@cityofzion/neon-js';
 import { str2hexstring, int2hex, hexstring2str } from '@cityofzion/neon-js/src/utils'
 import {unhexlify,hexlify} from 'binascii';
@@ -13,11 +13,15 @@ const scriptHash = '7bbfec6ab4a71c01921eb1655e313fef2cc7f867';
 
 const nos = window.NOS.V1;
 
+//index page 
+
 $(document).ready(function (){
 	let player
 	nos.getAddress()
 		.then((loggedAddress) => {
 			if (loggedAddress){
+
+				//display all groups and buttons in the head
 				document.getElementById('chooseGroup').innerHTML = "";
 				document.getElementById('createGroup').innerHTML = "";
 				let key = unhexlify(u.reverseHex(wallet.getScriptHashFromAddress(loggedAddress)))
@@ -28,15 +32,16 @@ $(document).ready(function (){
 						let data = des.deserialize(rawData)
 						document.getElementById('chooseGroup').innerHTML = "";
 						for (let i = 0; i < data[0].length; i++){
-						  let groupElement = document.createElement("div")
-						  groupElement.className = "groupElement"
-						  let groupButton = document.createElement("input")
-						  groupButton.type = "button"
-						  groupButton.className = "btn btn-outline-success groupButton"
-						  groupButton.value = data[0][i]
-						  groupElement.appendChild(groupButton)
-						  document.getElementById('chooseGroup').appendChild(groupElement)
-						 }
+							let groupElement = document.createElement("div")
+							groupElement.className = "groupElement"
+							let groupButton = document.createElement("input")
+							groupButton.type = "button"
+							groupButton.className = "btn btn-outline-success groupButton"
+							groupButton.value = data[0][i]
+							groupElement.appendChild(groupButton)
+							document.getElementById('chooseGroup').appendChild(groupElement)
+							}
+
 						$('#createGroup').on("click", "#recapButton", function (){
 							$("#recap").empty()
 							$("#main").empty()
@@ -113,6 +118,7 @@ $(document).ready(function (){
 			}
 		})
 
+	//show group details
 	$('#chooseGroup').on("click",".groupButton", function (){
 		$("#recap").empty()
 		$("#main").empty()
@@ -128,6 +134,7 @@ $(document).ready(function (){
 			.catch((err) => handler.handleStorage(err));
 	});
 
+	//show bet details
 	$('#main').off("click",".getBetButton")
 	$('#main').on("click",".getBetButton", function (){
 		$("#side").empty()
@@ -152,6 +159,7 @@ $(document).ready(function (){
 			.catch((err) => handler.handleStorage(err));
 	  	});
 
+	//show page to create a new bet
 	$('#main').off("click","#createBet")
 	$('#main').on("click","#createBet", function (){
 		$("#side").empty()
@@ -168,6 +176,7 @@ $(document).ready(function (){
   		});
 	});
 
+	//show page to create a new group
 	$('#createGroup').off("click", "#createGroupButton")
 	$('#createGroup').on("click", "#createGroupButton", function (){
 			$("#recap").empty()
@@ -177,12 +186,12 @@ $(document).ready(function (){
 	  	});
 
 	$('#createGroup').on("click", "#getBlockButton", function (){
-			handler.getBlock()
+		handler.getBlock()
   	});
 
+	//add address in the page for the creation of a new group
 	$("#main").off("click","#addAddressButton")
 	$("#main").on("click","#addAddressButton", function(){
-
 		let newAddress = []
 		let address = $(this).parents("#addAddress").find("#addAddressForm").val()
 		let nickname = $(this).parents("#addAddress").find("#addNicknameForm").val()
@@ -241,11 +250,13 @@ $(document).ready(function (){
 			document.getElementById("createGroupForm").appendChild(addedAddress)
 		}
 	});
-	
+
+	//remove address in the page for the creation of a new group	
 	$("#main").on("click","#removeAddressButton", function(){
 		$(this).parents(".addedAddress").remove()
 	});
 
+	//send invocation transaction to create a new group in the blockchain
 	$('#main').off("click","#invokeCreateGroup")
 	$('#main').on("click","#invokeCreateGroup", function (){
 		let groupName = document.getElementById("groupName").value
@@ -288,28 +299,30 @@ $(document).ready(function (){
 	    }
   	});
 
+	//clear pages
 	$('#recap').on("click", "#clearRecapButton", function (){
-			$("#recap").empty()
+		$("#recap").empty()
 	});
 
 	$('#recap').on("click", "#clearBalanceButton", function (){
-			$("#recap").empty()
+		$("#recap").empty()
 	});
 
 	$('#main').on("click", "#clearMainButton", function (){
-				$("#side").empty()
-				$("#main").empty()
-	});
-
-	$("#recap").on("click", ".notifyButton", function (){
-				$("#recap").empty()
-				window.location.reload(true)
+		$("#side").empty()
+		$("#main").empty()
 	});
 
 	$("#side").on("click", "#clearSideButton", function (){
-				$("#side").empty()
+		$("#side").empty()
+	});
+
+	$("#recap").on("click", ".notifyButton", function (){
+		$("#recap").empty()
+		window.location.reload(true)
 	});
 	
+	//add proposal in the page for the creation of a new bet
 	$("#side").off("click","#addProposalButton")
 	$("#side").on("click","#addProposalButton", function(){
 		let newProposal = $(this).parents("#addProposal").find("#addProposalForm").val()
@@ -353,10 +366,12 @@ $(document).ready(function (){
 		}
 	});
 
+	//remove proposal in the page for the creation of a new bet
 	$("#side").on("click","#removeProposalButton", function(){
 		$(this).parents(".addedProposal").remove()
 	});
 
+	//participate or convalidate a proposal
 	$("#side").on("click",".proposalButton", function (){
 		let operation = $(this).data('operation')
 		let args = []
@@ -371,6 +386,7 @@ $(document).ready(function (){
 		.catch((err) => handler.handleInvocation(err));				
 	});
 
+	//get winning or refund in the bet page
 	$("#side").on("click",".payButton", function (){
 		let operation = $(this).data('operation')
 		let args = []
@@ -384,11 +400,12 @@ $(document).ready(function (){
 		.catch((err) => handler.handleInvocation(err));				
 	});
 
+	//add a new proposal and participate 
 	$("#side").on("click","#addProposalFieldButton", function (){
 		let newProposal = $(this).parent().find("#addProposalFieldInput").val()
 		let allProposals = []
 		$('.proposalButton').each(function(i) {
-			let addedProposal  = $(this).val()
+			let addedProposal = $(this).val()
 			if (addedProposal){
 				allProposals.push(addedProposal)
 			}
@@ -416,6 +433,7 @@ $(document).ready(function (){
 		}		
 	});
 
+	//get winning or refund in the recap page
 	$("#recap").on("click",".payButton", function (){
 		let operation = $(this).data('operation')
 		let args = []
@@ -430,6 +448,7 @@ $(document).ready(function (){
 		.catch((err) => handler.handleInvocation(err));				
 	});
 
+	//send invocation transaction to create a new bet in the blockchain
 	$("#side").off("click","#invokeCreateBetButton")
 	$("#side").on("click","#invokeCreateBetButton", function (){
 		let betArgs = ["betText", "amountToBet", "openBlock", "closeBlock", "validateBlock"]
@@ -498,10 +517,6 @@ $(document).ready(function (){
 
 
 	});
-
-
-
-
 })
 
 

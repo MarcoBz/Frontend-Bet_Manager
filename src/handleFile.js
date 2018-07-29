@@ -2,6 +2,9 @@ import { u, wallet } from '@cityofzion/neon-js';
 import { str2hexstring, int2hex, hexstring2str } from '@cityofzion/neon-js/src/utils'
 import {unhexlify,hexlify} from 'binascii';
 
+//module to handle responses from nos promises
+
+//display information during the transaction confirmation
 function handleConfirmationTime(txid){
 
 	document.getElementById("main").innerHTML = ""
@@ -105,14 +108,14 @@ function handleConfirmationTime(txid){
 	}
 }
 
-
-
+//Alert if there is a problem in the nos.getStorage module
 function handleStorage(err){	
 	console.log(`${err.message}`)
 	alert('Something went wrong - Reload the page')
 	window.location.reload(true)
 }
 
+//Alert if there is a problem connecting to the network
 function handleInvocation(err){	
 	console.log(`${err.message}`)
 	if (err.message == "Cancelled by user."){
@@ -123,6 +126,7 @@ function handleInvocation(err){
 	}
 }
 
+//Get the block height from neo scan API
 function getBlock(){
 	let height = new XMLHttpRequest()
 	height.open('GET', 'http://localhost:4000//api/main_net/v1/get_height',true)
