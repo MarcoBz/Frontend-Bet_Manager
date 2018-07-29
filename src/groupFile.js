@@ -1,16 +1,21 @@
 import { u, wallet } from '@cityofzion/neon-js';
-import { str2hexstring, int2hex, hexstring2str } from '@cityofzion/neon-js/src/utils'
+import { str2hexstring, int2hex, hex2int, hexstring2str } from '@cityofzion/neon-js/src/utils'
 import {unhexlify,hexlify} from 'binascii';
-const des = require('./deserialize')
-const indexBet = require('./indexBet')
+const des = require('./deserialize') //module to deserialize bytearray from the storage
+const betFile = require('./betFile')  //module to display bet information
+const handler = require('./handleFile') //module to handle responses from nos promises
 
+//module to display group information
+
+//list and display group details
 function list(data, name, nos, scriptHash){
 
 	document.getElementById('main').innerHTML = "";
 	let groupName = document.createElement("h2")
 	groupName.className = "text-center"
 	groupName.innerHTML = name
-	document.getElementById('main').appendChild(groupName)
+	document.getElementById('recap').innerHTML = ""
+	document.getElementById('recap').appendChild(groupName)
 	let table = document.createElement("div")
 	table.classname = "col col-4"
 	let peopleTable = document.createElement("ul")
@@ -19,11 +24,11 @@ function list(data, name, nos, scriptHash){
 	title.className = ("list-group-item active bg-success text-center")
 	title.innerHTML = "People"
 	peopleTable.appendChild(title)
-	for (let i = 0; i< data[0].length; i++){
-	  let person = document.createElement("li")
-	  person.className = ("list-group-item text-center")
-	  person.innerHTML = (wallet.getAddressFromScriptHash(u.reverseHex(hexlify(data[0][i][0]))) + " : " + data[0][i][1])
-	  peopleTable.appendChild(person)
+	for (let i = 0; i < data[0].length; i++){
+		  let person = document.createElement("li")
+		  person.className = ("list-group-item text-center")
+		  person.innerHTML = (wallet.getAddressFromScriptHash(u.reverseHex(hexlify(data[0][i][0]))) + " : " + data[0][i][1])
+		  peopleTable.appendChild(person)
 	}
 	table.appendChild(peopleTable)
 	let betsTable = document.createElement("div")
@@ -32,10 +37,11 @@ function list(data, name, nos, scriptHash){
 	betsTitle.className = ("list-group-item active bg-success text-center")
 	betsTitle.innerHTML = "Bets"
 	betsTable.appendChild(betsTitle)
-	for (let i = 0; i< data[1].length; i++){
+	for (let i = 0; i < data[1].length; i++){
 		let bet = document.createElement("button")
 		bet.type = "button"
 		bet.className = ("list-group-item list-group-item-action text-center getBetButton")
+		bet.dataset.group = name
 		bet.value = data[1][i]
 		bet.innerHTML = data[1][i]
 		let badge = document.createElement("span")
@@ -46,53 +52,61 @@ function list(data, name, nos, scriptHash){
 		let decodeOutput = false
 		nos.getStorage({scriptHash, key, decodeOutput})
 			.then((rawData) => {
-				console.log('a')
 				let dataBet = des.deserialize(rawData)
-				let betStatus = indexBet.getBetStatus(dataBet)
-
-				if (betStatus == "open"){
-					badge.className = "badge badge-primary"
-					badge.innerHTML = "Open"
+				for (let i = 0; i < 4; i++){
+					if (typeof dataBet[3][i] == "string"){
+						let string = '0x' + u.reverseHex(hexlify(dataBet[3][i]))
+						dataBet[3][i] = parseInt(string)
+					}
 				}
-				else if (betStatus == "close"){
-					badge.className = "badge badge-secondary"
-					badge.innerHTML = "Closed"    
-				}
-				else if (betStatus == "onConvalidation"){
-					badge.className = "badge badge-warning"
-					badge.innerHTML = "On convalidation"    
-				}
-				else if (betStatus == "convalidated"){
-					badge.className = "badge badge-success"
-					badge.innerHTML = "Convalidated"    
-				}
-
+				Promise.resolve(betFile.getBetStatus([0,0,0,[dataBet[3][0],dataBet[3][1],dataBet[3][2]],0,dataBet[5]], nos, scriptHash))
+				.then((betStatus) => {
+					if (betStatus == "open"){
+						badge.className = "badge badge-primary"
+						badge.innerHTML = "Open"
+					}
+					else if (betStatus == "close"){
+						badge.className = "badge badge-secondary"
+						badge.innerHTML = "Closed"    
+					}
+					else if (betStatus == "onvalidation"){
+						badge.className = "badge badge-warning"
+						badge.innerHTML = "On validation"    
+					}
+					else if (betStatus == "validated"){
+						badge.className = "badge badge-success"
+						badge.innerHTML = "validated"    
+					}
 				})
-			//.catch((err) => console.log(`Error: ${err.message}`));
+				.catch((err) => handler.handleStorage(err));
+			})
+
+			.catch((err) => handler.handleStorage(err));
 	}
 	let createBet = document.createElement("div")
 	createBet.className = ("list-group-item list-group-item-action active bg-success text-center") 
 	createBet.innerHTML = "Create new bet"
 	createBet.id = "createBet"
-	table.appendChild(betsTable)
+	createBet.dataset.group = name
 	table.appendChild(createBet)
-	
+	table.appendChild(betsTable)
+	main.appendChild(table)
+
 	let clearMain = document.createElement("div")
 	clearMain.id = "clearMain"
 	clearMain.className = "col-2"
 	let clearMainButton = document.createElement("input")
-	clearMainButton.id = "clearSideButton"
+	clearMainButton.id = "clearMainButton"
 	clearMainButton.className = "text-center btn btn-dark"
 	clearMainButton.type = "button"
 	clearMainButton.value = "Clear"
-	clearMain.appendChild("clearMainButton")
-	main.appendChild("clearMain")
-	
-	document.getElementById('main').appendChild(table)
-	
+	clearMain.appendChild(clearMainButton)
+	main.appendChild(clearMain)
+
 }
 
-function create(nos, scriptHash){
+//display page to create a new group
+function create(){
 	let form = document.createElement("form")
 	form.id = "createGroupForm"
 	let nameGroup = document.createElement("div")
@@ -161,76 +175,16 @@ function create(nos, scriptHash){
 	clearMain.id = "clearMain"
 	clearMain.className = "col-2"
 	let clearMainButton = document.createElement("input")
-	clearMainButton.id = "clearSideButton"
+	clearMainButton.id = "clearMainButton"
 	clearMainButton.className = "text-center btn btn-dark"
 	clearMainButton.type = "button"
 	clearMainButton.value = "Clear"
-	clearMain.appendChild("clearMainButton")
-	main.appendChild("clearMain")	
-	
-	$("#main").on("click","#addAddressButton", function(){
-		let address = $(this).parents("#addAddress").find("#addAddressForm").val()
-		let nickname = $(this).parents("#addAddress").find("#addNicknameForm").val()
-		$(this).parents("#addAddress").find("#addAddressForm").val("")
-		$(this).parents("#addAddress").find("#addNicknameForm").val("")
-		let addedAddress = document.createElement("div")
-		addedAddress.className = "form-row addedAddress"
-		let div5 = document.createElement("div")
-		div5.className = "col-6"
-		let inputAddress = document.createElement("input")
-		inputAddress.className = "form-control address"
-		inputAddress.disabled = true
-		inputAddress.type = "text"
-		inputAddress.value = address
-		div5.appendChild(inputAddress)
-		addedAddress.appendChild(div5)
-		let div6 = document.createElement("div")
-		div6.className = "col-5"
-		let inputNickname = document.createElement("input")
-		inputNickname.className = "form-control nickname"
-		inputNickname.disabled = true
-		inputNickname.type = "text"
-		inputNickname.value = nickname
-		div6.appendChild(inputNickname)
-		addedAddress.appendChild(div6)
-		let div7 = document.createElement("div")
-		div7.className = "col-auto"
-		let added = document.createElement("input")
-		added.type = "button"
-		added.className = "btn btn-dark"
-		added.id =  "removeAddressButton"
-		added.innerHTML = ""
-		div7.appendChild(added)
-		addedAddress.appendChild(div7)
-		document.getElementById("createGroupForm").appendChild(addedAddress)
+	clearMain.appendChild(clearMainButton)
+	main.appendChild(clearMain)	
+
+	$("input").keydown(function(){
+		$(this).parent().parent().removeClass("border border-danger border-15")
 	});
-	$("#main").on("click","#removeAddressButton", function(){
-		$(this).parents(".addedAddress").remove()
-	});
-
-	$('#main').on("click","#invokeCreateGroup", function (){
-		let operation = ('create_league')
-		let args = []
-		let groupName = document.getElementById("groupName").value
-		$('.addedAddress').each(function(i) {
-			let addressPartecipant  = $(this).find(".address").val()
-			if (addressPartecipant){
-				args.push(addressPartecipant)
-			}
-		});
-
-		$('.addedAddress').each(function(i) {
-			let nicknamePartecipant = $(this).find(".nickname").val()
-			if (nicknamePartecipant){
-				args.push(nicknamePartecipant)
-			}
-		});
-
-		args.push(groupName)
-		nos.invoke({scriptHash, operation, args})
-    		.then((txid) => alert(`Invoke txid: ${txid} `))
-    		//.catch((err) => alert(`Error: ${err.message}`));
-  	});
 
 }
 

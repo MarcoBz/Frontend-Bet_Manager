@@ -2,12 +2,17 @@ import { u, wallet } from '@cityofzion/neon-js';
 import { str2hexstring, int2hex, hexstring2str } from '@cityofzion/neon-js/src/utils'
 import {unhexlify,hexlify} from 'binascii';
 
+//modules to deserialize data from the storage (to bytearray to string or numbers)
 function deserialize(rawData){
+
 	let rawSplitted = rawData.match(/.{2}/g);
+/*	let rawSplitted = []
+	for (let i = 0; i < rawData.length; i++){
+		rawSplitted.push(hexlify(rawData[i]))
+	}*/
 	let offset = 0
 	let data = []
 	let allData = deserializeRawData([offset, rawSplitted, data])
-	
 	return allData[2]
 }
 
@@ -24,7 +29,7 @@ function deserializeRawData([offset, rawSplitted, rdata]){
 		offset ++ 
 		var arrayLen = getLen(offset, rawSplitted)
 		offset ++ 
-		for ( let j = 0; j<arrayLen; j++){
+		for ( let j = 0; j < arrayLen; j++){
 			[offset, rawSplitted, rdata] = deserializeRawData([offset, rawSplitted, rdata]) 
 			data.push(rdata)
 		}
