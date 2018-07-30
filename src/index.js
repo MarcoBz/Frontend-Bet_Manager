@@ -202,10 +202,10 @@ $(document).ready(function (){
 
 		$('.addedAddress').each(function(i) {
 			let actualAddress = []
-			let addressPartecipant  = $(this).find(".address").val()
-			actualAddress.push(addressPartecipant)
-			let nicknamePartecipant = $(this).find(".nickname").val()
-			actualAddress.push(nicknamePartecipant)
+			let addressParticipant  = $(this).find(".address").val()
+			actualAddress.push(addressParticipant)
+			let nicknameParticipant = $(this).find(".nickname").val()
+			actualAddress.push(nicknameParticipant)
 			allAddresses.push(actualAddress)
 		});
 
@@ -265,17 +265,17 @@ $(document).ready(function (){
 		let args = []
 		let addresses = []
 		$('.addedAddress').each(function(i) {
-			let addressPartecipant  = $(this).find(".address").val()
-			if (addressPartecipant){
-				args.push(unhexlify(u.reverseHex(wallet.getScriptHashFromAddress(addressPartecipant))))
-				addresses.push(addressPartecipant)
+			let addressParticipant  = $(this).find(".address").val()
+			if (addressParticipant){
+				args.push(unhexlify(u.reverseHex(wallet.getScriptHashFromAddress(addressParticipant))))
+				addresses.push(addressParticipant)
 			}
 		});
 
 		$('.addedAddress').each(function(i) {
-			let nicknamePartecipant = $(this).find(".nickname").val()
-			if (nicknamePartecipant){
-				args.push(nicknamePartecipant)
+			let nicknameParticipant = $(this).find(".nickname").val()
+			if (nicknameParticipant){
+				args.push(nicknameParticipant)
 			}
 		});
 		let checkNumAddresses = checker.checkNumAddress(addresses)

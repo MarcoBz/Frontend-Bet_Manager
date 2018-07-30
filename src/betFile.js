@@ -78,7 +78,7 @@ async function list(dataBet, player, nos, scriptHash){
 	playerList.className = "list-group-item"
 	let playerTable = document.createElement("table")
 	playerTable.className = "table"
-	let playerStats = ["Partecipation", "validation", "Result", "Payments"]
+	let playerStats = ["Participation", "validation", "Result", "Payments"]
 	let playerThead = document.createElement("thead")
 	let trHead = document.createElement('tr')
 	for (let i = 0; i < playerStats.length; i++){
@@ -432,7 +432,7 @@ function getTextPlayerStatus(bet){
       text.push(bet.player.betProposal)
     }
     else{
-      text.push("Not partecipated")
+      text.push("Not participated")
     }
     if (bet.player.hasvalidated){
       text.push(bet.player.validationProposal)
@@ -533,7 +533,7 @@ function getTextProposal(bet, index){
 	let proposalTable = document.createElement("table")
     proposalTable.className = "table"
     let proposalTableHead = document.createElement("thead")  
-    let head = ["#", "Proposal", "Partecipants", "validators", "N. validations"]
+    let head = ["#", "Proposal", "Participants", "validators", "N. validations"]
     let proposalTrHead = document.createElement("tr")  
     for (let i = 0; i < head.length; i++){
 		let proposalThHead = document.createElement('th')
@@ -559,7 +559,7 @@ function getTextProposal(bet, index){
 			proposalButton.dataset.group = bet.group
 			proposalButton.dataset.text = bet.text
 			if (bet.status == "open"){
-				proposalButton.dataset.operation = "partecipate_bet"
+				proposalButton.dataset.operation = "participate_bet"
 			}
 			else{
 				proposalButton.dataset.operation = "validate_bet"
@@ -572,13 +572,13 @@ function getTextProposal(bet, index){
 			proposalTextTd.innerHTML = bet.proposals[i]['text']
 		}
 		proposalTrBody.appendChild(proposalTextTd)    
-		let partecipantsTd = document.createElement('td')
-		partecipantsTd.className = "text-center"
-		partecipantsTd.innerHTML = ""
+		let participantsTd = document.createElement('td')
+		participantsTd.className = "text-center"
+		participantsTd.innerHTML = ""
 		for (let j = 0; j < bet.proposals[i].nBetters; j++){
-	  		partecipantsTd.innerHTML += bet.proposals[i].betters[j] + "<br>"
+	  		participantsTd.innerHTML += bet.proposals[i].betters[j] + "<br>"
 		}
-		proposalTrBody.appendChild(partecipantsTd)
+		proposalTrBody.appendChild(participantsTd)
 		let validatorsTd = document.createElement('td')
 		validatorsTd.className = "text-center"
 		validatorsTd.innerHTML = ""
@@ -618,7 +618,7 @@ function getTextProposal(bet, index){
 		addProposalFieldButton.type = "button"
 		addProposalFieldButton.dataset.group = bet.group
 		addProposalFieldButton.dataset.text = bet.text
-		addProposalFieldButton.dataset.operation = "partecipate_bet"	
+		addProposalFieldButton.dataset.operation = "participate_bet"	
 		addProposalFieldButton.className = "btn btn-light"
 		addProposalFieldButton.id =  "addProposalFieldButton"
 		addProposalFieldButton.innerHTML = ""
