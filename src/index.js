@@ -9,7 +9,7 @@ import { u, wallet } from '@cityofzion/neon-js';
 import { str2hexstring, int2hex, hexstring2str } from '@cityofzion/neon-js/src/utils'
 import {unhexlify,hexlify} from 'binascii';
 const address = unhexlify(u.reverseHex(wallet.getScriptHashFromAddress('AK2nJJpJr6o664CWJKi1QRXjqeic2zRp8y')))
-const scriptHash = '7bbfec6ab4a71c01921eb1655e313fef2cc7f867';
+const scriptHash = '802d0d88b57bd0a4a32289fc3a2a2a2b7fa4be58';
 
 const nos = window.NOS.V1;
 
