@@ -34,7 +34,7 @@ A Group with all possible participants at future bets needs to be created in the
 
 When a bet is proposed, it has to be created in the dApp inserting its text, at least two possible results, the amount of tokens that has to be bet, the blocks length of all the periods in the bet's lifetime (they are described later) and it has to be checked or not if a player can add a new result.
 
-Each person in the group can participate to the bet choosing one of the possible results and sending to the smartcontract the previously set amount.
+Each person in the group can participate to the bet choosing one of the possible results and sending to the smartcontract the previously amount of tokens.
 
 When the bet event ends, the result can be validated by all the participants in the group and if one result reaches 50 % + 1 of group participants, it is the winning result and winners can withdraw all the amount previously bet.
 
