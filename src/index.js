@@ -5,9 +5,10 @@ const betFile = require('./betFile') //module to display bet information
 const recapFile = require('./recapFile') //module to display summary and balance information
 const checker = require('./checkInput') //module to check input before sending invocation transaction
 const handler = require('./handleFile') //module to handle responses from nos promises
-import { u, wallet } from '@cityofzion/neon-js';
-import { str2hexstring, int2hex, hexstring2str } from '@cityofzion/neon-js/src/utils'
-import {unhexlify,hexlify} from 'binascii';
+console.log('test')
+//import { u, wallet } from '@cityofzion/neon-js';
+//import { str2hexstring, int2hex, hexstring2str } from '@cityofzion/neon-js/src/utils'
+//import {unhexlify,hexlify} from 'binascii';
 const address = unhexlify(u.reverseHex(wallet.getScriptHashFromAddress('AK2nJJpJr6o664CWJKi1QRXjqeic2zRp8y')))
 const scriptHash = '802d0d88b57bd0a4a32289fc3a2a2a2b7fa4be58';
 
