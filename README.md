@@ -167,7 +167,11 @@ Shows the current block height
 - The dApp is coded in Vanilla javascript and Jquery, I'm learning Vue.js in order to rewrite the code in a second moment
 - Since this is just a PoC to see how the dApp works and I'm still learning how to manage verification scripts, send tokens and withdraw tokens, for this moment the smartcontract uses the storage as a database of all fictional transactions in order to have a total balance for each player. In future I'm going to implement real transactions of tokens to and from the smartcontract.
 - I'm thinking to store all data using IPFS in order to have only to save the hashes into the storage
-
-
+- Coded and tested using:
+  * neo-python == 0.6.9
+  * neo-boa == 0.4.2
+  * nOs/client == 0.1.0
+  * neo-core == 0.4.6
+  * neo-privnet-with-gas and neo-scan [here](https://github.com/slipo/neo-scan-docker)
 
 
