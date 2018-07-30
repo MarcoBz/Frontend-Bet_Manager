@@ -5,7 +5,6 @@ const betFile = require('./betFile') //module to display bet information
 const recapFile = require('./recapFile') //module to display summary and balance information
 const checker = require('./checkInput') //module to check input before sending invocation transaction
 const handler = require('./handleFile') //module to handle responses from nos promises
-console.log('test')
 import { u, wallet } from '@cityofzion/neon-js';
 import { str2hexstring, int2hex, hexstring2str } from '@cityofzion/neon-js/src/utils'
 import {unhexlify,hexlify} from 'binascii';
