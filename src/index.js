@@ -110,12 +110,27 @@ $(document).ready(function (){
 				balanceButton.value = "Balance"
 				balanceButton.id = "balanceButton"
 				tableElement.appendChild(balanceButton)
+				let docButton = document.createElement("input")
+				docButton.type = "button"
+				docButton.className = "btn btn-outline-primary bg-light"
+				docButton.value = "Documentation"
+				docButton.id = "docButton"
+				tableElement.appendChild(docButton)
 				document.getElementById('createGroup').appendChild(tableElement)
 			}
 			else{
 				$('#chooseGroup').html("</div> You have to login <div>")
 			}
 		})
+
+	//show documentation
+	$('#chooseGroup').on("click",".groupButton", function (){
+		$("#recap").empty()
+		$("#main").empty()
+		$("#side").empty()
+		$("#recap").load("doc.html")
+	});
+
 
 	//show group details
 	$('#chooseGroup').on("click",".groupButton", function (){
