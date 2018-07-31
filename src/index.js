@@ -1,10 +1,10 @@
-const des = require('./deserialize') //module to deserialize bytearray from the storage
+const des = require(['./deserialize']) //module to deserialize bytearray from the storage
 require('babel-polyfill')
-const groupFile = require('./groupFile') //module to display group information
-const betFile = require('./betFile') //module to display bet information
-const recapFile = require('./recapFile') //module to display summary and balance information
-const checker = require('./checkInput') //module to check input before sending invocation transaction
-const handler = require('./handleFile') //module to handle responses from nos promises
+const groupFile = require(]'./groupFile']) //module to display group information
+const betFile = require(['./betFile']) //module to display bet information
+const recapFile = require(['./recapFile']) //module to display summary and balance information
+const checker = require(['./checkInput']) //module to check input before sending invocation transaction
+const handler = require(['./handleFile']) //module to handle responses from nos promises
 //import { u, wallet } from '../node_modules/@cityofzion/neon-js.js';
 //import { str2hexstring, int2hex, hexstring2str } from '../node_modules/@cityofzion/neon-js/src/utils.js'
 //import {unhexlify,hexlify} from '../node_modules/binascii.js';
