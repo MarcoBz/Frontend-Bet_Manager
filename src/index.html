@@ -4,9 +4,7 @@
     <link rel="stylesheet" href="./style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/css/bootstrap.css">
     <title>NEO BET MANAGER</title>
-    <h1 class = "text-center">NEO BET MANAGER</h1>
-    <div  id = "chooseGroup" class = "row"></div>
-    <div  id = "createGroup" class = "row"></div>
+
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">  
   </head>
@@ -14,12 +12,34 @@
     <noscript>
       You need to enable JavaScript to run this app.
     </noscript>
-    <div id="dApp" class = "row">
-    <div id="recap" class = "col col-12"></div>
-    <div id="main" class = "col col-6"></div>
-    <div id="side" class = "col col-6"></div>
+
+    <div id="header" class="headerPage" style="position:absolute; top:0px; height:160px; overflow:hidden;"> 
+      <h1 class = "text-center text-success" >NEO BET MANAGER</h1>
+      <div  id = "chooseGroup" class = "row"></div>
+      <div  id = "createGroup" class = "row"></div>
+    </div> 
+
+  
+    <div id="dApp" class = "row contentPage" style="position:absolute; top:160px; bottom:50px; overflow:auto;">
+      <div id="recap" class = "col col-12"></div>
+      <div id="main" class = "col col-6"></div>
+      <div id="side" class = "col col-6"></div>
     </div>
+
+    <div id="footer" class="row footerPage" style="position:absolute; bottom:0px; height:50px; overflow:hidden;"> 
+      <div class="col col-2 text-center">
+        Created by MarcoBz
+      </div>
+      <div class="col col-2 text-center">
+        Powered by nOs
+      </div>
+      <div class="col col-8 text-center">
+        bet-manager on Github : <a href = "https://github.com/MarcoBz/Frontend-Bet_Manager">https://github.com/MarcoBz/Frontend-Bet_Manager</a>
+      </div>
+    </div>  
+
   </body>
+
 </html>
 <script src = "https://code.jquery.com/jquery-1.12.4.min.js"></script>
 <script src="./index.js"></script>

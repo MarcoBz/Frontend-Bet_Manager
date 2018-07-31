@@ -11,7 +11,23 @@
 }
 
 .notify{
-  margin: auto;
+  margin : auto;
+}
+
+.footerPage{
+  position: fixed;
+  bottom : 0;
+  width : 100%;
+  background-color: #ccffb3;
+}
+
+.contentPage{
+  width : 100%;
+}
+
+.headerPage{
+  width : 100%;
+  background-color: #f3f1f2;
 }
 
 .glyphicon-refresh-animate {

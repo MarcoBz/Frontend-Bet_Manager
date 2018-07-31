@@ -74,7 +74,7 @@ function handleConfirmationTime(txid){
 		}
 		else{
 			let transaction = new XMLHttpRequest()
-			transaction.open('GET', 'http://localhost:4000//api/main_net/v1/get_transaction/' + txid,true)
+			transaction.open('GET', 'https://localhost:4000//api/main_net/v1/get_transaction/' + txid,true)
 			transaction.onload = function(){ 
 				let transactionData = JSON.parse(this.response); 
 				notifyProgress.className += " text-center"
@@ -129,7 +129,7 @@ function handleInvocation(err){
 //Get the block height from neo scan API
 function getBlock(){
 	let height = new XMLHttpRequest()
-	height.open('GET', 'http://localhost:4000//api/main_net/v1/get_height',true)
+	height.open('GET', 'https://localhost:4000//api/main_net/v1/get_height',true)
 	let currentBlockHeight
 	height.onload = function(){ 
 		let data = JSON.parse(this.response); 
