@@ -11,7 +11,7 @@ import {unhexlify,hexlify} from 'binascii';
 const address = unhexlify(u.reverseHex(wallet.getScriptHashFromAddress('AK2nJJpJr6o664CWJKi1QRXjqeic2zRp8y')))
 const scriptHash = '802d0d88b57bd0a4a32289fc3a2a2a2b7fa4be58';
 
-// const nos = window.NOS.V1;
+const nos = window.NOS.V1;
 
 //index page 
 
@@ -86,6 +86,7 @@ $(document).ready(function (){
 				$('#chooseGroup').html("</div> You have to login <div>")
 			}
 		})
+	
 	let createNewElement = document.createElement("div")
 	createNewElement.className = "createElement col-6"
 	let createButton = document.createElement("input")
