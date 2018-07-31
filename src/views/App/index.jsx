@@ -34,9 +34,6 @@ const App = ({ classes }) => (
     </p>
     <p className={classes.intro}>Or test out the following demo functions!</p>
     <hr className={classes.lineBreak} />
-    <script>
-    console.log('diocane')
-    </script>
     <NOSActions />
   </div>
 );
