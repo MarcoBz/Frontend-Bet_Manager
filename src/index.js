@@ -111,11 +111,6 @@ $(document).ready(function (){
 				balanceButton.id = "balanceButton"
 				tableElement.appendChild(balanceButton)
 				let docButton = document.createElement("input")
-				docButton.type = "button"
-				docButton.className = "btn btn-outline-primary bg-light"
-				docButton.value = "Documentation"
-				docButton.id = "docButton"
-				tableElement.appendChild(docButton)
 				document.getElementById('createGroup').appendChild(tableElement)
 			}
 			else{
