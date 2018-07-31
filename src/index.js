@@ -11,7 +11,7 @@ import {unhexlify,hexlify} from 'binascii';
 const address = unhexlify(u.reverseHex(wallet.getScriptHashFromAddress('AK2nJJpJr6o664CWJKi1QRXjqeic2zRp8y')))
 const scriptHash = '802d0d88b57bd0a4a32289fc3a2a2a2b7fa4be58';
 
-const nos = window.NOS.V1;
+// const nos = window.NOS.V1;
 
 //index page 
 
@@ -81,42 +81,41 @@ $(document).ready(function (){
 						});
 
 					})
-					
-				let createNewElement = document.createElement("div")
-				createNewElement.className = "createElement col-6"
-				let createButton = document.createElement("input")
-				createButton.id = "createGroupButton"
-				createButton.type = "button"
-				createButton.className = "btn btn-outline-primary"
-				createButton.value = "Create new group"
-				createNewElement.appendChild(createButton)
-				let getBlock = document.createElement("input")
-				getBlock.id = "getBlockButton"
-				getBlock.type = "button"
-				getBlock.className = "btn btn-outline-primary"
-				getBlock.value = "Get current block"
-				createNewElement.appendChild(getBlock)
-				document.getElementById('createGroup').appendChild(createNewElement)
-				let tableElement = document.createElement("div")
-				tableElement.className = "tableElement col-6"
-				let tableButton = document.createElement("input")
-				tableButton.type = "button"
-				tableButton.className = "btn btn-outline-primary"
-				tableButton.value = "Recap"
-				tableButton.id = "recapButton"
-				tableElement.appendChild(tableButton)
-				let balanceButton = document.createElement("input")
-				balanceButton.type = "button"
-				balanceButton.className = "btn btn-outline-primary"
-				balanceButton.value = "Balance"
-				balanceButton.id = "balanceButton"
-				tableElement.appendChild(balanceButton)
-				document.getElementById('createGroup').appendChild(tableElement)
 			}
 			else{
 				$('#chooseGroup').html("</div> You have to login <div>")
 			}
 		})
+	let createNewElement = document.createElement("div")
+	createNewElement.className = "createElement col-6"
+	let createButton = document.createElement("input")
+	createButton.id = "createGroupButton"
+	createButton.type = "button"
+	createButton.className = "btn btn-outline-primary"
+	createButton.value = "Create new group"
+	createNewElement.appendChild(createButton)
+	let getBlock = document.createElement("input")
+	getBlock.id = "getBlockButton"
+	getBlock.type = "button"
+	getBlock.className = "btn btn-outline-primary"
+	getBlock.value = "Get current block"
+	createNewElement.appendChild(getBlock)
+	document.getElementById('createGroup').appendChild(createNewElement)
+	let tableElement = document.createElement("div")
+	tableElement.className = "tableElement col-6"
+	let tableButton = document.createElement("input")
+	tableButton.type = "button"
+	tableButton.className = "btn btn-outline-primary"
+	tableButton.value = "Recap"
+	tableButton.id = "recapButton"
+	tableElement.appendChild(tableButton)
+	let balanceButton = document.createElement("input")
+	balanceButton.type = "button"
+	balanceButton.className = "btn btn-outline-primary"
+	balanceButton.value = "Balance"
+	balanceButton.id = "balanceButton"
+	tableElement.appendChild(balanceButton)
+	document.getElementById('createGroup').appendChild(tableElement)
 
 	//show group details
 	$('#chooseGroup').on("click",".groupButton", function (){
